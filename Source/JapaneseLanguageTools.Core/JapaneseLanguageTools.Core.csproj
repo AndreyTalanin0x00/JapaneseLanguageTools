@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\JapaneseLanguageTools.Contracts\JapaneseLanguageTools.Contracts.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Contracts.Json\JapaneseLanguageTools.Contracts.Json.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Contracts.Xml\JapaneseLanguageTools.Contracts.Xml.csproj" />
