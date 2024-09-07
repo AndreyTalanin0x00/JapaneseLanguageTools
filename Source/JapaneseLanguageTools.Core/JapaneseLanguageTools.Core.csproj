@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" PackageId="AutoMapper" Reason="Unable to upgrade (commercial license), a fix through configuration is available." />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Do not update AutoMapper to version 15.x, it has moved to a commercial license. -->
+    <PackageReference Include="AutoMapper" Version="[14.0.0]" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.10" />
   </ItemGroup>
