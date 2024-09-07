@@ -27,9 +27,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" PackageId="AutoMapper" Reason="Unable to upgrade (commercial license), a fix through configuration is available." />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AndreyTalanin0x00.AspNetCore.Hosting" Version="0.1.0-rc1" />
     <PackageReference Include="AndreyTalanin0x00.AspNetCore.SpaServices" Version="0.1.0-rc1" />
     <PackageReference Include="AndreyTalanin0x00.Extensions.DependencyInjection" Version="0.1.0-rc1" />
+    <!-- Do not update AutoMapper to version 15.x, it has moved to a commercial license. -->
+    <PackageReference Include="AutoMapper" Version="[14.0.0]" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.21" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
