@@ -55,6 +55,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JapaneseLanguageTools.Contracts.UnitTests", "Tests\JapaneseLanguageTools.Contracts.UnitTests\JapaneseLanguageTools.Contracts.UnitTests.csproj", "{039D8A51-F533-4D4D-A822-55FF4212B2A0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Solution Items", "6. Solution Items", "{D81DBDD9-9146-495B-9A9A-9CDF298970BD}"
+	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+		..\LICENSE.md = ..\LICENSE.md
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
