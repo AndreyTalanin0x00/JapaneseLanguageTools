@@ -1,0 +1,16 @@
+<Project>
+
+  <Sdk Name="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JapaneseLanguageTools.Contracts\JapaneseLanguageTools.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

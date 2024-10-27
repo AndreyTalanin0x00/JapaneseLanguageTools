@@ -1,0 +1,22 @@
+<Project>
+
+  <Sdk Name="Microsoft.VisualStudio.JavaScript.Sdk" Version="1.0.1870095" />
+
+  <PropertyGroup>
+    <BuildCommand>npm run build</BuildCommand>
+    <StartupCommand>npm run start</StartupCommand>
+    <TestCommand>npm run test</TestCommand>
+    <CleanCommand>npm run clean</CleanCommand>
+    <PublishCommand>npm run publish</PublishCommand>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <!-- Allows the Node.js packages to be restored on build. -->
+    <ShouldRunNpmInstall>true</ShouldRunNpmInstall>
+    <!-- Allows the build (or compile) script located on package.json to run on build. -->
+    <ShouldRunBuildScript>true</ShouldRunBuildScript>
+    <!-- Folder where production build objects will be placed. -->
+    <PublishAssetsDirectory>$(MSBuildProjectDirectory)\build</PublishAssetsDirectory>
+    <!-- Ignore the build output folder. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);build\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+</Project>
