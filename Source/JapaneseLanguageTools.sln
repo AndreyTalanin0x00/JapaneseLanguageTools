@@ -2,6 +2,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Applications", "1. Applications", "{D0760DF3-6A6E-4CF6-A202-6818A946B549}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Node.js Applications", "2. Node.js Applications", "{1DBEFB56-70A1-4A16-BDC3-440EFCA94CBD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Class Libraries", "3. Class Libraries", "{211EF899-B8FF-4A1C-B057-E1F5334B3396}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Packages", "4. Packages", "{1515D649-1AF0-463A-A63E-8F25A2C0289A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. Test Libraries", "5. Test Libraries", "{555EA57F-5CC0-40A9-9FA6-5B327F67871A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.1. Application Tests", "5.1. Application Tests", "{BDFD6877-2A03-40F4-831C-88278E1B0474}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.2. Class Library Tests", "5.2. Class Library Tests", "{54C11972-F498-47E3-BF42-40C655953384}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.3. Package Tests", "5.3. Package Tests", "{D4FE6961-F70F-42E3-963D-B210661B9984}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Solution Items", "6. Solution Items", "{D81DBDD9-9146-495B-9A9A-9CDF298970BD}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JapaneseLanguageTools", "JapaneseLanguageTools\JapaneseLanguageTools.csproj", "{5E99D370-B70B-4D67-9491-91277E53AEFC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JapaneseLanguageTools.IntegrationTests", "Tests\JapaneseLanguageTools.IntegrationTests\JapaneseLanguageTools.IntegrationTests.csproj", "{FAD0920A-5599-44D3-9243-2073972D4A3C}"
@@ -121,6 +139,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BDFD6877-2A03-40F4-831C-88278E1B0474} = {555EA57F-5CC0-40A9-9FA6-5B327F67871A}
+		{54C11972-F498-47E3-BF42-40C655953384} = {555EA57F-5CC0-40A9-9FA6-5B327F67871A}
+		{D4FE6961-F70F-42E3-963D-B210661B9984} = {555EA57F-5CC0-40A9-9FA6-5B327F67871A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE956DF8-D375-4BFB-AD74-8D8DA2A15C7D}
