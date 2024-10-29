@@ -63,6 +63,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Solution Items", "6. Sol
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{C14A04EE-93B3-4E65-814C-948028F1965A}"
+	ProjectSection(SolutionItems) = preProject
+		JapaneseLanguageTools.Data.Sqlite\Schema.Sqlite.dbml = JapaneseLanguageTools.Data.Sqlite\Schema.Sqlite.dbml
+		JapaneseLanguageTools.Data.SqlServer\Schema.SqlServer.dbml = JapaneseLanguageTools.Data.SqlServer\Schema.SqlServer.dbml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -169,6 +175,7 @@ Global
 		{748257DB-EB08-4594-B3E7-00ED6A888A49} = {54C11972-F498-47E3-BF42-40C655953384}
 		{D4FE6961-F70F-42E3-963D-B210661B9984} = {555EA57F-5CC0-40A9-9FA6-5B327F67871A}
 		{039D8A51-F533-4D4D-A822-55FF4212B2A0} = {D4FE6961-F70F-42E3-963D-B210661B9984}
+		{C14A04EE-93B3-4E65-814C-948028F1965A} = {D81DBDD9-9146-495B-9A9A-9CDF298970BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE956DF8-D375-4BFB-AD74-8D8DA2A15C7D}
