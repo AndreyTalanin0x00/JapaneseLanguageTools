@@ -31,8 +31,8 @@
     <PackageReference Include="AndreyTalanin0x00.AspNetCore.SpaServices" Version="0.1.0-rc1" />
     <PackageReference Include="AndreyTalanin0x00.Extensions.DependencyInjection" Version="0.1.0-rc1" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.21" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
