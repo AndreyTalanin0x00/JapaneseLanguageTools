@@ -1,0 +1,49 @@
+.application {
+  min-height: 100vh;
+}
+
+.applicationHeader {
+  padding: 0px 24px;
+}
+
+.applicationTitle {
+  float: left;
+  margin: 0px 24px 0px 0px;
+}
+
+.applicationTitleText {
+  color: #ffffff;
+}
+
+.applicationSider {
+  width: 240px;
+  background: #ffffff;
+}
+
+.applicationBreadcrumb {
+  margin: 16px 0px;
+}
+
+.applicationBreadcrumbMobile {
+  margin: 16px 0px;
+  padding: 0px 24px 0px;
+}
+
+.applicationPageWrapper {
+  padding: 0px 24px 0px;
+}
+
+.applicationPageWrapperMobile {
+  padding: 0px;
+}
+
+.applicationPageWrapperContent {
+  margin: 0px;
+  padding: 24px;
+  background: #ffffff;
+}
+
+.applicationFooter {
+  padding: 24px 50px;
+  text-align: center;
+}

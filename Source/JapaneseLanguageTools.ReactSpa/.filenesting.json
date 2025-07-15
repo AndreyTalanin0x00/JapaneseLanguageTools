@@ -1,0 +1,24 @@
+{
+  "root": true,
+  "help": "https://go.microsoft.com/fwlink/?linkid=866610",
+  "dependentFileProviders": {
+    "add": {
+      "addedExtension": {},
+      "extensionToExtension": {
+        "add": {
+          ".test.js": [".js"],
+          ".test.jsx": [".jsx"],
+          ".test.ts": [".ts"],
+          ".test.tsx": [".tsx"],
+          ".module.css": [".jsx", ".tsx"],
+          ".css": [".jsx", ".tsx"]
+        }
+      },
+      "fileToFile": {
+        "add": {
+          "package-lock.json": ["package.json"]
+        }
+      }
+    }
+  }
+}
