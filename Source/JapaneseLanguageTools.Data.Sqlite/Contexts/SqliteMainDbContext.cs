@@ -1,5 +1,3 @@
-using System;
-
 using JapaneseLanguageTools.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +10,12 @@ public class SqliteMainDbContext : MainDbContext
     public SqliteMainDbContext()
         : base()
     {
-        throw new NotImplementedException();
     }
 
     [ActivatorUtilitiesConstructor]
     public SqliteMainDbContext(DbContextOptions<SqliteMainDbContext> contextOptions)
         : base(contextOptions)
     {
-        throw new NotImplementedException();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
