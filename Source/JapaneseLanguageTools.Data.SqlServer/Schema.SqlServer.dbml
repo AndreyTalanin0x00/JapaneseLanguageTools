@@ -1,0 +1,319 @@
+// ================================================================================
+// Create an online diagram: https://dbdiagram.io/home
+// Powered by the DBML language, see https://dbml.dbdiagram.io/home for syntax and capabilities.
+// ================================================================================
+
+
+// ================================================================================
+//  Tag
+//
+//  Tables:
+//      dbo.Tag - Entity
+// ================================================================================
+
+Table "dbo"."Tag" {
+    "Id" int [primary key, not null]
+    "Caption" nvarchar(256) [not null]
+    "PlaceholderMarker" nvarchar(2048) [null]
+    "CreatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "UpdatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_Tag" [primary key constraint]
+    //      "AK_Tag_Caption" [alternate key constraint, columns: ("Caption")]
+    //      "DF_Tag_CreatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "CreatedOn"]
+    //      "DF_Tag_UpdatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "UpdatedOn"]
+    //      "CK_Tag_Caption_NotEmpty" [check constraint, sql: "LEN(TRIM([Caption])) > 0"]
+    //      "CK_Tag_PlaceholderMarker_NullOrNotEmpty" [check constraint, sql: "[PlaceholderMarker] IS NULL OR LEN(TRIM([PlaceholderMarker])) > 0"]
+    //  }
+
+    Indexes {
+        "Caption" [name: "UIX_Tag_Caption", unique]
+    }
+}
+
+
+// ================================================================================
+//  Character
+//
+//  Tables:
+//      dbo.Character - Entity
+//      dbo.CharacterGroup - Entity
+//      dbo.CharacterExercise - Entity
+//      dbo.CharacterExerciseRerun - Entity
+//      dbo.CharacterTag - Relationship
+// ================================================================================
+
+Table "dbo"."Character" {
+    "Id" int [primary key, not null]
+    "CharacterGroupId" int [null]
+    "Symbol" nvarchar(16) [not null]
+    "Type" int [not null]
+    "Pronunciation" nvarchar(32) [null]
+    "Syllable" nvarchar(32) [null]
+    "Onyomi" nvarchar(256) [null]
+    "Kunyomi" nvarchar(256) [null]
+    "Meaning" nvarchar(512) [null]
+    "CreatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "UpdatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_Character" [primary key constraint]
+    //      "FK_Character_CharacterGroup_CharacterGroupId" [foreign key constraint]
+    //      "DF_Character_CreatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "CreatedOn"]
+    //      "DF_Character_UpdatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "UpdatedOn"]
+    //      "CK_Character_Symbol_NotEmpty" [check constraint, sql: "LEN(TRIM([Symbol])) > 0"]
+    //      "CK_Character_Pronunciation_NullOrNotEmpty" [check constraint, sql: "[Pronunciation] IS NULL OR LEN(TRIM([Pronunciation])) > 0"]
+    //      "CK_Character_Syllable_NullOrNotEmpty" [check constraint, sql: "[Syllable] IS NULL OR LEN(TRIM([Syllable])) > 0"]
+    //      "CK_Character_Onyomi_NullOrNotEmpty" [check constraint, sql: "[Onyomi] IS NULL OR LEN(TRIM([Onyomi])) > 0"]
+    //      "CK_Character_Kunyomi_NullOrNotEmpty" [check constraint, sql: "[Kunyomi] IS NULL OR LEN(TRIM([Kunyomi])) > 0"]
+    //      "CK_Character_Meaning_NullOrNotEmpty" [check constraint, sql: "[Meaning] IS NULL OR LEN(TRIM([Meaning])) > 0"]
+    //  }
+
+    Indexes {
+        "CharacterGroupId" [name: "IX_Character_CharacterGroupId"]
+    }
+}
+
+Ref "FK_Character_CharacterGroup_CharacterGroupId" {
+    "dbo"."Character"."CharacterGroupId" > "dbo"."CharacterGroup"."Id"
+}
+
+Table "dbo"."CharacterGroup" {
+    "Id" int [primary key, not null]
+    "Caption" nvarchar(256) [not null]
+    "Comment" nvarchar(2048) [null]
+    "Enabled" int [not null]
+    "AlwaysUse" int [not null]
+    "Hidden" int [not null]
+    "CreatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "UpdatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_CharacterGroup" [primary key constraint]
+    //      "AK_CharacterGroup_Caption" [alternate key constraint, columns: ("Caption")]
+    //      "DF_CharacterGroup_CreatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "CreatedOn"]
+    //      "DF_CharacterGroup_UpdatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "UpdatedOn"]
+    //      "CK_CharacterGroup_Caption_NotEmpty" [check constraint, sql: "LEN(TRIM([Caption])) > 0"]
+    //      "CK_CharacterGroup_Comment_NullOrNotEmpty" [check constraint, sql: "[Comment] IS NULL OR LEN(TRIM([Comment])) > 0"]
+    //  }
+
+    Indexes {
+        "Caption" [name: "UIX_CharacterGroup_Caption", unique]
+    }
+}
+
+Table "dbo"."CharacterExercise" {
+    "Id" int [primary key, not null]
+    "CharacterId" int [null]
+    "InstanceData" nvarchar(2048) [null]
+    "GeneratedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_CharacterExercise" [primary key constraint]
+    //      "FK_CharacterExercise_Character_CharacterId" [foreign key constraint]
+    //      "CK_CharacterExercise_InstanceData_NullOrNotEmpty" [check constraint, sql: "[InstanceData] IS NULL OR LEN(TRIM([InstanceData])) > 0"]
+    //  }
+
+    Indexes {
+        "CharacterId" [name: "IX_CharacterExercise_CharacterId"]
+    }
+}
+
+Ref "FK_CharacterExercise_Character_CharacterId" {
+    "dbo"."CharacterExercise"."CharacterId" > "dbo"."Character"."Id"
+}
+
+Table "dbo"."CharacterExerciseRerun" {
+    "Id" int [primary key, not null]
+    "CharacterExerciseId" int [null]
+    "RequiredChallengeCount" int [not null]
+    "ContinuousChallengeCount" int [not null, default: 0]
+    "TotalChallengeCount" int [not null, default: 0]
+    "InitiallyScheduledOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "RepeatedlyScheduledOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_CharacterExerciseRerun" [primary key constraint]
+    //      "FK_CharacterExerciseRerun_CharacterExercise_CharacterExerciseId" [foreign key constraint]
+    //      "DF_CharacterExerciseRerun_ContinuousChallengeCount" [default constraint, sql: "0", column: "ContinuousChallengeCount"]
+    //      "DF_CharacterExerciseRerun_TotalChallengeCount" [default constraint, sql: "0", column: "TotalChallengeCount"]
+    //      "CK_CharacterExerciseRerun_RequiredChallengeCount_NotNegative" [check constraint, sql: "[RequiredChallengeCount] >= 0"]
+    //      "CK_CharacterExerciseRerun_ContinuousChallengeCount_NotNegative" [check constraint, sql: "[ContinuousChallengeCount] >= 0"]
+    //      "CK_CharacterExerciseRerun_TotalChallengeCount_NotNegative" [check constraint, sql: "[TotalChallengeCount] >= 0"]
+    //  }
+
+    Indexes {
+        "CharacterExerciseId" [name: "IX_CharacterExerciseRerun_CharacterExerciseId"]
+    }
+}
+
+Ref "FK_CharacterExerciseRerun_CharacterExercise_CharacterExerciseId" {
+    "dbo"."CharacterExerciseRerun"."CharacterExerciseId" > "dbo"."CharacterExercise"."Id"
+}
+
+Table "dbo"."CharacterTag" {
+    "CharacterId" int [primary key, not null]
+    "TagId" int [primary key, not null]
+
+    //  Constraints {
+    //      "PK_CharacterTag" [primary key constraint]
+    //      "FK_CharacterTag_Character_CharacterId" [foreign key constraint]
+    //      "FK_CharacterTag_Tag_TagId" [foreign key constraint]
+    //  }
+
+    Indexes {
+        "CharacterId" [name: "IX_CharacterTag_CharacterId"]
+        "TagId" [name: "IX_CharacterTag_TagId"]
+    }
+}
+
+Ref "FK_CharacterTag_Character_CharacterId" {
+    "dbo"."CharacterTag"."CharacterId" > "dbo"."Character"."Id"
+}
+
+Ref "FK_CharacterTag_Tag_TagId" {
+    "dbo"."CharacterTag"."TagId" > "dbo"."Tag"."Id"
+}
+
+
+// ================================================================================
+//  Word
+//
+//  Tables:
+//      dbo.Word - Entity
+//      dbo.WordGroup - Entity
+//      dbo.WordExercise - Entity
+//      dbo.WordExerciseRerun - Entity
+//      dbo.WordTag - Relationship
+// ================================================================================
+
+Table "dbo"."Word" {
+    "Id" int [primary key, not null]
+    "WordGroupId" int [null]
+    "Characters" nvarchar(256) [not null]
+    "CharacterTypes" int [not null]
+    "Pronunciation" nvarchar(512) [null]
+    "Furigana" nvarchar(512) [null]
+    "Okurigana" nvarchar(512) [null]
+    "Meaning" nvarchar(512) [null]
+    "CreatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "UpdatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_Word" [primary key constraint]
+    //      "FK_Word_WordGroup_WordGroupId" [foreign key constraint]
+    //      "DF_Word_CreatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "CreatedOn"]
+    //      "DF_Word_UpdatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "UpdatedOn"]
+    //      "CK_Word_Characters_NotEmpty" [check constraint, sql: "LEN(TRIM([Characters])) > 0"]
+    //      "CK_Word_Pronunciation_NullOrNotEmpty" [check constraint, sql: "[Pronunciation] IS NULL OR LEN(TRIM([Pronunciation])) > 0"]
+    //      "CK_Word_Furigana_NullOrNotEmpty" [check constraint, sql: "[Furigana] IS NULL OR LEN(TRIM([Furigana])) > 0"]
+    //      "CK_Word_Okurigana_NullOrNotEmpty" [check constraint, sql: "[Okurigana] IS NULL OR LEN(TRIM([Okurigana])) > 0"]
+    //      "CK_Word_Meaning_NullOrNotEmpty" [check constraint, sql: "[Meaning] IS NULL OR LEN(TRIM([Meaning])) > 0"]
+    //  }
+
+    Indexes {
+        "WordGroupId" [name: "IX_Word_WordGroupId"]
+    }
+}
+
+Ref "FK_Word_WordGroup_WordGroupId" {
+    "dbo"."Word"."WordGroupId" > "dbo"."WordGroup"."Id"
+}
+
+Table "dbo"."WordGroup" {
+    "Id" int [primary key, not null]
+    "Caption" nvarchar(256) [not null]
+    "Comment" nvarchar(2048) [null]
+    "Enabled" int [not null]
+    "AlwaysUse" int [not null]
+    "Hidden" int [not null]
+    "CreatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "UpdatedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_WordGroup" [primary key constraint]
+    //      "AK_WordGroup_Caption" [alternate key constraint, columns: ("Caption")]
+    //      "DF_WordGroup_CreatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "CreatedOn"]
+    //      "DF_WordGroup_UpdatedOn" [default constraint, sql: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')", column: "UpdatedOn"]
+    //      "CK_WordGroup_Caption_NotEmpty" [check constraint, sql: "LEN(TRIM([Caption])) > 0"]
+    //      "CK_WordGroup_Comment_NullOrNotEmpty" [check constraint, sql: "[Comment] IS NULL OR LEN(TRIM([Comment])) > 0"]
+    //  }
+
+    Indexes {
+        "Caption" [name: "UIX_WordGroup_Caption", unique]
+    }
+}
+
+Table "dbo"."WordExercise" {
+    "Id" int [primary key, not null]
+    "WordId" int [null]
+    "InstanceData" nvarchar(2048) [null]
+    "GeneratedOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_WordExercise" [primary key constraint]
+    //      "FK_WordExercise_Word_WordId" [foreign key constraint]
+    //      "CK_WordExercise_InstanceData_NullOrNotEmpty" [check constraint, sql: "[InstanceData] IS NULL OR LEN(TRIM([InstanceData])) > 0"]
+    //  }
+
+    Indexes {
+        "WordId" [name: "IX_WordExercise_WordId"]
+    }
+}
+
+Ref "FK_WordExercise_Word_WordId" {
+    "dbo"."WordExercise"."WordId" > "dbo"."Word"."Id"
+}
+
+Table "dbo"."WordExerciseRerun" {
+    "Id" int [primary key, not null]
+    "WordExerciseId" int [null]
+    "RequiredChallengeCount" int [not null]
+    "ContinuousChallengeCount" int [not null, default: 0]
+    "TotalChallengeCount" int [not null, default: 0]
+    "InitiallyScheduledOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+    "RepeatedlyScheduledOn" datetimeoffset [not null, default: "SWITCHOFFSET(SYSDATETIMEOFFSET(), '+00:00')"]
+
+    //  Constraints {
+    //      "PK_WordExerciseRerun" [primary key constraint]
+    //      "FK_WordExerciseRerun_WordExercise_WordExerciseId" [foreign key constraint]
+    //      "DF_WordExerciseRerun_ContinuousChallengeCount" [default constraint, sql: "0", column: "ContinuousChallengeCount"]
+    //      "DF_WordExerciseRerun_TotalChallengeCount" [default constraint, sql: "0", column: "TotalChallengeCount"]
+    //      "CK_WordExerciseRerun_RequiredChallengeCount_NotNegative" [check constraint, sql: "[RequiredChallengeCount] >= 0"]
+    //      "CK_WordExerciseRerun_ContinuousChallengeCount_NotNegative" [check constraint, sql: "[ContinuousChallengeCount] >= 0"]
+    //      "CK_WordExerciseRerun_TotalChallengeCount_NotNegative" [check constraint, sql: "[TotalChallengeCount] >= 0"]
+    //  }
+
+    Indexes {
+        "WordExerciseId" [name: "IX_WordExerciseRerun_WordExerciseId"]
+    }
+}
+
+Ref "FK_WordExerciseRerun_WordExercise_WordExerciseId" {
+    "dbo"."WordExerciseRerun"."WordExerciseId" > "dbo"."WordExercise"."Id"
+}
+
+Table "dbo"."WordTag" {
+    "WordId" int [primary key, not null]
+    "TagId" int [primary key, not null]
+
+    //  Constraints {
+    //      "PK_WordTag" [primary key constraint]
+    //      "FK_WordTag_Word_WordId" [foreign key constraint]
+    //      "FK_WordTag_Tag_TagId" [foreign key constraint]
+    //  }
+
+    Indexes {
+        "WordId" [name: "IX_WordTag_WordId"]
+        "TagId" [name: "IX_WordTag_TagId"]
+    }
+}
+
+Ref "FK_WordTag_Word_WordId" {
+    "dbo"."WordTag"."WordId" > "dbo"."Word"."Id"
+}
+
+Ref "FK_WordTag_Tag_TagId" {
+    "dbo"."WordTag"."TagId" > "dbo"."Tag"."Id"
+}
