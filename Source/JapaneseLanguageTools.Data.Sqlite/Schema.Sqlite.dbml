@@ -1,0 +1,321 @@
+// ================================================================================
+// Create an online diagram: https://dbdiagram.io/home
+// Powered by the DBML language, see https://dbml.dbdiagram.io/home for syntax and capabilities.
+// ================================================================================
+
+
+// ================================================================================
+//  Tag
+//
+//  Tables:
+//      Tag - Entity
+// ================================================================================
+
+Table "Tag" {
+    "Id" integer [primary key, not null]
+    "Caption" text [not null]
+    "PlaceholderMarker" text [null]
+    "CreatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "UpdatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_Tag" [primary key constraint]
+    //      "CK_Tag_Caption_NotEmpty" [check constraint, sql: "LENGTH(TRIM(\"Caption\")) > 0"]
+    //      "CK_Tag_Caption_MaxLength" [check constraint, sql: "LENGTH(TRIM(\"Caption\")) <= 256"]
+    //      "CK_Tag_PlaceholderMarker_NullOrNotEmpty" [check constraint, sql: "\"PlaceholderMarker\" IS NULL OR LENGTH(TRIM(\"PlaceholderMarker\")) > 0"]
+    //      "CK_Tag_PlaceholderMarker_NullOrMaxLength" [check constraint, sql: "\"PlaceholderMarker\" IS NULL OR LENGTH(TRIM(\"PlaceholderMarker\")) <= 2048"]
+    //  }
+
+    Indexes {
+        "Caption" [name: "UIX_Tag_Caption", unique]
+    }
+}
+
+
+// ================================================================================
+//  Character
+//
+//  Tables:
+//      Character - Entity
+//      CharacterGroup - Entity
+//      CharacterExercise - Entity
+//      CharacterExerciseRerun - Entity
+//      CharacterTag - Relationship
+// ================================================================================
+
+Table "Character" {
+    "Id" integer [primary key, not null]
+    "CharacterGroupId" integer [null]
+    "Symbol" text [not null]
+    "Type" integer [not null]
+    "Pronunciation" text [null]
+    "Syllable" text [null]
+    "Onyomi" text [null]
+    "Kunyomi" text [null]
+    "Meaning" text [null]
+    "CreatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "UpdatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_Character" [primary key constraint]
+    //      "FK_Character_CharacterGroup_CharacterGroupId" [foreign key constraint]
+    //      "CK_Character_Symbol_NotEmpty" [check constraint, sql: "LENGTH(TRIM(\"Symbol\")) > 0"]
+    //      "CK_Character_Symbol_MaxLength" [check constraint, sql: "LENGTH(TRIM(\"Symbol\")) <= 16"]
+    //      "CK_Character_Pronunciation_NullOrNotEmpty" [check constraint, sql: "\"Pronunciation\" IS NULL OR LENGTH(TRIM(\"Pronunciation\")) > 0"]
+    //      "CK_Character_Pronunciation_NullOrMaxLength" [check constraint, sql: "\"Pronunciation\" IS NULL OR LENGTH(TRIM(\"Pronunciation\")) <= 32"]
+    //      "CK_Character_Syllable_NullOrNotEmpty" [check constraint, sql: "\"Syllable\" IS NULL OR LENGTH(TRIM(\"Syllable\")) > 0"]
+    //      "CK_Character_Syllable_NullOrMaxLength" [check constraint, sql: "\"Syllable\" IS NULL OR LENGTH(TRIM(\"Syllable\")) <= 32"]
+    //      "CK_Character_Onyomi_NullOrNotEmpty" [check constraint, sql: "\"Onyomi\" IS NULL OR LENGTH(TRIM(\"Onyomi\")) > 0"]
+    //      "CK_Character_Onyomi_NullOrMaxLength" [check constraint, sql: "\"Onyomi\" IS NULL OR LENGTH(TRIM(\"Onyomi\")) <= 256"]
+    //      "CK_Character_Kunyomi_NullOrNotEmpty" [check constraint, sql: "\"Kunyomi\" IS NULL OR LENGTH(TRIM(\"Kunyomi\")) > 0"]
+    //      "CK_Character_Kunyomi_NullOrMaxLength" [check constraint, sql: "\"Kunyomi\" IS NULL OR LENGTH(TRIM(\"Kunyomi\")) <= 256"]
+    //      "CK_Character_Meaning_NullOrNotEmpty" [check constraint, sql: "\"Meaning\" IS NULL OR LENGTH(TRIM(\"Meaning\")) > 0"]
+    //      "CK_Character_Meaning_NullOrMaxLength" [check constraint, sql: "\"Meaning\" IS NULL OR LENGTH(TRIM(\"Meaning\")) <= 512"]
+    //  }
+
+    Indexes {
+        "CharacterGroupId" [name: "IX_Character_CharacterGroupId"]
+    }
+}
+
+Ref "FK_Character_CharacterGroup_CharacterGroupId" {
+    "Character"."CharacterGroupId" > "CharacterGroup"."Id"
+}
+
+Table "CharacterGroup" {
+    "Id" integer [primary key, not null]
+    "Caption" text [not null]
+    "Comment" text [null]
+    "Enabled" integer [not null]
+    "AlwaysUse" integer [not null]
+    "Hidden" integer [not null]
+    "CreatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "UpdatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_CharacterGroup" [primary key constraint]
+    //      "CK_CharacterGroup_Caption_NotEmpty" [check constraint, sql: "LENGTH(TRIM(\"Caption\")) > 0"]
+    //      "CK_CharacterGroup_Caption_MaxLength" [check constraint, sql: "LENGTH(TRIM(\"Caption\")) <= 256"]
+    //      "CK_CharacterGroup_Comment_NullOrNotEmpty" [check constraint, sql: "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) > 0"]
+    //      "CK_CharacterGroup_Comment_NullOrMaxLength" [check constraint, sql: "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) <= 2048"]
+    //  }
+
+    Indexes {
+        "Caption" [name: "UIX_CharacterGroup_Caption", unique]
+    }
+}
+
+Table "CharacterExercise" {
+    "Id" integer [primary key, not null]
+    "CharacterId" integer [null]
+    "InstanceData" text [null]
+    "GeneratedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_CharacterExercise" [primary key constraint]
+    //      "FK_CharacterExercise_Character_CharacterId" [foreign key constraint]
+    //      "CK_CharacterExercise_InstanceData_NullOrNotEmpty" [check constraint, sql: "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) > 0"]
+    //      "CK_CharacterExercise_InstanceData_NullOrMaxLength" [check constraint, sql: "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) <= 2048"]
+    //  }
+
+    Indexes {
+        "CharacterId" [name: "IX_CharacterExercise_CharacterId"]
+    }
+}
+
+Ref "FK_CharacterExercise_Character_CharacterId" {
+    "CharacterExercise"."CharacterId" > "Character"."Id"
+}
+
+Table "CharacterExerciseRerun" {
+    "Id" integer [primary key, not null]
+    "CharacterExerciseId" integer [null]
+    "RequiredChallengeCount" integer [not null]
+    "ContinuousChallengeCount" integer [not null, default: 0]
+    "TotalChallengeCount" integer [not null, default: 0]
+    "InitiallyScheduledOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "RepeatedlyScheduledOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_CharacterExerciseRerun" [primary key constraint]
+    //      "FK_CharacterExerciseRerun_CharacterExercise_CharacterExerciseId" [foreign key constraint]
+    //      "CK_CharacterExerciseRerun_RequiredChallengeCount_NotNegative" [check constraint, sql: "\"RequiredChallengeCount\" >= 0"]
+    //      "CK_CharacterExerciseRerun_ContinuousChallengeCount_NotNegative" [check constraint, sql: "\"ContinuousChallengeCount\" >= 0"]
+    //      "CK_CharacterExerciseRerun_TotalChallengeCount_NotNegative" [check constraint, sql: "\"TotalChallengeCount\" >= 0"]
+    //  }
+
+    Indexes {
+        "CharacterExerciseId" [name: "IX_CharacterExerciseRerun_CharacterExerciseId"]
+    }
+}
+
+Ref "FK_CharacterExerciseRerun_CharacterExercise_CharacterExerciseId" {
+    "CharacterExerciseRerun"."CharacterExerciseId" > "CharacterExercise"."Id"
+}
+
+Table "CharacterTag" {
+    "CharacterId" integer [primary key, not null]
+    "TagId" integer [primary key, not null]
+
+    //  Constraints {
+    //      "PK_CharacterTag" [primary key constraint]
+    //      "FK_CharacterTag_Character_CharacterId" [foreign key constraint]
+    //      "FK_CharacterTag_Tag_TagId" [foreign key constraint]
+    //  }
+
+    Indexes {
+        "CharacterId" [name: "IX_CharacterTag_CharacterId"]
+        "TagId" [name: "IX_CharacterTag_TagId"]
+    }
+}
+
+Ref "FK_CharacterTag_Character_CharacterId" {
+    "CharacterTag"."CharacterId" > "Character"."Id"
+}
+
+Ref "FK_CharacterTag_Tag_TagId" {
+    "CharacterTag"."TagId" > "Tag"."Id"
+}
+
+
+// ================================================================================
+//  Word
+//
+//  Tables:
+//      Word - Entity
+//      WordGroup - Entity
+//      WordExercise - Entity
+//      WordExerciseRerun - Entity
+//      WordTag - Relationship
+// ================================================================================
+
+Table "Word" {
+    "Id" integer [primary key, not null]
+    "WordGroupId" integer [null]
+    "Characters" text [not null]
+    "CharacterTypes" integer [not null]
+    "Pronunciation" text [null]
+    "Furigana" text [null]
+    "Okurigana" text [null]
+    "Meaning" text [null]
+    "CreatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "UpdatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_Word" [primary key constraint]
+    //      "FK_Word_WordGroup_WordGroupId" [foreign key constraint]
+    //      "CK_Word_Characters_NotEmpty" [check constraint, sql: "LENGTH(TRIM(\"Characters\")) > 0"]
+    //      "CK_Word_Characters_MaxLength" [check constraint, sql: "LENGTH(TRIM(\"Characters\")) <= 256"]
+    //      "CK_Word_Pronunciation_NullOrNotEmpty" [check constraint, sql: "\"Pronunciation\" IS NULL OR LENGTH(TRIM(\"Pronunciation\")) > 0"]
+    //      "CK_Word_Pronunciation_NullOrMaxLength" [check constraint, sql: "\"Pronunciation\" IS NULL OR LENGTH(TRIM(\"Pronunciation\")) <= 512"]
+    //      "CK_Word_Furigana_NullOrNotEmpty" [check constraint, sql: "\"Furigana\" IS NULL OR LENGTH(TRIM(\"Furigana\")) > 0"]
+    //      "CK_Word_Furigana_NullOrMaxLength" [check constraint, sql: "\"Furigana\" IS NULL OR LENGTH(TRIM(\"Furigana\")) <= 512"]
+    //      "CK_Word_Okurigana_NullOrNotEmpty" [check constraint, sql: "\"Okurigana\" IS NULL OR LENGTH(TRIM(\"Okurigana\")) > 0"]
+    //      "CK_Word_Okurigana_NullOrMaxLength" [check constraint, sql: "\"Okurigana\" IS NULL OR LENGTH(TRIM(\"Okurigana\")) <= 512"]
+    //      "CK_Word_Meaning_NullOrNotEmpty" [check constraint, sql: "\"Meaning\" IS NULL OR LENGTH(TRIM(\"Meaning\")) > 0"]
+    //      "CK_Word_Meaning_NullOrMaxLength" [check constraint, sql: "\"Meaning\" IS NULL OR LENGTH(TRIM(\"Meaning\")) <= 512"]
+    //  }
+
+    Indexes {
+        "WordGroupId" [name: "IX_Word_WordGroupId"]
+    }
+}
+
+Ref "FK_Word_WordGroup_WordGroupId" {
+    "Word"."WordGroupId" > "WordGroup"."Id"
+}
+
+Table "WordGroup" {
+    "Id" integer [primary key, not null]
+    "Caption" text [not null]
+    "Comment" text [null]
+    "Enabled" integer [not null]
+    "AlwaysUse" integer [not null]
+    "Hidden" integer [not null]
+    "CreatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "UpdatedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_WordGroup" [primary key constraint]
+    //      "CK_WordGroup_Caption_NotEmpty" [check constraint, sql: "LENGTH(TRIM(\"Caption\")) > 0"]
+    //      "CK_WordGroup_Caption_MaxLength" [check constraint, sql: "LENGTH(TRIM(\"Caption\")) <= 256"]
+    //      "CK_WordGroup_Comment_NullOrNotEmpty" [check constraint, sql: "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) > 0"]
+    //      "CK_WordGroup_Comment_NullOrMaxLength" [check constraint, sql: "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) <= 2048"]
+    //  }
+
+    Indexes {
+        "Caption" [name: "UIX_WordGroup_Caption", unique]
+    }
+}
+
+Table "WordExercise" {
+    "Id" integer [primary key, not null]
+    "WordId" integer [null]
+    "InstanceData" text [null]
+    "GeneratedOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_WordExercise" [primary key constraint]
+    //      "FK_WordExercise_Word_WordId" [foreign key constraint]
+    //      "CK_WordExercise_InstanceData_NullOrNotEmpty" [check constraint, sql: "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) > 0"]
+    //      "CK_WordExercise_InstanceData_NullOrMaxLength" [check constraint, sql: "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) <= 2048"]
+    //  }
+
+    Indexes {
+        "WordId" [name: "IX_WordExercise_WordId"]
+    }
+}
+
+Ref "FK_WordExercise_Word_WordId" {
+    "WordExercise"."WordId" > "Word"."Id"
+}
+
+Table "WordExerciseRerun" {
+    "Id" integer [primary key, not null]
+    "WordExerciseId" integer [null]
+    "RequiredChallengeCount" integer [not null]
+    "ContinuousChallengeCount" integer [not null, default: 0]
+    "TotalChallengeCount" integer [not null, default: 0]
+    "InitiallyScheduledOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+    "RepeatedlyScheduledOn" text [not null, default: "STRFTIME('%F %T+00:00', 'now')"]
+
+    //  Constraints {
+    //      "PK_WordExerciseRerun" [primary key constraint]
+    //      "FK_WordExerciseRerun_WordExercise_WordExerciseId" [foreign key constraint]
+    //      "CK_WordExerciseRerun_RequiredChallengeCount_NotNegative" [check constraint, sql: "\"RequiredChallengeCount\" >= 0"]
+    //      "CK_WordExerciseRerun_ContinuousChallengeCount_NotNegative" [check constraint, sql: "\"ContinuousChallengeCount\" >= 0"]
+    //      "CK_WordExerciseRerun_TotalChallengeCount_NotNegative" [check constraint, sql: "\"TotalChallengeCount\" >= 0"]
+    //  }
+
+    Indexes {
+        "WordExerciseId" [name: "IX_WordExerciseRerun_WordExerciseId"]
+    }
+}
+
+Ref "FK_WordExerciseRerun_WordExercise_WordExerciseId" {
+    "WordExerciseRerun"."WordExerciseId" > "WordExercise"."Id"
+}
+
+Table "WordTag" {
+    "WordId" integer [primary key, not null]
+    "TagId" integer [primary key, not null]
+
+    //  Constraints {
+    //      "PK_WordTag" [primary key constraint]
+    //      "FK_WordTag_Word_WordId" [foreign key constraint]
+    //      "FK_WordTag_Tag_TagId" [foreign key constraint]
+    //  }
+
+    Indexes {
+        "WordId" [name: "IX_WordTag_WordId"]
+        "TagId" [name: "IX_WordTag_TagId"]
+    }
+}
+
+Ref "FK_WordTag_Word_WordId" {
+    "WordTag"."WordId" > "Word"."Id"
+}
+
+Ref "FK_WordTag_Tag_TagId" {
+    "WordTag"."TagId" > "Tag"."Id"
+}
