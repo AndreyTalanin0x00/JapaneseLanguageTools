@@ -10,6 +10,10 @@ public class MainDbContext : DbContext
 
     public DbSet<CharacterGroup> CharacterGroups { get; }
 
+    public DbSet<CharacterExercise> CharacterExercises { get; }
+
+    public DbSet<CharacterExerciseRerun> CharacterExerciseReruns { get; }
+
     public DbSet<CharacterTag> CharacterTags { get; }
 
     public DbSet<Tag> Tags { get; }
@@ -19,6 +23,8 @@ public class MainDbContext : DbContext
     {
         Characters = Set<Character>();
         CharacterGroups = Set<CharacterGroup>();
+        CharacterExercises = Set<CharacterExercise>();
+        CharacterExerciseReruns = Set<CharacterExerciseRerun>();
         CharacterTags = Set<CharacterTag>();
         Tags = Set<Tag>();
     }
@@ -28,6 +34,8 @@ public class MainDbContext : DbContext
     {
         Characters = Set<Character>();
         CharacterGroups = Set<CharacterGroup>();
+        CharacterExercises = Set<CharacterExercise>();
+        CharacterExerciseReruns = Set<CharacterExerciseRerun>();
         CharacterTags = Set<CharacterTag>();
         Tags = Set<Tag>();
     }
