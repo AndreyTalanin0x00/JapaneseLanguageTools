@@ -237,6 +237,105 @@ public class SqliteMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<Word>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.WordGroup)
+                .WithMany(entity => entity.Words)
+                .HasForeignKey(entity => entity.WordGroupId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordGroupId)
+                .HasDatabaseName("IX_Word_WordGroupId");
+
+            entityBuilder
+                .Property(entity => entity.CreatedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.UpdatedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("Word", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_Word_Characters_NotEmpty", "LENGTH(TRIM(\"Characters\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Characters_MaxLength", "LENGTH(TRIM(\"Characters\")) <= 256");
+                tableBuilder.HasCheckConstraint("CK_Word_Pronunciation_NullOrNotEmpty", "\"Pronunciation\" IS NULL OR LENGTH(TRIM(\"Pronunciation\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Pronunciation_NullOrMaxLength", "\"Pronunciation\" IS NULL OR LENGTH(TRIM(\"Pronunciation\")) <= 512");
+                tableBuilder.HasCheckConstraint("CK_Word_Furigana_NullOrNotEmpty", "\"Furigana\" IS NULL OR LENGTH(TRIM(\"Furigana\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Furigana_NullOrMaxLength", "\"Furigana\" IS NULL OR LENGTH(TRIM(\"Furigana\")) <= 512");
+                tableBuilder.HasCheckConstraint("CK_Word_Okurigana_NullOrNotEmpty", "\"Okurigana\" IS NULL OR LENGTH(TRIM(\"Okurigana\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Okurigana_NullOrMaxLength", "\"Okurigana\" IS NULL OR LENGTH(TRIM(\"Okurigana\")) <= 512");
+                tableBuilder.HasCheckConstraint("CK_Word_Meaning_NullOrNotEmpty", "\"Meaning\" IS NULL OR LENGTH(TRIM(\"Meaning\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Meaning_NullOrMaxLength", "\"Meaning\" IS NULL OR LENGTH(TRIM(\"Meaning\")) <= 512");
+            });
+        });
+
+        modelBuilder.Entity<WordGroup>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasIndex(entity => entity.Caption)
+                .HasDatabaseName("UIX_WordGroup_Caption")
+                .IsUnique();
+
+            entityBuilder
+                .Property(entity => entity.AlwaysUse)
+                .HasDefaultValue(false);
+            entityBuilder
+                .Property(entity => entity.Hidden)
+                .HasDefaultValue(false);
+
+            entityBuilder
+                .Property(entity => entity.CreatedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.UpdatedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("WordGroup", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_WordGroup_Caption_NotEmpty", "LENGTH(TRIM(\"Caption\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_WordGroup_Caption_MaxLength", "LENGTH(TRIM(\"Caption\")) <= 256");
+                tableBuilder.HasCheckConstraint("CK_WordGroup_Comment_NullOrNotEmpty", "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_WordGroup_Comment_NullOrMaxLength", "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) <= 2048");
+            });
+        });
+
+        modelBuilder.Entity<WordTag>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => new { entity.WordId, entity.TagId });
+
+            entityBuilder
+                .HasOne(entity => entity.Word)
+                .WithMany(entity => entity.WordTags)
+                .HasForeignKey(entity => entity.WordId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entityBuilder
+                .HasOne(entity => entity.Tag)
+                .WithMany()
+                .HasForeignKey(entity => entity.TagId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordId)
+                .HasDatabaseName("IX_WordTag_WordId");
+            entityBuilder
+                .HasIndex(entity => entity.TagId)
+                .HasDatabaseName("IX_WordTag_TagId");
+
+            entityBuilder.ToTable("WordTag", tableBuilder =>
+            {
+            });
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }
