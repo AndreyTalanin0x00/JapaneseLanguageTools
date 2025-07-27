@@ -146,6 +146,70 @@ public class SqliteMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<CharacterExercise>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.Character)
+                .WithMany()
+                .HasForeignKey(entity => entity.CharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entityBuilder
+                .HasIndex(entity => entity.CharacterId)
+                .HasDatabaseName("IX_CharacterExercise_CharacterId");
+
+            entityBuilder
+                .Property(entity => entity.GeneratedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("CharacterExercise", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_CharacterExercise_InstanceData_NullOrNotEmpty", "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_CharacterExercise_InstanceData_NullOrMaxLength", "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) <= 2048");
+            });
+        });
+
+        modelBuilder.Entity<CharacterExerciseRerun>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.CharacterExercise)
+                .WithMany(entity => entity.CharacterExerciseReruns)
+                .HasForeignKey(entity => entity.CharacterExerciseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entityBuilder
+                .HasIndex(entity => entity.CharacterExerciseId)
+                .HasDatabaseName("IX_CharacterExerciseRerun_CharacterExerciseId");
+
+            entityBuilder
+                .Property(entity => entity.ContinuousChallengeCount)
+                .HasDefaultValue(0);
+            entityBuilder
+                .Property(entity => entity.TotalChallengeCount)
+                .HasDefaultValue(0);
+
+            entityBuilder
+                .Property(entity => entity.InitiallyScheduledOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.RepeatedlyScheduledOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("CharacterExerciseRerun", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_CharacterExerciseRerun_RequiredChallengeCount_NotNegative", "\"RequiredChallengeCount\" >= 0");
+                tableBuilder.HasCheckConstraint("CK_CharacterExerciseRerun_ContinuousChallengeCount_NotNegative", "\"ContinuousChallengeCount\" >= 0");
+                tableBuilder.HasCheckConstraint("CK_CharacterExerciseRerun_TotalChallengeCount_NotNegative", "\"TotalChallengeCount\" >= 0");
+            });
+        });
+
         modelBuilder.Entity<CharacterTag>(entityBuilder =>
         {
             entityBuilder.HasKey(entity => new { entity.CharacterId, entity.TagId });
