@@ -309,6 +309,70 @@ public class SqliteMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<WordExercise>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.Word)
+                .WithMany()
+                .HasForeignKey(entity => entity.WordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordId)
+                .HasDatabaseName("IX_WordExercise_WordId");
+
+            entityBuilder
+                .Property(entity => entity.GeneratedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("WordExercise", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_WordExercise_InstanceData_NullOrNotEmpty", "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_WordExercise_InstanceData_NullOrMaxLength", "\"InstanceData\" IS NULL OR LENGTH(TRIM(\"InstanceData\")) <= 2048");
+            });
+        });
+
+        modelBuilder.Entity<WordExerciseRerun>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.WordExercise)
+                .WithMany(entity => entity.WordExerciseReruns)
+                .HasForeignKey(entity => entity.WordExerciseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordExerciseId)
+                .HasDatabaseName("IX_WordExerciseRerun_WordExerciseId");
+
+            entityBuilder
+                .Property(entity => entity.ContinuousChallengeCount)
+                .HasDefaultValue(0);
+            entityBuilder
+                .Property(entity => entity.TotalChallengeCount)
+                .HasDefaultValue(0);
+
+            entityBuilder
+                .Property(entity => entity.InitiallyScheduledOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.RepeatedlyScheduledOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("WordExerciseRerun", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_WordExerciseRerun_RequiredChallengeCount_NotNegative", "\"RequiredChallengeCount\" >= 0");
+                tableBuilder.HasCheckConstraint("CK_WordExerciseRerun_ContinuousChallengeCount_NotNegative", "\"ContinuousChallengeCount\" >= 0");
+                tableBuilder.HasCheckConstraint("CK_WordExerciseRerun_TotalChallengeCount_NotNegative", "\"TotalChallengeCount\" >= 0");
+            });
+        });
+
         modelBuilder.Entity<WordTag>(entityBuilder =>
         {
             entityBuilder.HasKey(entity => new { entity.WordId, entity.TagId });
