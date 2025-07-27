@@ -103,6 +103,59 @@ public class SqlServerMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<CharacterExercise>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.Character)
+                .WithMany()
+                .HasForeignKey(entity => entity.CharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entityBuilder
+                .HasIndex(entity => entity.CharacterId)
+                .HasDatabaseName("IX_CharacterExercise_CharacterId");
+
+            entityBuilder
+                .Property(entity => entity.GeneratedOn)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("CharacterExercise", "dbo", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_CharacterExercise_InstanceData_NullOrNotEmpty", "[InstanceData] IS NULL OR LEN(TRIM([InstanceData])) > 0");
+            });
+        });
+
+        modelBuilder.Entity<CharacterExerciseRerun>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.CharacterExercise)
+                .WithMany(entity => entity.CharacterExerciseReruns)
+                .HasForeignKey(entity => entity.CharacterExerciseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entityBuilder
+                .HasIndex(entity => entity.CharacterExerciseId)
+                .HasDatabaseName("IX_CharacterExerciseRerun_CharacterExerciseId");
+
+            entityBuilder
+                .Property(entity => entity.InitiallyScheduledOn)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.RepeatedlyScheduledOn)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("CharacterExerciseRerun", "dbo", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_CharacterExerciseRerun_RequiredChallengeCount_NotNegative", "[RequiredChallengeCount] >= 0");
+                tableBuilder.HasCheckConstraint("CK_CharacterExerciseRerun_ContinuousChallengeCount_NotNegative", "[ContinuousChallengeCount] >= 0");
+                tableBuilder.HasCheckConstraint("CK_CharacterExerciseRerun_TotalChallengeCount_NotNegative", "[TotalChallengeCount] >= 0");
+            });
+        });
+
         modelBuilder.Entity<CharacterTag>(entityBuilder =>
         {
             entityBuilder.HasKey(entity => new { entity.CharacterId, entity.TagId });
