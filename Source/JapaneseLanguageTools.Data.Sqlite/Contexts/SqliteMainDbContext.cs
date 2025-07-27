@@ -1,6 +1,7 @@
 using System;
 
 using JapaneseLanguageTools.Data.Contexts;
+using JapaneseLanguageTools.Data.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -44,6 +45,33 @@ public class SqliteMainDbContext : MainDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Tag>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasIndex(entity => entity.Caption)
+                .HasDatabaseName("UIX_Tag_Caption")
+                .IsUnique();
+
+            entityBuilder
+                .Property(entity => entity.CreatedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.UpdatedOn)
+                .HasDefaultValueSql(CurrentDateTimeOffsetSql)
+                .ValueGeneratedOnAdd();
+
+            entityBuilder.ToTable("Tag", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_Tag_Caption_NotEmpty", "LENGTH(TRIM(\"Caption\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Tag_Caption_MaxLength", "LENGTH(TRIM(\"Caption\")) <= 256");
+                tableBuilder.HasCheckConstraint("CK_Tag_PlaceholderMarker_NullOrNotEmpty", "\"PlaceholderMarker\" IS NULL OR LENGTH(TRIM(\"PlaceholderMarker\")) > 0");
+                tableBuilder.HasCheckConstraint("CK_Tag_PlaceholderMarker_NullOrMaxLength", "\"PlaceholderMarker\" IS NULL OR LENGTH(TRIM(\"PlaceholderMarker\")) <= 2048");
+            });
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }
