@@ -183,6 +183,89 @@ public class SqlServerMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<Word>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder
+                .HasOne(entity => entity.WordGroup)
+                .WithMany(entity => entity.Words)
+                .HasForeignKey(entity => entity.WordGroupId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordGroupId)
+                .HasDatabaseName("IX_Word_WordGroupId");
+
+            entityBuilder
+                .Property(entity => entity.CreatedOn)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.UpdatedOn)
+                .ValueGeneratedOnAddOrUpdate();
+
+            entityBuilder.ToTable("Word", "dbo", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_Word_Characters_NotEmpty", "LEN(TRIM([Characters])) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Pronunciation_NullOrNotEmpty", "[Pronunciation] IS NULL OR LEN(TRIM([Pronunciation])) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Furigana_NullOrNotEmpty", "[Furigana] IS NULL OR LEN(TRIM([Furigana])) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Okurigana_NullOrNotEmpty", "[Okurigana] IS NULL OR LEN(TRIM([Okurigana])) > 0");
+                tableBuilder.HasCheckConstraint("CK_Word_Meaning_NullOrNotEmpty", "[Meaning] IS NULL OR LEN(TRIM([Meaning])) > 0");
+            });
+        });
+
+        modelBuilder.Entity<WordGroup>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => entity.Id);
+
+            entityBuilder.HasAlternateKey(entity => entity.Caption);
+
+            entityBuilder
+                .HasIndex(entity => entity.Caption)
+                .HasDatabaseName("UIX_WordGroup_Caption")
+                .IsUnique();
+
+            entityBuilder
+                .Property(entity => entity.CreatedOn)
+                .ValueGeneratedOnAdd();
+            entityBuilder
+                .Property(entity => entity.UpdatedOn)
+                .ValueGeneratedOnAddOrUpdate();
+
+            entityBuilder.ToTable("WordGroup", "dbo", tableBuilder =>
+            {
+                tableBuilder.HasCheckConstraint("CK_WordGroup_Caption_NotEmpty", "LEN(TRIM([Caption])) > 0");
+                tableBuilder.HasCheckConstraint("CK_WordGroup_Comment_NullOrNotEmpty", "[Comment] IS NULL OR LEN(TRIM([Comment])) > 0");
+            });
+        });
+
+        modelBuilder.Entity<WordTag>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => new { entity.WordId, entity.TagId });
+
+            entityBuilder
+                .HasOne(entity => entity.Word)
+                .WithMany(entity => entity.WordTags)
+                .HasForeignKey(entity => entity.WordId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entityBuilder
+                .HasOne(entity => entity.Tag)
+                .WithMany()
+                .HasForeignKey(entity => entity.TagId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordId)
+                .HasDatabaseName("IX_WordTag_WordId");
+            entityBuilder
+                .HasIndex(entity => entity.TagId)
+                .HasDatabaseName("IX_WordTag_TagId");
+
+            entityBuilder.ToTable("WordTag", "dbo", tableBuilder =>
+            {
+            });
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }
