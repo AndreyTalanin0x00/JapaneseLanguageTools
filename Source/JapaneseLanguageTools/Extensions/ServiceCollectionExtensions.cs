@@ -2,7 +2,10 @@ using System;
 using System.IO;
 
 using JapaneseLanguageTools.Data.Contexts;
+using JapaneseLanguageTools.Data.Repositories;
+using JapaneseLanguageTools.Data.Repositories.Abstractions;
 using JapaneseLanguageTools.Data.Sqlite.Contexts;
+using JapaneseLanguageTools.Data.Sqlite.Repositories;
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -53,10 +56,32 @@ public static class ServiceCollectionExtensions
             {
                 sqliteOptions
                     .MigrationsAssembly(typeof(SqliteMainDbContext).Assembly.FullName)
-                    .MigrationsHistoryTable("MigrationsHistory")
                     .CommandTimeout(120);
             });
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddApplicationRepositories(this IServiceCollection services)
+    {
+        // TODO: Add an option to select the database implementation provider.
+        services.AddTransient<SqliteCharacterRepository>();
+        services.AddTransient<ICharacterRepository, SqliteCharacterRepository>(serviceProvider => serviceProvider.GetRequiredService<SqliteCharacterRepository>());
+        services.AddTransient<ICharacterGroupRepository, SqliteCharacterGroupRepository>();
+        services.AddTransient<ICharacterExerciseRepository, SqliteCharacterExerciseRepository>();
+        services.AddTransient<SqliteCharacterExerciseRerunRepository>();
+        services.AddTransient<ICharacterExerciseRerunRepository, SqliteCharacterExerciseRerunRepository>(serviceProvider => serviceProvider.GetRequiredService<SqliteCharacterExerciseRerunRepository>());
+        services.AddTransient<SqliteWordRepository>();
+        services.AddTransient<IWordRepository, SqliteWordRepository>(serviceProvider => serviceProvider.GetRequiredService<SqliteWordRepository>());
+        services.AddTransient<IWordGroupRepository, SqliteWordGroupRepository>();
+        services.AddTransient<IWordExerciseRepository, SqliteWordExerciseRepository>();
+        services.AddTransient<SqliteWordExerciseRerunRepository>();
+        services.AddTransient<IWordExerciseRerunRepository, SqliteWordExerciseRerunRepository>(serviceProvider => serviceProvider.GetRequiredService<SqliteWordExerciseRerunRepository>());
+
+        services.AddTransient<IApplicationDictionaryRepository, ApplicationDictionaryRepository>();
+
+        services.AddTransient<ITagRepository, SqliteTagRepository>();
 
         return services;
     }

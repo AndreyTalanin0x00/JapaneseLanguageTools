@@ -30,6 +30,8 @@ public class WebStartup : WebStartupBase
 
         services.AddDbContextServices(Configuration);
 
+        services.AddApplicationRepositories();
+
         services.AddControllers();
 
         services.AddEndpointsApiExplorer();
