@@ -6,6 +6,7 @@ using JapaneseLanguageTools.Data.SqlServer.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -13,9 +14,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JapaneseLanguageTools.Data.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerMainDbContext))]
-    partial class SqlServerMainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250727180140_CharacterExerciseMigration")]
+    partial class CharacterExerciseMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,7 +140,9 @@ namespace JapaneseLanguageTools.Data.SqlServer.Migrations
                     .HasColumnType("int");
 
                 b.Property<int>("ContinuousChallengeCount")
-                    .HasColumnType("int");
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasDefaultValue(0);
 
                 b.Property<DateTimeOffset>("InitiallyScheduledOn")
                     .ValueGeneratedOnAdd()
@@ -280,214 +285,6 @@ namespace JapaneseLanguageTools.Data.SqlServer.Migrations
                 });
             });
 
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.Word", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
-
-                b.Property<int>("Id")
-                    .UseIdentityColumn();
-
-                b.Property<int>("CharacterTypes")
-                    .HasColumnType("int");
-
-                b.Property<string>("Characters")
-                    .IsRequired()
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                b.Property<DateTimeOffset>("CreatedOn")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<string>("Furigana")
-                    .HasMaxLength(512)
-                    .HasColumnType("nvarchar(512)");
-
-                b.Property<string>("Meaning")
-                    .HasMaxLength(512)
-                    .HasColumnType("nvarchar(512)");
-
-                b.Property<string>("Okurigana")
-                    .HasMaxLength(512)
-                    .HasColumnType("nvarchar(512)");
-
-                b.Property<string>("Pronunciation")
-                    .HasMaxLength(512)
-                    .HasColumnType("nvarchar(512)");
-
-                b.Property<DateTimeOffset>("UpdatedOn")
-                    .ValueGeneratedOnAddOrUpdate()
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<int?>("WordGroupId")
-                    .HasColumnType("int");
-
-                b.HasKey("Id");
-
-                b.HasIndex("WordGroupId")
-                    .HasDatabaseName("IX_Word_WordGroupId");
-
-                b.ToTable("Word", "dbo", t =>
-                {
-                    t.HasCheckConstraint("CK_Word_Characters_NotEmpty", "LEN(TRIM([Characters])) > 0");
-
-                    t.HasCheckConstraint("CK_Word_Furigana_NullOrNotEmpty", "[Furigana] IS NULL OR LEN(TRIM([Furigana])) > 0");
-
-                    t.HasCheckConstraint("CK_Word_Meaning_NullOrNotEmpty", "[Meaning] IS NULL OR LEN(TRIM([Meaning])) > 0");
-
-                    t.HasCheckConstraint("CK_Word_Okurigana_NullOrNotEmpty", "[Okurigana] IS NULL OR LEN(TRIM([Okurigana])) > 0");
-
-                    t.HasCheckConstraint("CK_Word_Pronunciation_NullOrNotEmpty", "[Pronunciation] IS NULL OR LEN(TRIM([Pronunciation])) > 0");
-                });
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordExercise", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
-
-                b.Property<int>("Id")
-                    .UseIdentityColumn();
-
-                b.Property<DateTimeOffset>("GeneratedOn")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<string>("InstanceData")
-                    .HasMaxLength(2048)
-                    .HasColumnType("nvarchar(2048)");
-
-                b.Property<int>("WordId")
-                    .HasColumnType("int");
-
-                b.HasKey("Id");
-
-                b.HasIndex("WordId")
-                    .HasDatabaseName("IX_WordExercise_WordId");
-
-                b.ToTable("WordExercise", "dbo", t =>
-                {
-                    t.HasCheckConstraint("CK_WordExercise_InstanceData_NullOrNotEmpty", "[InstanceData] IS NULL OR LEN(TRIM([InstanceData])) > 0");
-                });
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordExerciseRerun", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
-
-                b.Property<int>("Id")
-                    .UseIdentityColumn();
-
-                b.Property<int>("ContinuousChallengeCount")
-                    .HasColumnType("int");
-
-                b.Property<DateTimeOffset>("InitiallyScheduledOn")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<DateTimeOffset>("RepeatedlyScheduledOn")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<int>("RequiredChallengeCount")
-                    .HasColumnType("int");
-
-                b.Property<int>("TotalChallengeCount")
-                    .HasColumnType("int");
-
-                b.Property<int>("WordExerciseId")
-                    .HasColumnType("int");
-
-                b.HasKey("Id");
-
-                b.HasIndex("WordExerciseId")
-                    .HasDatabaseName("IX_WordExerciseRerun_WordExerciseId");
-
-                b.ToTable("WordExerciseRerun", "dbo", t =>
-                {
-                    t.HasCheckConstraint("CK_WordExerciseRerun_ContinuousChallengeCount_NotNegative", "[ContinuousChallengeCount] >= 0");
-
-                    t.HasCheckConstraint("CK_WordExerciseRerun_RequiredChallengeCount_NotNegative", "[RequiredChallengeCount] >= 0");
-
-                    t.HasCheckConstraint("CK_WordExerciseRerun_TotalChallengeCount_NotNegative", "[TotalChallengeCount] >= 0");
-                });
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordGroup", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
-
-                b.Property<int>("Id")
-                    .UseIdentityColumn();
-
-                b.Property<bool>("AlwaysUse")
-                    .HasColumnType("bit");
-
-                b.Property<string>("Caption")
-                    .IsRequired()
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                b.Property<string>("Comment")
-                    .HasMaxLength(2048)
-                    .HasColumnType("nvarchar(2048)");
-
-                b.Property<DateTimeOffset>("CreatedOn")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("datetimeoffset");
-
-                b.Property<bool>("Enabled")
-                    .HasColumnType("bit");
-
-                b.Property<bool>("Hidden")
-                    .HasColumnType("bit");
-
-                b.Property<DateTimeOffset>("UpdatedOn")
-                    .ValueGeneratedOnAddOrUpdate()
-                    .HasColumnType("datetimeoffset");
-
-                b.HasKey("Id");
-
-                b.HasAlternateKey("Caption");
-
-                b.HasIndex("Caption")
-                    .IsUnique()
-                    .HasDatabaseName("UIX_WordGroup_Caption");
-
-                b.ToTable("WordGroup", "dbo", t =>
-                {
-                    t.HasCheckConstraint("CK_WordGroup_Caption_NotEmpty", "LEN(TRIM([Caption])) > 0");
-
-                    t.HasCheckConstraint("CK_WordGroup_Comment_NullOrNotEmpty", "[Comment] IS NULL OR LEN(TRIM([Comment])) > 0");
-                });
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordTag", b =>
-            {
-                b.Property<int>("WordId")
-                    .HasColumnType("int");
-
-                b.Property<int>("TagId")
-                    .HasColumnType("int");
-
-                b.HasKey("WordId", "TagId");
-
-                b.HasIndex("TagId")
-                    .HasDatabaseName("IX_WordTag_TagId");
-
-                b.HasIndex("WordId")
-                    .HasDatabaseName("IX_WordTag_WordId");
-
-                b.ToTable("WordTag", "dbo");
-            });
-
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.Character", b =>
             {
                 b.HasOne("JapaneseLanguageTools.Data.Entities.CharacterGroup", "CharacterGroup")
@@ -539,57 +336,6 @@ namespace JapaneseLanguageTools.Data.SqlServer.Migrations
                 b.Navigation("Tag");
             });
 
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.Word", b =>
-            {
-                b.HasOne("JapaneseLanguageTools.Data.Entities.WordGroup", "WordGroup")
-                    .WithMany("Words")
-                    .HasForeignKey("WordGroupId")
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                b.Navigation("WordGroup");
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordExercise", b =>
-            {
-                b.HasOne("JapaneseLanguageTools.Data.Entities.Word", "Word")
-                    .WithMany()
-                    .HasForeignKey("WordId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
-
-                b.Navigation("Word");
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordExerciseRerun", b =>
-            {
-                b.HasOne("JapaneseLanguageTools.Data.Entities.WordExercise", "WordExercise")
-                    .WithMany("WordExerciseReruns")
-                    .HasForeignKey("WordExerciseId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
-
-                b.Navigation("WordExercise");
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordTag", b =>
-            {
-                b.HasOne("JapaneseLanguageTools.Data.Entities.Tag", "Tag")
-                    .WithMany()
-                    .HasForeignKey("TagId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired();
-
-                b.HasOne("JapaneseLanguageTools.Data.Entities.Word", "Word")
-                    .WithMany("WordTags")
-                    .HasForeignKey("WordId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
-
-                b.Navigation("Tag");
-
-                b.Navigation("Word");
-            });
-
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.Character", b =>
             {
                 b.Navigation("CharacterTags");
@@ -603,21 +349,6 @@ namespace JapaneseLanguageTools.Data.SqlServer.Migrations
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.CharacterGroup", b =>
             {
                 b.Navigation("Characters");
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.Word", b =>
-            {
-                b.Navigation("WordTags");
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordExercise", b =>
-            {
-                b.Navigation("WordExerciseReruns");
-            });
-
-            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordGroup", b =>
-            {
-                b.Navigation("Words");
             });
 #pragma warning restore 612, 618
         }
