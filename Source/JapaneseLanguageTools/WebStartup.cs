@@ -23,6 +23,11 @@ public class WebStartup : WebStartupBase
     /// <inheritdoc />
     public override void ConfigureServices(IServiceCollection services)
     {
+        services.AddAutoMapper(options =>
+        {
+            options.AddApplicationAutoMapperProfiles();
+        });
+
         services.AddDbContextServices(Configuration);
 
         services.AddControllers();
