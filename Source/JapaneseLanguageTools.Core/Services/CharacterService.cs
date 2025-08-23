@@ -1,48 +1,119 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using AndreyTalanin0x00.YieldHelpers;
+
+using AutoMapper;
 
 using JapaneseLanguageTools.Contracts.Identifiers;
 using JapaneseLanguageTools.Contracts.Models;
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
+using JapaneseLanguageTools.Data.Entities;
+using JapaneseLanguageTools.Data.Repositories.Abstractions;
 
 namespace JapaneseLanguageTools.Core.Services;
 
 public class CharacterService : ICharacterService
 {
-    public CharacterService()
+    private readonly IMapper m_mapper;
+    private readonly ICharacterRepository m_characterRepository;
+    private readonly TimeProvider m_timeProvider;
+
+    public CharacterService(IMapper mapper, ICharacterRepository characterRepository, TimeProvider timeProvider)
     {
-        throw new NotImplementedException();
+        m_mapper = mapper;
+        m_characterRepository = characterRepository;
+        m_timeProvider = timeProvider;
     }
 
-    public Task<CharacterModel?> GetCharacterAsync(CharacterId characterId, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<CharacterModel?> GetCharacterAsync(CharacterId characterId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        CharacterId[] characterIds = [characterId];
+
+        CharacterModel? characterModel = (await GetCharactersAsync(characterIds, cancellationToken)).SingleOrDefault();
+
+        return characterModel;
     }
 
-    public Task<CharacterModel[]> GetCharactersAsync(IEnumerable<CharacterId> characterIds, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<CharacterModel[]> GetCharactersAsync(IEnumerable<CharacterId> characterIds, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Character[] characters = await m_characterRepository.GetCharactersAsync(characterIds, cancellationToken);
+        if (characters.Length == 0)
+            return [];
+
+        CharacterModel[] characterModels = m_mapper.Map<CharacterModel[]>(characters);
+
+        RemoveNavigationPropertyCycles(characterModels);
+
+        return characterModels;
     }
 
-    public Task<CharacterModel[]> GetAllCharactersAsync(CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<CharacterModel[]> GetAllCharactersAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Character[] characters = await m_characterRepository.GetAllCharactersAsync(cancellationToken);
+        if (characters.Length == 0)
+            return [];
+
+        CharacterModel[] characterModels = m_mapper.Map<CharacterModel[]>(characters);
+
+        RemoveNavigationPropertyCycles(characterModels);
+
+        return characterModels;
     }
 
-    public Task<CharacterModel> AddCharacterAsync(CharacterModel characterModel, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<CharacterModel> AddCharacterAsync(CharacterModel characterModel, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Character character = m_mapper.Map<Character>(characterModel);
+
+        DateTimeOffset utcNow = m_timeProvider.GetUtcNow();
+        character.CreatedOn = utcNow;
+        character.UpdatedOn = utcNow;
+
+        Character addedCharacter = await m_characterRepository.AddCharacterAsync(character, cancellationToken);
+
+        CharacterModel addedCharacterModel = m_mapper.Map<CharacterModel>(addedCharacter);
+
+        RemoveNavigationPropertyCycles(YieldEnumerableHelpers.Yield(addedCharacterModel));
+
+        return addedCharacterModel;
     }
 
-    public Task<bool> UpdateCharacterAsync(CharacterModel characterModel, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<bool> UpdateCharacterAsync(CharacterModel characterModel, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Character character = m_mapper.Map<Character>(characterModel);
+
+        DateTimeOffset utcNow = m_timeProvider.GetUtcNow();
+        character.UpdatedOn = utcNow;
+
+        bool updated = await m_characterRepository.UpdateCharacterAsync(character, cancellationToken);
+
+        return updated;
     }
 
-    public Task<bool> RemoveCharacterAsync(CharacterId characterId, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<bool> RemoveCharacterAsync(CharacterId characterId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        bool removed = await m_characterRepository.RemoveCharacterAsync(characterId, cancellationToken);
+
+        return removed;
+    }
+
+    protected static void RemoveNavigationPropertyCycles(IEnumerable<CharacterModel> characterModels)
+    {
+        foreach (CharacterModel characterModel in characterModels)
+        {
+            if (characterModel.CharacterGroup?.Characters.Count > 0)
+            {
+                characterModel.CharacterGroup.Characters = [];
+            }
+        }
     }
 }
