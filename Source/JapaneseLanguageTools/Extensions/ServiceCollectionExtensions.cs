@@ -1,8 +1,11 @@
 using System;
 using System.IO;
 
+using AndreyTalanin0x00.Extensions.DependencyInjection;
+
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
 using JapaneseLanguageTools.Core.Services;
+using JapaneseLanguageTools.Core.Services.Hosted;
 using JapaneseLanguageTools.Data.Contexts;
 using JapaneseLanguageTools.Data.Repositories;
 using JapaneseLanguageTools.Data.Repositories.Abstractions;
@@ -107,6 +110,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IApplicationDictionaryService, ApplicationDictionaryService>();
 
         services.AddTransient<ITagService, TagService>();
+
+        services.AddHosted<MigrationsHistoryValidatorBackgroundService>();
 
         return services;
     }
