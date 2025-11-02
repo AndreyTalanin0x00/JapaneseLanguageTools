@@ -22,6 +22,13 @@ namespace JapaneseLanguageTools.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddTimeProvider(this IServiceCollection services)
+    {
+        services.AddSingleton<TimeProvider>(TimeProvider.System);
+
+        return services;
+    }
+
     public static IServiceCollection AddDbContextServices(this IServiceCollection services, IConfiguration configuration)
     {
         string connectionStringName = SqliteMainDbContextConnectionStrings.MainConnectionString;

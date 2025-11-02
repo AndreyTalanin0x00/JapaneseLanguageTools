@@ -23,6 +23,8 @@ public class WebStartup : WebStartupBase
     /// <inheritdoc />
     public override void ConfigureServices(IServiceCollection services)
     {
+        services.AddTimeProvider();
+
         services.AddAutoMapper(options =>
         {
             options.AddApplicationAutoMapperProfiles();
