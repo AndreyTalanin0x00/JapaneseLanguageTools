@@ -32,6 +32,8 @@ public class WebStartup : WebStartupBase
 
         services.AddApplicationRepositories();
 
+        services.AddApplicationServices();
+
         services.AddControllers();
 
         services.AddEndpointsApiExplorer();
