@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+using JapaneseLanguageTools.Contracts.Services.Abstractions;
+using JapaneseLanguageTools.Core.Services;
 using JapaneseLanguageTools.Data.Contexts;
 using JapaneseLanguageTools.Data.Repositories;
 using JapaneseLanguageTools.Data.Repositories.Abstractions;
@@ -82,6 +84,22 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IApplicationDictionaryRepository, ApplicationDictionaryRepository>();
 
         services.AddTransient<ITagRepository, SqliteTagRepository>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        services.AddTransient<ICharacterService, CharacterService>();
+        services.AddTransient<ICharacterGroupService, CharacterGroupService>();
+        services.AddTransient<ICharacterExerciseService, CharacterExerciseService>();
+        services.AddTransient<IWordService, WordService>();
+        services.AddTransient<IWordGroupService, WordGroupService>();
+        services.AddTransient<IWordExerciseService, WordExerciseService>();
+
+        services.AddTransient<IApplicationDictionaryService, ApplicationDictionaryService>();
+
+        services.AddTransient<ITagService, TagService>();
 
         return services;
     }
