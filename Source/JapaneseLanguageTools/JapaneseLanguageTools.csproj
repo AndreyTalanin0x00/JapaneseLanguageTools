@@ -58,9 +58,16 @@
     <ProjectReference Include="..\JapaneseLanguageTools.Contracts.Json\JapaneseLanguageTools.Contracts.Json.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Contracts.Xml\JapaneseLanguageTools.Contracts.Xml.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Core\JapaneseLanguageTools.Core.csproj" />
+    <ProjectReference Include="..\JapaneseLanguageTools.Core.Blobs\JapaneseLanguageTools.Core.Blobs.csproj" />
+    <ProjectReference Include="..\JapaneseLanguageTools.Core.Export\JapaneseLanguageTools.Core.Export.csproj" />
+    <ProjectReference Include="..\JapaneseLanguageTools.Core.Import\JapaneseLanguageTools.Core.Import.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Data\JapaneseLanguageTools.Data.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Data.Sqlite\JapaneseLanguageTools.Data.Sqlite.csproj" />
     <ProjectReference Include="..\JapaneseLanguageTools.Data.SqlServer\JapaneseLanguageTools.Data.SqlServer.csproj" />
+    <ProjectReference Include="..\Submodules\AndreyTalanin0x00.Integrations.Blobs\Source\AndreyTalanin0x00.Integrations.Blobs\AndreyTalanin0x00.Integrations.Blobs.csproj" />
+    <ProjectReference Include="..\Submodules\AndreyTalanin0x00.Integrations.Blobs\Source\AndreyTalanin0x00.Integrations.Blobs.InMemory\AndreyTalanin0x00.Integrations.Blobs.InMemory.csproj" />
+    <ProjectReference Include="..\Submodules\AndreyTalanin0x00.Integrations.Export\Source\AndreyTalanin0x00.Integrations.Export\AndreyTalanin0x00.Integrations.Export.csproj" />
+    <ProjectReference Include="..\Submodules\AndreyTalanin0x00.Integrations.Import\Source\AndreyTalanin0x00.Integrations.Import\AndreyTalanin0x00.Integrations.Import.csproj" />
   </ItemGroup>
 
   <ItemGroup>
