@@ -34,11 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\JapaneseLanguageTools.Contracts\JapaneseLanguageTools.Contracts.csproj" />
-    <ProjectReference Include="..\..\JapaneseLanguageTools.Contracts.Json\JapaneseLanguageTools.Contracts.Json.csproj" />
-    <ProjectReference Include="..\..\JapaneseLanguageTools.Contracts.Xml\JapaneseLanguageTools.Contracts.Xml.csproj" />
-    <ProjectReference Include="..\..\Submodules\AndreyTalanin0x00.Integrations.Export\Source\AndreyTalanin0x00.Integrations.Export\AndreyTalanin0x00.Integrations.Export.csproj" />
-    <ProjectReference Include="..\..\Submodules\AndreyTalanin0x00.Integrations.Import\Source\AndreyTalanin0x00.Integrations.Import\AndreyTalanin0x00.Integrations.Import.csproj" />
+    <ProjectReference Include="..\..\JapaneseLanguageTools.Core.Export\JapaneseLanguageTools.Core.Export.csproj" />
   </ItemGroup>
 
 </Project>
