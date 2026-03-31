@@ -1,13 +1,11 @@
-using System;
-
-using AndreyTalanin0x00.Integrations.Import;
-using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
+using AutoMapper;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Models.Json;
 using JapaneseLanguageTools.Contracts.Models.Xml;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
+using JapaneseLanguageTools.Core.Import.Services.Base;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
 // Disable the IDE0130 (Namespace does not match folder structure) notification to preserve namespace structure.
@@ -18,21 +16,19 @@ using JapaneseLanguageTools.Core.Import.Responses;
 namespace JapaneseLanguageTools.Core.Import.Services;
 
 public class TagJsonImportMapper :
-    IImportMapper<TagImportRequest, TagImportResponse, TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>
+    AutoMapperImportMapperBase<TagImportRequest, TagImportResponse, TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public ImportIntermediateObjectPackageBatch<TagObjectPackageJsonModel, TagObjectPackageIntegrationModel> Map(ImportIntermediateObjectPackageBatch<TagObjectPackageJsonModel, TagObjectPackageIntegrationModel> importIntermediateObjectPackageBatch)
+    public TagJsonImportMapper(IMapper mapper)
+        : base(mapper)
     {
-        throw new NotImplementedException();
     }
 }
 
 public class TagXmlImportMapper :
-    IImportMapper<TagImportRequest, TagImportResponse, TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>
+    AutoMapperImportMapperBase<TagImportRequest, TagImportResponse, TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public ImportIntermediateObjectPackageBatch<TagObjectPackageXmlModel, TagObjectPackageIntegrationModel> Map(ImportIntermediateObjectPackageBatch<TagObjectPackageXmlModel, TagObjectPackageIntegrationModel> importIntermediateObjectPackageBatch)
+    public TagXmlImportMapper(IMapper mapper)
+        : base(mapper)
     {
-        throw new NotImplementedException();
     }
 }
