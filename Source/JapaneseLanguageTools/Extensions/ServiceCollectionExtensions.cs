@@ -12,6 +12,7 @@ using JapaneseLanguageTools.Data.Repositories.Abstractions;
 using JapaneseLanguageTools.Data.Sqlite.Contexts;
 using JapaneseLanguageTools.Data.Sqlite.Repositories;
 
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,14 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRecyclableMemoryStreamManager(this IServiceCollection services)
     {
         services.AddSingleton<RecyclableMemoryStreamManager>(new RecyclableMemoryStreamManager());
+
+        return services;
+    }
+
+    public static IServiceCollection AddFileExtensionContentTypeProvider(this IServiceCollection services)
+    {
+        services.AddTransient<FileExtensionContentTypeProvider>();
+        services.AddTransient<IContentTypeProvider, FileExtensionContentTypeProvider>(serviceProvider => serviceProvider.GetRequiredService<FileExtensionContentTypeProvider>());
 
         return services;
     }
