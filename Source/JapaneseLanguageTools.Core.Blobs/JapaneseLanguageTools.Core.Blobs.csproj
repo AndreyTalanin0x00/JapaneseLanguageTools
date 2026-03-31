@@ -1,0 +1,18 @@
+<Project>
+
+  <Sdk Name="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JapaneseLanguageTools.Core\JapaneseLanguageTools.Core.csproj" />
+    <ProjectReference Include="..\Submodules\AndreyTalanin0x00.Integrations.Blobs\Source\AndreyTalanin0x00.Integrations.Blobs\AndreyTalanin0x00.Integrations.Blobs.csproj" />
+    <ProjectReference Include="..\Submodules\AndreyTalanin0x00.Integrations.Blobs\Source\AndreyTalanin0x00.Integrations.Blobs.InMemory\AndreyTalanin0x00.Integrations.Blobs.InMemory.csproj" />
+  </ItemGroup>
+
+</Project>
