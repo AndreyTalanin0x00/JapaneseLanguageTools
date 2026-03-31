@@ -12,7 +12,9 @@ using JapaneseLanguageTools.Core.Blobs.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Export.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Import.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Services;
+using JapaneseLanguageTools.Core.Services.Abstractions;
 using JapaneseLanguageTools.Core.Services.Hosted;
+using JapaneseLanguageTools.Core.Services.Specialized;
 using JapaneseLanguageTools.Data.Contexts;
 using JapaneseLanguageTools.Data.Repositories;
 using JapaneseLanguageTools.Data.Repositories.Abstractions;
@@ -134,6 +136,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IApplicationDictionaryService, ApplicationDictionaryService>();
 
         services.AddTransient<ITagService, TagService>();
+
+        services.AddTransient<ISnapshotHashCalculator, AlwaysZeroSnapshotHashCalculator>();
 
         services.AddHosted<MigrationsHistoryValidatorBackgroundService>();
 
