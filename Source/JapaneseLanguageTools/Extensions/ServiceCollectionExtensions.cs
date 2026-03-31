@@ -16,6 +16,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 
 // Disable the IDE0001 (Simplify name) notification to preserve explicit service types.
@@ -28,6 +29,13 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddTimeProvider(this IServiceCollection services)
     {
         services.AddSingleton<TimeProvider>(TimeProvider.System);
+
+        return services;
+    }
+
+    public static IServiceCollection AddRecyclableMemoryStreamManager(this IServiceCollection services)
+    {
+        services.AddSingleton<RecyclableMemoryStreamManager>(new RecyclableMemoryStreamManager());
 
         return services;
     }
