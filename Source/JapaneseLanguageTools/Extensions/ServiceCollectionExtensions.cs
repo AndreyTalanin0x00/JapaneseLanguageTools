@@ -3,7 +3,14 @@ using System.IO;
 
 using AndreyTalanin0x00.Extensions.DependencyInjection;
 
+using AutoMapper;
+using AutoMapper.Internal;
+
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
+using JapaneseLanguageTools.Core.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Blobs.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Export.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Import.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Services;
 using JapaneseLanguageTools.Core.Services.Hosted;
 using JapaneseLanguageTools.Data.Contexts;
@@ -129,6 +136,30 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ITagService, TagService>();
 
         services.AddHosted<MigrationsHistoryValidatorBackgroundService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddConfiguredAutoMapper(this IServiceCollection services)
+    {
+        static void Configure(IMapperConfigurationExpression mapperConfigurationExpression)
+        {
+            mapperConfigurationExpression.AddBlobAutoMapperProfile();
+
+            mapperConfigurationExpression.AddCommonAutoMapperProfiles();
+
+            mapperConfigurationExpression.AddExportAutoMapperProfiles();
+            mapperConfigurationExpression.AddImportAutoMapperProfiles();
+
+            IGlobalConfigurationExpression globalConfigurationExpression = mapperConfigurationExpression.Internal();
+            globalConfigurationExpression.ForAllMaps((_, map) =>
+            {
+                // GHSA-rvv3-g6hj-g44x : AutoMapper Vulnerable to Denial of Service (DoS) via Uncontrolled Recursion
+                map.MaxDepth(64);
+            });
+        }
+
+        services.AddAutoMapper(Configure);
 
         return services;
     }
