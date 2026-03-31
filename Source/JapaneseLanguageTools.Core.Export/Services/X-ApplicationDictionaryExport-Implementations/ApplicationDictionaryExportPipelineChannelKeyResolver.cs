@@ -1,8 +1,8 @@
-using System;
-
 using AndreyTalanin0x00.Integrations.Export;
 using AndreyTalanin0x00.Integrations.Export.Services.Abstractions;
 
+using JapaneseLanguageTools.Contracts.Enumerations;
+using JapaneseLanguageTools.Core.Export.Constants;
 using JapaneseLanguageTools.Core.Export.Requests;
 using JapaneseLanguageTools.Core.Export.Responses;
 
@@ -20,6 +20,13 @@ public class ApplicationDictionaryExportPipelineChannelKeyResolver :
     /// <inheritdoc />
     public ExportPipelineChannelKey ResolveExportPipelineChannelKey(ApplicationDictionaryExportRequest applicationDictionaryExportRequest)
     {
-        throw new NotImplementedException();
+        ExportPipelineChannelKey exportPipelineChannelKey = applicationDictionaryExportRequest.SnapshotFileFormat switch
+        {
+            SnapshotFileFormat.Json => ApplicationDictionaryExportPipelineChannelKeys.ApplicationDictionaryExportPipelineChannelKeyJson,
+            SnapshotFileFormat.Xml => ApplicationDictionaryExportPipelineChannelKeys.ApplicationDictionaryExportPipelineChannelKeyXml,
+            _ or SnapshotFileFormat.Unknown => ApplicationDictionaryExportPipelineChannelKeys.ApplicationDictionaryExportPipelineChannelKeyUnsupported,
+        };
+
+        return exportPipelineChannelKey;
     }
 }
