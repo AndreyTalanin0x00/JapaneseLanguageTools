@@ -1,10 +1,12 @@
-using System;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 
+using AndreyTalanin0x00.Integrations.Blobs;
 using AndreyTalanin0x00.Integrations.Import;
 using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
 
+using JapaneseLanguageTools.Core.Import.Constants;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
 
@@ -20,17 +22,30 @@ public class ApplicationDictionaryImportPipelineChannelKeyResolver :
     IImportPipelineChannelKeyResolver<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse>
 {
     /// <inheritdoc />
-    public bool SupportsAsyncMode => throw new NotImplementedException();
-
-    /// <inheritdoc />
-    public ImportPipelineChannelKey ResolveImportPipelineChannelKey(ApplicationDictionaryImportRequest applicationDictionaryImportRequest, ImportSource importSource, ImportSourceContext importSourceContext)
-    {
-        throw new NotImplementedException();
-    }
+    public bool SupportsAsyncMode { get; } = false;
 
     /// <inheritdoc />
     public Task<ImportPipelineChannelKey> ResolveImportPipelineChannelKeyAsync(ApplicationDictionaryImportRequest applicationDictionaryImportRequest, ImportSource importSource, ImportSourceContext importSourceContext, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ImportPipelineChannelKey importPipelineChannelKey = ResolveImportPipelineChannelKey(applicationDictionaryImportRequest, importSource, importSourceContext);
+
+        Task<ImportPipelineChannelKey> importPipelineChannelKeyTask = Task.FromResult(importPipelineChannelKey);
+
+        return importPipelineChannelKeyTask;
+    }
+
+    /// <inheritdoc />
+    public ImportPipelineChannelKey ResolveImportPipelineChannelKey(ApplicationDictionaryImportRequest applicationDictionaryImportRequest, ImportSource importSource, ImportSourceContext importSourceContext)
+    {
+        BlobMetadata blobMetadata = importSource.BlobMetadata;
+
+        ImportPipelineChannelKey importPipelineChannelKey = blobMetadata.MimeType switch
+        {
+            MediaTypeNames.Application.Json => ApplicationDictionaryImportPipelineChannelKeys.ApplicationDictionaryImportPipelineChannelKeyJson,
+            MediaTypeNames.Application.Xml or MediaTypeNames.Text.Xml => ApplicationDictionaryImportPipelineChannelKeys.ApplicationDictionaryImportPipelineChannelKeyXml,
+            _ => ApplicationDictionaryImportPipelineChannelKeys.ApplicationDictionaryImportPipelineChannelKeyUnsupported,
+        };
+
+        return importPipelineChannelKey;
     }
 }
