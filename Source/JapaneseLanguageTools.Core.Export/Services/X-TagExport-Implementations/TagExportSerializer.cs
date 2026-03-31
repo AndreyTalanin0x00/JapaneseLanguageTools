@@ -1,16 +1,19 @@
 using System;
 using System.IO;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 
-using AndreyTalanin0x00.Integrations.Export;
-using AndreyTalanin0x00.Integrations.Export.Services.Abstractions;
+using AndreyTalanin0x00.Integrations.Blobs.Services.Abstractions;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Models.Json;
 using JapaneseLanguageTools.Contracts.Models.Xml;
 using JapaneseLanguageTools.Core.Export.Requests;
 using JapaneseLanguageTools.Core.Export.Responses;
+using JapaneseLanguageTools.Core.Export.Services.Base;
+
+using Microsoft.IO;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
 // Disable the IDE0130 (Namespace does not match folder structure) notification to preserve namespace structure.
@@ -21,49 +24,85 @@ using JapaneseLanguageTools.Core.Export.Responses;
 namespace JapaneseLanguageTools.Core.Export.Services;
 
 public class TagJsonExportSerializer :
-    IExportSerializer<TagExportRequest, TagExportResponse, TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>
+    JsonExportSerializerBase<TagExportRequest, TagExportResponse, TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public void Serialize<TExportIntermediateObject>(Stream stream, TExportIntermediateObject exportIntermediateObject)
-        where TExportIntermediateObject : class
+    private readonly TimeProvider m_timeProvider;
+
+    public TagJsonExportSerializer(IBlobManager blobManager, RecyclableMemoryStreamManager recyclableMemoryStreamManager, TimeProvider timeProvider)
+        : base(blobManager, recyclableMemoryStreamManager)
     {
-        throw new NotImplementedException();
+        m_timeProvider = timeProvider;
     }
 
     /// <inheritdoc />
-    public Task SerializeAsync<TExportIntermediateObject>(Stream stream, TExportIntermediateObject exportIntermediateObject, CancellationToken cancellationToken = default)
-        where TExportIntermediateObject : class
+    protected override async Task SerializeObjectPackagePairAsync(SerializeObjectPackagePairParameters parameters, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-    }
+        Stream stream = parameters.Stream;
 
-    /// <inheritdoc />
-    public Task<ExportIntermediateObjectPackageBatch<TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>> SerializeAsync(ExportIntermediateObjectPackageBatch<TagObjectPackageJsonModel, TagObjectPackageIntegrationModel> exportIntermediateObjectPackageBatch, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        TagObjectPackageJsonModel tagObjectPackageJsonModel = parameters.ExportIntermediateObjectPackageCurrent;
+
+        DateTimeOffset utcNow = m_timeProvider.GetUtcNow();
+
+        const string tagExportFileNameFormat = "JLT Tag Export {0}.json";
+
+        string dateTimeString = utcNow.ToString("u")
+            .Replace("Z", " " + "UTC")
+            .Replace(':', '-');
+
+        parameters.SetFileNameCallback(string.Format(tagExportFileNameFormat, dateTimeString));
+        parameters.SetMimeTypeCallback(MediaTypeNames.Application.Json);
+
+        await SerializeAsync(stream, tagObjectPackageJsonModel, cancellationToken);
+
+        // Append the final new line.
+#pragma warning disable IDE0063 // Use simple 'using' statement
+        // Steams have to be closed immediately to flush the buffer. Simple using statements can be missed later.
+        using (StreamWriter streamWriter = new(stream, encoding: Encoding, leaveOpen: true))
+            await streamWriter.WriteLineAsync();
+#pragma warning restore IDE0063 // Use simple 'using' statement
+
+        return;
     }
 }
 
 public class TagXmlExportSerializer :
-    IExportSerializer<TagExportRequest, TagExportResponse, TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>
+    XmlExportSerializerBase<TagExportRequest, TagExportResponse, TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public void Serialize<TExportIntermediateObject>(Stream stream, TExportIntermediateObject exportIntermediateObject)
-        where TExportIntermediateObject : class
+    private readonly TimeProvider m_timeProvider;
+
+    public TagXmlExportSerializer(IBlobManager blobManager, RecyclableMemoryStreamManager recyclableMemoryStreamManager, TimeProvider timeProvider)
+        : base(blobManager, recyclableMemoryStreamManager)
     {
-        throw new NotImplementedException();
+        m_timeProvider = timeProvider;
     }
 
     /// <inheritdoc />
-    public Task SerializeAsync<TExportIntermediateObject>(Stream stream, TExportIntermediateObject exportIntermediateObject, CancellationToken cancellationToken = default)
-        where TExportIntermediateObject : class
+    protected override async Task SerializeObjectPackagePairAsync(SerializeObjectPackagePairParameters parameters, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-    }
+        Stream stream = parameters.Stream;
 
-    /// <inheritdoc />
-    public Task<ExportIntermediateObjectPackageBatch<TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>> SerializeAsync(ExportIntermediateObjectPackageBatch<TagObjectPackageXmlModel, TagObjectPackageIntegrationModel> exportIntermediateObjectPackageBatch, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        TagObjectPackageXmlModel tagObjectPackageXmlModel = parameters.ExportIntermediateObjectPackageCurrent;
+
+        DateTimeOffset utcNow = m_timeProvider.GetUtcNow();
+
+        const string tagExportFileNameFormat = "JLT Tag Export {0}.xml";
+
+        string dateTimeString = utcNow.ToString("u")
+            .Replace("Z", " " + "UTC")
+            .Replace(':', '-');
+
+        parameters.SetFileNameCallback(string.Format(tagExportFileNameFormat, dateTimeString));
+        parameters.SetMimeTypeCallback(MediaTypeNames.Application.Xml);
+
+        await SerializeAsync(stream, tagObjectPackageXmlModel, cancellationToken);
+
+        // Append the final new line.
+#pragma warning disable IDE0063 // Use simple 'using' statement
+        // Steams have to be closed immediately to flush the buffer. Simple using statements can be missed later.
+        using (StreamWriter streamWriter = new(stream, encoding: Encoding, leaveOpen: true))
+            await streamWriter.WriteLineAsync();
+#pragma warning restore IDE0063 // Use simple 'using' statement
+
+        return;
     }
 }
