@@ -1,15 +1,11 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using AndreyTalanin0x00.Integrations.Import;
-using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
+using AndreyTalanin0x00.Integrations.Blobs.Services.Abstractions;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Models.Json;
 using JapaneseLanguageTools.Contracts.Models.Xml;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
+using JapaneseLanguageTools.Core.Import.Services.Base;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
 // Disable the IDE0130 (Namespace does not match folder structure) notification to preserve namespace structure.
@@ -20,33 +16,19 @@ using JapaneseLanguageTools.Core.Import.Responses;
 namespace JapaneseLanguageTools.Core.Import.Services;
 
 public class ApplicationDictionaryJsonImportSerializer :
-    IImportSerializer<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel>
+    JsonImportSerializerBase<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public bool AcceptsBlobsOfMimeType(string blobMimeType)
+    public ApplicationDictionaryJsonImportSerializer(IBlobManager blobManager)
+        : base(blobManager)
     {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
-    public Task<ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel>> DeserializeAsync(ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel> importIntermediateObjectPackageBatch, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 }
 
 public class ApplicationDictionaryXmlImportSerializer :
-    IImportSerializer<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel>
+    XmlImportSerializerBase<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public bool AcceptsBlobsOfMimeType(string blobMimeType)
+    public ApplicationDictionaryXmlImportSerializer(IBlobManager blobManager)
+        : base(blobManager)
     {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
-    public Task<ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel>> DeserializeAsync(ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel> importIntermediateObjectPackageBatch, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 }

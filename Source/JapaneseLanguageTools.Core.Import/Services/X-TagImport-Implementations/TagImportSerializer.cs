@@ -1,15 +1,11 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using AndreyTalanin0x00.Integrations.Import;
-using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
+using AndreyTalanin0x00.Integrations.Blobs.Services.Abstractions;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Models.Json;
 using JapaneseLanguageTools.Contracts.Models.Xml;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
+using JapaneseLanguageTools.Core.Import.Services.Base;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
 // Disable the IDE0130 (Namespace does not match folder structure) notification to preserve namespace structure.
@@ -20,33 +16,19 @@ using JapaneseLanguageTools.Core.Import.Responses;
 namespace JapaneseLanguageTools.Core.Import.Services;
 
 public class TagJsonImportSerializer :
-    IImportSerializer<TagImportRequest, TagImportResponse, TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>
+    JsonImportSerializerBase<TagImportRequest, TagImportResponse, TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public bool AcceptsBlobsOfMimeType(string blobMimeType)
+    public TagJsonImportSerializer(IBlobManager blobManager)
+        : base(blobManager)
     {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
-    public Task<ImportIntermediateObjectPackageBatch<TagObjectPackageJsonModel, TagObjectPackageIntegrationModel>> DeserializeAsync(ImportIntermediateObjectPackageBatch<TagObjectPackageJsonModel, TagObjectPackageIntegrationModel> importIntermediateObjectPackageBatch, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 }
 
 public class TagXmlImportSerializer :
-    IImportSerializer<TagImportRequest, TagImportResponse, TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>
+    XmlImportSerializerBase<TagImportRequest, TagImportResponse, TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public bool AcceptsBlobsOfMimeType(string blobMimeType)
+    public TagXmlImportSerializer(IBlobManager blobManager)
+        : base(blobManager)
     {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
-    public Task<ImportIntermediateObjectPackageBatch<TagObjectPackageXmlModel, TagObjectPackageIntegrationModel>> DeserializeAsync(ImportIntermediateObjectPackageBatch<TagObjectPackageXmlModel, TagObjectPackageIntegrationModel> importIntermediateObjectPackageBatch, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 }
