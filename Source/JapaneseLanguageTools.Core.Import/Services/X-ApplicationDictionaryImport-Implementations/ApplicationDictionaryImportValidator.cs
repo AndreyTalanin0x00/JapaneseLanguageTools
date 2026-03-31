@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using AndreyTalanin0x00.Integrations.Import;
 using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
 
+using FluentValidation;
+
 using JapaneseLanguageTools.Contracts.Models.Integrations;
+using JapaneseLanguageTools.Core.FluentValidation;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
 
@@ -26,6 +29,20 @@ public class ApplicationDictionaryImportValidator :
     /// <inheritdoc />
     public Task ValidateAsync(ImportObjectPackageBatch<Object, ApplicationDictionaryObjectPackageIntegrationModel>[] importObjectPackageBatches, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ApplicationDictionaryObjectPackageIntegrationModelValidator applicationDictionaryObjectPackageIntegrationModelValidator = new();
+
+        foreach (ImportObjectPackageBatch<Object, ApplicationDictionaryObjectPackageIntegrationModel> importObjectPackageBatch in importObjectPackageBatches)
+        {
+            ImportObjectPackageWrapper<ApplicationDictionaryObjectPackageIntegrationModel>[] importObjectPackageWrappers = importObjectPackageBatch.ImportObjectPackageWrappers;
+
+            foreach (ImportObjectPackageWrapper<ApplicationDictionaryObjectPackageIntegrationModel> importObjectPackageWrapper in importObjectPackageWrappers)
+            {
+                ApplicationDictionaryObjectPackageIntegrationModel applicationDictionaryObjectPackageIntegrationModel = importObjectPackageWrapper.ImportObjectPackage;
+
+                applicationDictionaryObjectPackageIntegrationModelValidator.ValidateAndThrow(applicationDictionaryObjectPackageIntegrationModel);
+            }
+        }
+
+        return Task.CompletedTask;
     }
 }

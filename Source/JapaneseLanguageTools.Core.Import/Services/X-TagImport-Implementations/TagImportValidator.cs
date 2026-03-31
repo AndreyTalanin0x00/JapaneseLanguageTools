@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using AndreyTalanin0x00.Integrations.Import;
 using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
 
+using FluentValidation;
+
 using JapaneseLanguageTools.Contracts.Models.Integrations;
+using JapaneseLanguageTools.Core.FluentValidation;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
 
@@ -26,6 +29,20 @@ public class TagImportValidator :
     /// <inheritdoc />
     public Task ValidateAsync(ImportObjectPackageBatch<Object, TagObjectPackageIntegrationModel>[] importObjectPackageBatches, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        TagObjectPackageIntegrationModelValidator tagObjectPackageIntegrationModelValidator = new();
+
+        foreach (ImportObjectPackageBatch<Object, TagObjectPackageIntegrationModel> importObjectPackageBatch in importObjectPackageBatches)
+        {
+            ImportObjectPackageWrapper<TagObjectPackageIntegrationModel>[] importObjectPackageWrappers = importObjectPackageBatch.ImportObjectPackageWrappers;
+
+            foreach (ImportObjectPackageWrapper<TagObjectPackageIntegrationModel> importObjectPackageWrapper in importObjectPackageWrappers)
+            {
+                TagObjectPackageIntegrationModel tagObjectPackageIntegrationModel = importObjectPackageWrapper.ImportObjectPackage;
+
+                tagObjectPackageIntegrationModelValidator.ValidateAndThrow(tagObjectPackageIntegrationModel);
+            }
+        }
+
+        return Task.CompletedTask;
     }
 }
