@@ -1,13 +1,11 @@
-using System;
-
-using AndreyTalanin0x00.Integrations.Import;
-using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
+using AutoMapper;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Models.Json;
 using JapaneseLanguageTools.Contracts.Models.Xml;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
+using JapaneseLanguageTools.Core.Import.Services.Base;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
 // Disable the IDE0130 (Namespace does not match folder structure) notification to preserve namespace structure.
@@ -18,21 +16,19 @@ using JapaneseLanguageTools.Core.Import.Responses;
 namespace JapaneseLanguageTools.Core.Import.Services;
 
 public class ApplicationDictionaryJsonImportMapper :
-    IImportMapper<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel>
+    AutoMapperImportMapperBase<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel> Map(ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageJsonModel, ApplicationDictionaryObjectPackageIntegrationModel> importIntermediateObjectPackageBatch)
+    public ApplicationDictionaryJsonImportMapper(IMapper mapper)
+        : base(mapper)
     {
-        throw new NotImplementedException();
     }
 }
 
 public class ApplicationDictionaryXmlImportMapper :
-    IImportMapper<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel>
+    AutoMapperImportMapperBase<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel>
 {
-    /// <inheritdoc />
-    public ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel> Map(ImportIntermediateObjectPackageBatch<ApplicationDictionaryObjectPackageXmlModel, ApplicationDictionaryObjectPackageIntegrationModel> importIntermediateObjectPackageBatch)
+    public ApplicationDictionaryXmlImportMapper(IMapper mapper)
+        : base(mapper)
     {
-        throw new NotImplementedException();
     }
 }
