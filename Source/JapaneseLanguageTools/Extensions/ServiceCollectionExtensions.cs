@@ -3,19 +3,30 @@ using System.IO;
 
 using AndreyTalanin0x00.Extensions.DependencyInjection;
 
+using AutoMapper;
+using AutoMapper.Internal;
+
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
+using JapaneseLanguageTools.Core.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Blobs.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Export.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Import.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Services;
+using JapaneseLanguageTools.Core.Services.Abstractions;
 using JapaneseLanguageTools.Core.Services.Hosted;
+using JapaneseLanguageTools.Core.Services.Specialized;
 using JapaneseLanguageTools.Data.Contexts;
 using JapaneseLanguageTools.Data.Repositories;
 using JapaneseLanguageTools.Data.Repositories.Abstractions;
 using JapaneseLanguageTools.Data.Sqlite.Contexts;
 using JapaneseLanguageTools.Data.Sqlite.Repositories;
 
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 
 // Disable the IDE0001 (Simplify name) notification to preserve explicit service types.
@@ -28,6 +39,21 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddTimeProvider(this IServiceCollection services)
     {
         services.AddSingleton<TimeProvider>(TimeProvider.System);
+
+        return services;
+    }
+
+    public static IServiceCollection AddRecyclableMemoryStreamManager(this IServiceCollection services)
+    {
+        services.AddSingleton<RecyclableMemoryStreamManager>(new RecyclableMemoryStreamManager());
+
+        return services;
+    }
+
+    public static IServiceCollection AddFileExtensionContentTypeProvider(this IServiceCollection services)
+    {
+        services.AddTransient<FileExtensionContentTypeProvider>();
+        services.AddTransient<IContentTypeProvider, FileExtensionContentTypeProvider>(serviceProvider => serviceProvider.GetRequiredService<FileExtensionContentTypeProvider>());
 
         return services;
     }
@@ -111,7 +137,33 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<ITagService, TagService>();
 
+        services.AddTransient<ISnapshotHashCalculator, AlwaysZeroSnapshotHashCalculator>();
+
         services.AddHosted<MigrationsHistoryValidatorBackgroundService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddConfiguredAutoMapper(this IServiceCollection services)
+    {
+        static void Configure(IMapperConfigurationExpression mapperConfigurationExpression)
+        {
+            mapperConfigurationExpression.AddBlobAutoMapperProfile();
+
+            mapperConfigurationExpression.AddCommonAutoMapperProfiles();
+
+            mapperConfigurationExpression.AddExportAutoMapperProfiles();
+            mapperConfigurationExpression.AddImportAutoMapperProfiles();
+
+            IGlobalConfigurationExpression globalConfigurationExpression = mapperConfigurationExpression.Internal();
+            globalConfigurationExpression.ForAllMaps((_, map) =>
+            {
+                // GHSA-rvv3-g6hj-g44x : AutoMapper Vulnerable to Denial of Service (DoS) via Uncontrolled Recursion
+                map.MaxDepth(64);
+            });
+        }
+
+        services.AddAutoMapper(Configure);
 
         return services;
     }

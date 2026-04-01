@@ -3,6 +3,9 @@ using AndreyTalanin0x00.Extensions.Hosting;
 using AndreyTalanin0x00.Extensions.Hosting.Extensions;
 using AndreyTalanin0x00.Extensions.Hosting.Services.Abstractions;
 
+using JapaneseLanguageTools.Core.Blobs.Extensions;
+using JapaneseLanguageTools.Core.Export.Extensions;
+using JapaneseLanguageTools.Core.Import.Extensions;
 using JapaneseLanguageTools.Extensions;
 
 using Microsoft.AspNetCore.Builder;
@@ -25,10 +28,17 @@ public class WebStartup : WebStartupBase
     {
         services.AddTimeProvider();
 
-        services.AddAutoMapper(options =>
-        {
-            options.AddApplicationAutoMapperProfiles();
-        });
+        services.AddRecyclableMemoryStreamManager();
+
+        services.AddFileExtensionContentTypeProvider();
+
+        services.AddConfiguredAutoMapper();
+
+        services.AddBlobServices(Configuration);
+
+        services.AddExportServices();
+
+        services.AddImportServices();
 
         services.AddDbContextServices(Configuration);
 
