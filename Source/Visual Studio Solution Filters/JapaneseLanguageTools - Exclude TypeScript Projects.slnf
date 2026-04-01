@@ -1,0 +1,42 @@
+{
+    "solution": {
+        "path": "..\\JapaneseLanguageTools.sln",
+        "projects": [
+            "JapaneseLanguageTools\\JapaneseLanguageTools.csproj",
+            "Tests\\JapaneseLanguageTools.IntegrationTests\\JapaneseLanguageTools.IntegrationTests.csproj",
+            "Tests\\JapaneseLanguageTools.UnitTests\\JapaneseLanguageTools.UnitTests.csproj",
+
+            "JapaneseLanguageTools.Core\\JapaneseLanguageTools.Core.csproj",
+            "Tests\\JapaneseLanguageTools.Core.UnitTests\\JapaneseLanguageTools.Core.UnitTests.csproj",
+            "JapaneseLanguageTools.Core.Blobs\\JapaneseLanguageTools.Core.Blobs.csproj",
+            "Tests\\JapaneseLanguageTools.Core.Blobs.UnitTests\\JapaneseLanguageTools.Core.Blobs.UnitTests.csproj",
+            "JapaneseLanguageTools.Core.Export\\JapaneseLanguageTools.Core.Export.csproj",
+            "Tests\\JapaneseLanguageTools.Core.Export.UnitTests\\JapaneseLanguageTools.Core.Export.UnitTests.csproj",
+            "JapaneseLanguageTools.Core.Import\\JapaneseLanguageTools.Core.Import.csproj",
+            "Tests\\JapaneseLanguageTools.Core.Import.UnitTests\\JapaneseLanguageTools.Core.Import.UnitTests.csproj",
+
+            "JapaneseLanguageTools.Data\\JapaneseLanguageTools.Data.csproj",
+            "Tests\\JapaneseLanguageTools.Data.UnitTests\\JapaneseLanguageTools.Data.UnitTests.csproj",
+            "JapaneseLanguageTools.Data.Sqlite\\JapaneseLanguageTools.Data.Sqlite.csproj",
+            "Tests\\JapaneseLanguageTools.Data.Sqlite.IntegrationTests\\JapaneseLanguageTools.Data.Sqlite.IntegrationTests.csproj",
+            "Tests\\JapaneseLanguageTools.Data.Sqlite.UnitTests\\JapaneseLanguageTools.Data.Sqlite.UnitTests.csproj",
+            "JapaneseLanguageTools.Data.SqlServer\\JapaneseLanguageTools.Data.SqlServer.csproj",
+            "Tests\\JapaneseLanguageTools.Data.SqlServer.IntegrationTests\\JapaneseLanguageTools.Data.SqlServer.IntegrationTests.csproj",
+            "Tests\\JapaneseLanguageTools.Data.SqlServer.UnitTests\\JapaneseLanguageTools.Data.SqlServer.UnitTests.csproj",
+
+            "JapaneseLanguageTools.Contracts\\JapaneseLanguageTools.Contracts.csproj",
+            "Tests\\JapaneseLanguageTools.Contracts.UnitTests\\JapaneseLanguageTools.Contracts.UnitTests.csproj",
+            "JapaneseLanguageTools.Contracts.Json\\JapaneseLanguageTools.Contracts.Json.csproj",
+            "JapaneseLanguageTools.Contracts.Xml\\JapaneseLanguageTools.Contracts.Xml.csproj",
+
+            "Submodules\\AndreyTalanin0x00.Integrations.Blobs\\Source\\AndreyTalanin0x00.Integrations.Blobs\\AndreyTalanin0x00.Integrations.Blobs.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Blobs\\Source\\Tests\\AndreyTalanin0x00.Integrations.Blobs.UnitTests\\AndreyTalanin0x00.Integrations.Blobs.UnitTests.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Blobs\\Source\\AndreyTalanin0x00.Integrations.Blobs.InMemory\\AndreyTalanin0x00.Integrations.Blobs.InMemory.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Blobs\\Source\\Tests\\AndreyTalanin0x00.Integrations.Blobs.InMemory.UnitTests\\AndreyTalanin0x00.Integrations.Blobs.InMemory.UnitTests.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Export\\Source\\AndreyTalanin0x00.Integrations.Export\\AndreyTalanin0x00.Integrations.Export.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Export\\Source\\Tests\\AndreyTalanin0x00.Integrations.Export.UnitTests\\AndreyTalanin0x00.Integrations.Export.UnitTests.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Import\\Source\\AndreyTalanin0x00.Integrations.Import\\AndreyTalanin0x00.Integrations.Import.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Import\\Source\\Tests\\AndreyTalanin0x00.Integrations.Import.UnitTests\\AndreyTalanin0x00.Integrations.Import.UnitTests.csproj"
+        ]
+    }
+}
