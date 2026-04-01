@@ -1,0 +1,4 @@
+[submodule "Source/Submodules/AndreyTalanin0x00.Integrations.Blobs"]
+	path = Source/Submodules/AndreyTalanin0x00.Integrations.Blobs
+	url = https://github.com/AndreyTalanin0x00/AndreyTalanin0x00.Integrations.Blobs.git
+	branch = development-preview
