@@ -1,0 +1,26 @@
+{
+    "solution": {
+        "path": "..\\JapaneseLanguageTools.sln",
+        "projects": [
+            "JapaneseLanguageTools\\JapaneseLanguageTools.csproj",
+
+            "JapaneseLanguageTools.Core\\JapaneseLanguageTools.Core.csproj",
+            "JapaneseLanguageTools.Core.Blobs\\JapaneseLanguageTools.Core.Blobs.csproj",
+            "JapaneseLanguageTools.Core.Export\\JapaneseLanguageTools.Core.Export.csproj",
+            "JapaneseLanguageTools.Core.Import\\JapaneseLanguageTools.Core.Import.csproj",
+
+            "JapaneseLanguageTools.Data\\JapaneseLanguageTools.Data.csproj",
+            "JapaneseLanguageTools.Data.Sqlite\\JapaneseLanguageTools.Data.Sqlite.csproj",
+            "JapaneseLanguageTools.Data.SqlServer\\JapaneseLanguageTools.Data.SqlServer.csproj",
+
+            "JapaneseLanguageTools.Contracts\\JapaneseLanguageTools.Contracts.csproj",
+            "JapaneseLanguageTools.Contracts.Json\\JapaneseLanguageTools.Contracts.Json.csproj",
+            "JapaneseLanguageTools.Contracts.Xml\\JapaneseLanguageTools.Contracts.Xml.csproj",
+
+            "Submodules\\AndreyTalanin0x00.Integrations.Blobs\\Source\\AndreyTalanin0x00.Integrations.Blobs\\AndreyTalanin0x00.Integrations.Blobs.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Blobs\\Source\\AndreyTalanin0x00.Integrations.Blobs.InMemory\\AndreyTalanin0x00.Integrations.Blobs.InMemory.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Export\\Source\\AndreyTalanin0x00.Integrations.Export\\AndreyTalanin0x00.Integrations.Export.csproj",
+            "Submodules\\AndreyTalanin0x00.Integrations.Import\\Source\\AndreyTalanin0x00.Integrations.Import\\AndreyTalanin0x00.Integrations.Import.csproj"
+        ]
+    }
+}
