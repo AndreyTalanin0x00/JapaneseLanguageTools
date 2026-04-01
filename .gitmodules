@@ -7,3 +7,8 @@
 	path = Source/Submodules/AndreyTalanin0x00.Integrations.Export
 	url = https://github.com/AndreyTalanin0x00/AndreyTalanin0x00.Integrations.Export.git
 	branch = development-preview
+
+[submodule "Source/Submodules/AndreyTalanin0x00.Integrations.Import"]
+	path = Source/Submodules/AndreyTalanin0x00.Integrations.Import
+	url = https://github.com/AndreyTalanin0x00/AndreyTalanin0x00.Integrations.Import.git
+	branch = development-preview
