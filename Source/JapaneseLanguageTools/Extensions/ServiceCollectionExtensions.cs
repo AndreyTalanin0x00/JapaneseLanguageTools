@@ -36,6 +36,13 @@ namespace JapaneseLanguageTools.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddRandom(this IServiceCollection services)
+    {
+        services.AddSingleton<Random>(Random.Shared);
+
+        return services;
+    }
+
     public static IServiceCollection AddTimeProvider(this IServiceCollection services)
     {
         services.AddSingleton<TimeProvider>(TimeProvider.System);
