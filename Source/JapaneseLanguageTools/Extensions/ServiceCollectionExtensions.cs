@@ -9,12 +9,15 @@ using AutoMapper.Internal;
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
 using JapaneseLanguageTools.Core.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Blobs.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.Configuration;
 using JapaneseLanguageTools.Core.Export.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Import.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Services;
 using JapaneseLanguageTools.Core.Services.Abstractions;
 using JapaneseLanguageTools.Core.Services.Hosted;
 using JapaneseLanguageTools.Core.Services.Specialized;
+using JapaneseLanguageTools.Core.Services.Visitors;
+using JapaneseLanguageTools.Core.Services.Visitors.Abstractions;
 using JapaneseLanguageTools.Data.Contexts;
 using JapaneseLanguageTools.Data.Repositories;
 using JapaneseLanguageTools.Data.Repositories.Abstractions;
@@ -36,6 +39,13 @@ namespace JapaneseLanguageTools.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddRandom(this IServiceCollection services)
+    {
+        services.AddSingleton<Random>(Random.Shared);
+
+        return services;
+    }
+
     public static IServiceCollection AddTimeProvider(this IServiceCollection services)
     {
         services.AddSingleton<TimeProvider>(TimeProvider.System);
@@ -124,14 +134,39 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<ICharacterService, CharacterService>();
         services.AddTransient<ICharacterGroupService, CharacterGroupService>();
+
         services.AddTransient<ICharacterExerciseService, CharacterExerciseService>();
+        services.AddTransient<ICharacterExerciseGenerator, CharacterExerciseGenerator>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, RegularChallengeByExplicitlyDistributedTagsCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, RepeatedChallengeByPlaceholderCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, RepeatedChallengeByExceededRerunThresholdPlaceholderCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, AlwaysPresentRandomChallengeByPlaceholderCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, RegularChallengeCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, RepeatedChallengeByOriginalCharacterMatchCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitor, OrderShuffleCharacterExerciseBatchVisitor>();
+        services.AddTransient<ICharacterExerciseBatchVisitorSequence, CharacterExerciseBatchVisitorSequence>();
+
+        services.AddHosted<CharacterExerciseCleanupBackgroundService>();
+
         services.AddTransient<IWordService, WordService>();
         services.AddTransient<IWordGroupService, WordGroupService>();
+
         services.AddTransient<IWordExerciseService, WordExerciseService>();
+        services.AddTransient<IWordExerciseGenerator, WordExerciseGenerator>();
+        services.AddTransient<IWordExerciseBatchVisitor, RegularChallengeByExplicitlyDistributedTagsWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitor, RepeatedChallengeByPlaceholderWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitor, RepeatedChallengeByExceededRerunThresholdPlaceholderWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitor, AlwaysPresentRandomChallengeByPlaceholderWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitor, RegularChallengeWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitor, RepeatedChallengeByOriginalWordMatchWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitor, OrderShuffleWordExerciseBatchVisitor>();
+        services.AddTransient<IWordExerciseBatchVisitorSequence, WordExerciseBatchVisitorSequence>();
+
+        services.AddHosted<WordExerciseCleanupBackgroundService>();
 
         services.AddTransient<IApplicationDictionaryService, ApplicationDictionaryService>();
 
@@ -140,6 +175,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISnapshotHashCalculator, AlwaysZeroSnapshotHashCalculator>();
 
         services.AddHosted<MigrationsHistoryValidatorBackgroundService>();
+
+        services.Configure<CharacterExerciseConfiguration>(configuration.GetSection(CharacterExerciseConfiguration.SectionName));
+        services.Configure<WordExerciseConfiguration>(configuration.GetSection(WordExerciseConfiguration.SectionName));
 
         return services;
     }

@@ -26,9 +26,13 @@ public class WebStartup : WebStartupBase
     /// <inheritdoc />
     public override void ConfigureServices(IServiceCollection services)
     {
+        services.AddRandom();
+
         services.AddTimeProvider();
 
         services.AddRecyclableMemoryStreamManager();
+
+        services.AddMemoryCache();
 
         services.AddFileExtensionContentTypeProvider();
 
@@ -44,7 +48,7 @@ public class WebStartup : WebStartupBase
 
         services.AddApplicationRepositories();
 
-        services.AddApplicationServices();
+        services.AddApplicationServices(Configuration);
 
         services.AddControllers();
 
