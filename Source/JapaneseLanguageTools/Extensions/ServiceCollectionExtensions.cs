@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using AndreyTalanin0x00.Extensions.DependencyInjection;
@@ -6,6 +7,7 @@ using AndreyTalanin0x00.Extensions.DependencyInjection;
 using AutoMapper;
 using AutoMapper.Internal;
 
+using JapaneseLanguageTools.Configuration;
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
 using JapaneseLanguageTools.Core.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Blobs.AutoMapper.Extensions;
@@ -29,6 +31,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 
@@ -64,6 +67,35 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<FileExtensionContentTypeProvider>();
         services.AddTransient<IContentTypeProvider, FileExtensionContentTypeProvider>(serviceProvider => serviceProvider.GetRequiredService<FileExtensionContentTypeProvider>());
+
+        return services;
+    }
+
+    public static IServiceCollection AddPluggableAssemblies(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddPluggableAssemblies(configuration, out _);
+
+        return services;
+    }
+
+    public static IServiceCollection AddPluggableAssemblies(this IServiceCollection services, IConfiguration configuration, out IOptions<PluggableAssemblyConfiguration> pluggableAssemblyConfigurationOptions)
+    {
+        IConfigurationSection configurationSection = configuration.GetSection(PluggableAssemblyConfiguration.SectionName);
+
+        Dictionary<string, string> pluggableAssemblies = configurationSection.Get<Dictionary<string, string>>()
+            ?? throw new InvalidOperationException("No pluggable assembly configuration is present. Unable to determine implementation assemblies.");
+
+        PluggableAssemblyConfiguration pluggableAssemblyConfiguration = new()
+        {
+            PluggableAssemblies = pluggableAssemblies,
+        };
+
+        pluggableAssemblyConfigurationOptions = new OptionsWrapper<PluggableAssemblyConfiguration>(pluggableAssemblyConfiguration);
+
+        services.Configure<PluggableAssemblyConfiguration>(pluggableAssemblyConfigurationToConfigure =>
+        {
+            pluggableAssemblyConfigurationToConfigure.PluggableAssemblies = pluggableAssemblies;
+        });
 
         return services;
     }
