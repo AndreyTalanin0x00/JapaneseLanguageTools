@@ -3,6 +3,7 @@ using AndreyTalanin0x00.Extensions.Hosting;
 using AndreyTalanin0x00.Extensions.Hosting.Extensions;
 using AndreyTalanin0x00.Extensions.Hosting.Services.Abstractions;
 
+using JapaneseLanguageTools.Configuration;
 using JapaneseLanguageTools.Core.Blobs.Extensions;
 using JapaneseLanguageTools.Core.Export.Extensions;
 using JapaneseLanguageTools.Core.Import.Extensions;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace JapaneseLanguageTools;
 
@@ -36,6 +38,8 @@ public class WebStartup : WebStartupBase
 
         services.AddFileExtensionContentTypeProvider();
 
+        services.AddPluggableAssemblies(Configuration, out IOptions<PluggableAssemblyConfiguration> pluggableAssemblyConfigurationOptions);
+
         services.AddConfiguredAutoMapper();
 
         services.AddBlobServices(Configuration);
@@ -44,9 +48,9 @@ public class WebStartup : WebStartupBase
 
         services.AddImportServices();
 
-        services.AddDbContextServices(Configuration);
+        services.AddDbContextServices(Configuration, pluggableAssemblyConfigurationOptions);
 
-        services.AddApplicationRepositories();
+        services.AddApplicationRepositories(pluggableAssemblyConfigurationOptions);
 
         services.AddApplicationServices(Configuration);
 
