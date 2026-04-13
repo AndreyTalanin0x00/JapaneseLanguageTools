@@ -25,6 +25,8 @@ using JapaneseLanguageTools.Data.Repositories;
 using JapaneseLanguageTools.Data.Repositories.Abstractions;
 using JapaneseLanguageTools.Data.Sqlite.Contexts;
 using JapaneseLanguageTools.Data.Sqlite.Repositories;
+using JapaneseLanguageTools.Data.SqlServer.Contexts;
+using JapaneseLanguageTools.Data.SqlServer.Repositories;
 
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Data.Sqlite;
@@ -42,6 +44,12 @@ namespace JapaneseLanguageTools.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+#pragma warning disable IDE0002 // Simplify member access
+    private static readonly string s_japaneseLanguageToolsDataAssemblyName = string.Join(".", nameof(JapaneseLanguageTools), nameof(JapaneseLanguageTools.Data));
+    private static readonly string s_japaneseLanguageToolsDataSqliteAssemblyName = string.Join(".", s_japaneseLanguageToolsDataAssemblyName, nameof(JapaneseLanguageTools.Data.Sqlite));
+    private static readonly string s_japaneseLanguageToolsDataSqlServerAssemblyName = string.Join(".", s_japaneseLanguageToolsDataAssemblyName, nameof(JapaneseLanguageTools.Data.SqlServer));
+#pragma warning restore IDE0002 // Simplify member access
+
     public static IServiceCollection AddRandom(this IServiceCollection services)
     {
         services.AddSingleton<Random>(Random.Shared);
@@ -100,18 +108,41 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddDbContextServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDbContextServices(this IServiceCollection services, IConfiguration configuration, IOptions<PluggableAssemblyConfiguration> pluggableAssemblyConfigurationOptions)
+    {
+        PluggableAssemblyConfiguration pluggableAssemblyConfiguration = pluggableAssemblyConfigurationOptions.Value;
+
+        IDictionary<string, string> pluggableAssemblies = pluggableAssemblyConfiguration.PluggableAssemblies;
+
+        if (!pluggableAssemblies.TryGetValue(s_japaneseLanguageToolsDataAssemblyName, out string? implementationAssemblyName))
+            throw new NotImplementedException($"No pluggable assembly is configured for the {s_japaneseLanguageToolsDataAssemblyName} abstractions assembly.");
+
+        switch (implementationAssemblyName)
+        {
+            default:
+                throw new InvalidOperationException($"Unknown implementation assembly: {implementationAssemblyName}.");
+
+            case string x when s_japaneseLanguageToolsDataSqliteAssemblyName == x:
+                AddDbContextServicesSqlite(services, configuration);
+                break;
+
+            case string x when s_japaneseLanguageToolsDataSqlServerAssemblyName == x:
+                AddDbContextServicesSqlServer(services, configuration);
+                break;
+        }
+
+        return services;
+    }
+
+    private static IServiceCollection AddDbContextServicesSqlite(this IServiceCollection services, IConfiguration configuration)
     {
         string connectionStringName = SqliteMainDbContextConnectionStrings.MainConnectionString;
 
-        // TODO: Add an option to select the database implementation provider.
         services.AddKeyedSingleton<SqliteMainDbContextConnectionString>(connectionStringName, (serviceProvider, serviceKey) =>
         {
             string? connectionString = configuration.GetConnectionString(connectionStringName);
             if (string.IsNullOrEmpty(connectionString))
-            {
                 throw new InvalidOperationException($"Unable to get the connection string using the \"{connectionStringName}\" configuration key.");
-            }
 
             SqliteConnectionStringBuilder connectionStringBuilder = new(connectionString);
             if (connectionStringBuilder.DataSource.Contains('~'))
@@ -126,7 +157,6 @@ public static class ServiceCollectionExtensions
                 : new SqliteMainDbContextConnectionString(connectionString);
         });
 
-        // TODO: Add an option to select the database implementation provider.
         services.AddDbContext<MainDbContext, SqliteMainDbContext>((serviceProvider, contextOptions) =>
         {
             SqliteMainDbContextConnectionString connectionString =
@@ -143,9 +173,63 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddApplicationRepositories(this IServiceCollection services)
+    private static IServiceCollection AddDbContextServicesSqlServer(this IServiceCollection services, IConfiguration configuration)
     {
-        // TODO: Add an option to select the database implementation provider.
+        string connectionStringName = SqlServerMainDbContextConnectionStrings.MainConnectionString;
+
+        services.AddKeyedSingleton<SqlServerMainDbContextConnectionString>(connectionStringName, (serviceProvider, serviceKey) =>
+        {
+            string? connectionString = configuration.GetConnectionString(connectionStringName);
+
+            return string.IsNullOrEmpty(connectionString)
+                ? throw new InvalidOperationException($"Unable to get the connection string using the \"{connectionStringName}\" configuration key.")
+                : new SqlServerMainDbContextConnectionString(connectionString);
+        });
+
+        services.AddDbContext<MainDbContext, SqlServerMainDbContext>((serviceProvider, contextOptions) =>
+        {
+            SqlServerMainDbContextConnectionString connectionString =
+                serviceProvider.GetRequiredKeyedService<SqlServerMainDbContextConnectionString>(SqlServerMainDbContextConnectionStrings.MainConnectionString);
+
+            contextOptions.UseSqlServer(connectionString.Value, sqlServerOptions =>
+            {
+                sqlServerOptions
+                    .MigrationsAssembly(typeof(SqlServerMainDbContext).Assembly.FullName)
+                    .CommandTimeout(120);
+            });
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddApplicationRepositories(this IServiceCollection services, IOptions<PluggableAssemblyConfiguration> pluggableAssemblyConfigurationOptions)
+    {
+        PluggableAssemblyConfiguration pluggableAssemblyConfiguration = pluggableAssemblyConfigurationOptions.Value;
+
+        IDictionary<string, string> pluggableAssemblies = pluggableAssemblyConfiguration.PluggableAssemblies;
+
+        if (!pluggableAssemblies.TryGetValue(s_japaneseLanguageToolsDataAssemblyName, out string? implementationAssemblyName))
+            throw new NotImplementedException($"No pluggable assembly is configured for the {s_japaneseLanguageToolsDataAssemblyName} abstractions assembly.");
+
+        switch (implementationAssemblyName)
+        {
+            default:
+                throw new InvalidOperationException($"Unknown implementation assembly: {implementationAssemblyName}.");
+
+            case string x when s_japaneseLanguageToolsDataSqliteAssemblyName == x:
+                AddApplicationRepositoriesSqlite(services);
+                break;
+
+            case string x when s_japaneseLanguageToolsDataSqlServerAssemblyName == x:
+                AddApplicationRepositoriesSqlServer(services);
+                break;
+        }
+
+        return services;
+    }
+
+    private static IServiceCollection AddApplicationRepositoriesSqlite(IServiceCollection services)
+    {
         services.AddTransient<SqliteCharacterRepository>();
         services.AddTransient<ICharacterRepository, SqliteCharacterRepository>(serviceProvider => serviceProvider.GetRequiredService<SqliteCharacterRepository>());
         services.AddTransient<ICharacterGroupRepository, SqliteCharacterGroupRepository>();
@@ -162,6 +246,28 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IApplicationDictionaryRepository, ApplicationDictionaryRepository>();
 
         services.AddTransient<ITagRepository, SqliteTagRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddApplicationRepositoriesSqlServer(IServiceCollection services)
+    {
+        services.AddTransient<SqlServerCharacterRepository>();
+        services.AddTransient<ICharacterRepository, SqlServerCharacterRepository>(serviceProvider => serviceProvider.GetRequiredService<SqlServerCharacterRepository>());
+        services.AddTransient<ICharacterGroupRepository, SqlServerCharacterGroupRepository>();
+        services.AddTransient<ICharacterExerciseRepository, SqlServerCharacterExerciseRepository>();
+        services.AddTransient<SqlServerCharacterExerciseRerunRepository>();
+        services.AddTransient<ICharacterExerciseRerunRepository, SqlServerCharacterExerciseRerunRepository>(serviceProvider => serviceProvider.GetRequiredService<SqlServerCharacterExerciseRerunRepository>());
+        services.AddTransient<SqlServerWordRepository>();
+        services.AddTransient<IWordRepository, SqlServerWordRepository>(serviceProvider => serviceProvider.GetRequiredService<SqlServerWordRepository>());
+        services.AddTransient<IWordGroupRepository, SqlServerWordGroupRepository>();
+        services.AddTransient<IWordExerciseRepository, SqlServerWordExerciseRepository>();
+        services.AddTransient<SqlServerWordExerciseRerunRepository>();
+        services.AddTransient<IWordExerciseRerunRepository, SqlServerWordExerciseRerunRepository>(serviceProvider => serviceProvider.GetRequiredService<SqlServerWordExerciseRerunRepository>());
+
+        services.AddTransient<IApplicationDictionaryRepository, ApplicationDictionaryRepository>();
+
+        services.AddTransient<ITagRepository, SqlServerTagRepository>();
 
         return services;
     }
