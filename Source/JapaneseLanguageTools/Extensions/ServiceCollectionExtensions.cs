@@ -35,7 +35,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IO;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 // Disable the IDE0001 (Simplify name) notification to preserve explicit service types.
 #pragma warning disable IDE0001
