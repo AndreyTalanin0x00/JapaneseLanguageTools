@@ -1,0 +1,5 @@
+import SubmitCompletedCharacterExerciseDetailsRequestModel from "@/models/requests/SubmitCompletedCharacterExerciseDetailsRequest.Model";
+
+export default interface SubmitCompletedCharacterExerciseDetailsResponseModel {
+  request: SubmitCompletedCharacterExerciseDetailsRequestModel;
+}
