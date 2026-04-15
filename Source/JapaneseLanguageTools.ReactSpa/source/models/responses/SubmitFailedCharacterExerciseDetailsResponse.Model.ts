@@ -1,0 +1,5 @@
+import SubmitFailedCharacterExerciseDetailsRequestModel from "@/models/requests/SubmitFailedCharacterExerciseDetailsRequest.Model";
+
+export default interface SubmitFailedCharacterExerciseDetailsResponseModel {
+  request: SubmitFailedCharacterExerciseDetailsRequestModel;
+}
