@@ -1,0 +1,46 @@
+.form > * {
+  margin-bottom: 12px;
+}
+
+.form :global(.ant-form-item) {
+  margin-bottom: 12px;
+}
+
+.form > .formDivider {
+  margin: 12px 0px;
+}
+
+.form > :not(.formDivider) {
+  width: 100%;
+  min-width: 480px;
+  max-width: 800px;
+}
+
+.formMobile > * {
+  margin-bottom: 12px;
+}
+
+.formMobile :global(.ant-form-item) {
+  margin-bottom: 12px;
+}
+
+.formMobile > .formDivider {
+  margin: 12px 0px;
+}
+
+.formMobile > :not(.formDivider) {
+  width: 100%;
+}
+
+.exerciseProfileCollapseLabel {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.exerciseProfileCollapseLabel > *:first-child {
+  margin-right: auto;
+}
+
+.standaloneDivider {
+  margin: 12px 0px;
+}
