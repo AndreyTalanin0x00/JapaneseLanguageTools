@@ -1,4 +1,4 @@
-import { ExceptionOutlined, HomeOutlined, ToolOutlined } from "@ant-design/icons";
+import { ExceptionOutlined, HomeOutlined, SettingOutlined, ToolOutlined } from "@ant-design/icons";
 
 import { isProductionMode } from "@/ApplicationEnvironment";
 import type ApplicationBreadcrumbItemDescriptor from "@/entities/application/ApplicationBreadcrumbItemDescriptor";
@@ -7,6 +7,7 @@ import type ApplicationPageDescriptor from "@/entities/application/ApplicationPa
 import HomePage from "@/pages/application/HomePage";
 import InvalidRoutePage from "@/pages/application/InvalidRoutePage";
 import SwaggerRedirectPage from "@/pages/application/SwaggerRedirectPage";
+import PreferencesPage from "@/pages/preferences/PreferencesPage";
 
 // prettier-ignore
 const redirectPageDescriptors: ApplicationPageDescriptor[] = [
@@ -21,6 +22,7 @@ const errorPageDescriptors: ApplicationPageDescriptor[] = [
 // prettier-ignore
 export const applicationPageDescriptors: ApplicationPageDescriptor[] = [
   { key: "home-page", path: "/home", name: "Home", icon: <HomeOutlined />, component: <HomePage /> },
+  { key: "preferences-page", path: "/preferences", name: "Preferences", icon: <SettingOutlined />, component: <PreferencesPage /> },
   // Placeholder pages not existing in the application and routed via redirects instead.
   ...redirectPageDescriptors,
   // Error pages not displayed during normal operation.
@@ -30,12 +32,14 @@ export const applicationPageDescriptors: ApplicationPageDescriptor[] = [
 // prettier-ignore
 export const applicationMenuItemDescriptors: ApplicationMenuItemDescriptor[] = [
   { key: "home-page", type: "item" },
+  { key: "preferences-page", type: "item" },
   { key: "swagger-redirect-page", disabled: isProductionMode(), type: "item" },
 ];
 
 // prettier-ignore
 export const applicationBreadcrumbItemDescriptors: ApplicationBreadcrumbItemDescriptor[] = [
   { key: "home-page", useLink: true },
+  { key: "preferences-page", useLink: true },
   { key: "swagger-redirect-page", useLink: true },
   { key: "invalid-route-page", useLink: true },
 ];
