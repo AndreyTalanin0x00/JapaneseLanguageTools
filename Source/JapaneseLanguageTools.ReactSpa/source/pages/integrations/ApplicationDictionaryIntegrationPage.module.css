@@ -1,0 +1,38 @@
+.importTabContent {
+  width: 50%;
+  min-width: 480px;
+  max-width: 640px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+.importTabContentMobile {
+  width: 100%;
+}
+
+.exportTabContent {
+  width: 50%;
+  min-width: 480px;
+  max-width: 640px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+.exportTabContentMobile {
+  width: 100%;
+}
+
+.cardHeader {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.cardHeader > *:first-child {
+  margin-right: auto;
+}
