@@ -1,7 +1,21 @@
-import { Alert, Button, Card, Form, message, Radio, Select, Space, Typography } from "antd";
+import { Alert, Button, Card, Divider, Empty, Form, message, Radio, Select, Space, Typography } from "antd";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { ArrowUpOutlined, LoadingOutlined, MobileOutlined, ProfileOutlined, TableOutlined, UndoOutlined } from "@ant-design/icons";
+import {
+  ArrowRightOutlined,
+  ArrowUpOutlined,
+  CheckOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
+  LeftOutlined,
+  LoadingOutlined,
+  MobileOutlined,
+  ProfileOutlined,
+  QuestionOutlined,
+  RightOutlined,
+  TableOutlined,
+  UndoOutlined,
+} from "@ant-design/icons";
 
 import logApiError from "@/api/helpers/logApiError.antd";
 import { displayUnsuccessfulRequestError } from "@/api/helpers/unsuccessfulRequestHelpers";
@@ -626,8 +640,220 @@ const WordExercisePage = () => {
 
 export default WordExercisePage;
 
-const WordExerciseCardSetView = (_props: WordExerciseViewProps) => {
-  return <></>;
+const WordExerciseCardSetView = (props: WordExerciseViewProps) => {
+  const {
+    wordRecords,
+    wordExerciseSession: {
+      wordExerciseBatchModel: { id: wordExerciseBatchId },
+      completed: wordExerciseSessionCompleted,
+    },
+    wordExercisePreferences,
+  } = props;
+
+  const { onWordExercisePeek, onWordExercisePeekRevert, onWordExerciseDisplay, onWordExerciseComplete, runWordExerciseScheduledAction } = props;
+
+  const [currentWordRecordIndex, setCurrentWordRecordIndex] = useState<number>(0);
+
+  const availablePendingWordRecordIndex = useMemo(() => {
+    return wordRecords.findIndex((wordRecord) => !wordRecord.completed);
+  }, [wordRecords]);
+
+  useEffect(() => setCurrentWordRecordIndex(0), [wordExerciseBatchId]);
+
+  const currentWordRecord = useMemo(() => {
+    if (wordRecords.length > 0) {
+      return wordRecords[currentWordRecordIndex];
+    } else {
+      return undefined;
+    }
+  }, [wordRecords, currentWordRecordIndex]);
+
+  const isFirstWordRecord = useMemo(() => currentWordRecordIndex == 0, [currentWordRecordIndex]);
+  const isLastWordRecord = useMemo(() => currentWordRecordIndex == wordRecords.length - 1, [currentWordRecordIndex, wordRecords]);
+  const isPendingWordRecordAvailable = useMemo(() => availablePendingWordRecordIndex >= 0, [availablePendingWordRecordIndex]);
+
+  const moveToNextWordRecord = () => setCurrentWordRecordIndex((currentWordRecordIndex) => currentWordRecordIndex + 1);
+  const moveToPreviousWordRecord = () => setCurrentWordRecordIndex((currentWordRecordIndex) => currentWordRecordIndex - 1);
+  const moveToAvailablePendingWordRecord = useCallback(() => setCurrentWordRecordIndex(availablePendingWordRecordIndex), [availablePendingWordRecordIndex]);
+
+  const [completeButtonGracePeriodActive, setCompleteButtonGracePeriodActive] = useState<boolean>(false);
+
+  const completeButtonIcon = useMemo(() => {
+    if (!currentWordRecord) {
+      return undefined;
+    } else if (completeButtonGracePeriodActive) {
+      return <ClockCircleOutlined />;
+    } else {
+      return <CheckOutlined />;
+    }
+  }, [currentWordRecord, completeButtonGracePeriodActive]);
+  const completeButtonContent = useMemo(() => {
+    if (!currentWordRecord) {
+      return undefined;
+    } else {
+      return "Complete";
+    }
+  }, [currentWordRecord]);
+
+  const onCompleteButtonClick = useCallback(
+    (wordRecordIndex: number) => {
+      onWordExerciseDisplay(wordRecordIndex);
+
+      if (wordExercisePreferences?.navigateOnCompletion) {
+        setCompleteButtonGracePeriodActive(true);
+
+        runWordExerciseScheduledAction(() => {
+          onWordExerciseComplete(wordRecordIndex);
+          if (wordRecordIndex + 1 < wordRecords.length) {
+            moveToNextWordRecord();
+          }
+
+          setCompleteButtonGracePeriodActive(false);
+        }, wordExercisePreferences.navigateOnCompletionDelayMilliseconds ?? wordExercisePreferencesDefaultValues.navigateOnCompletionDelayMilliseconds);
+      } else {
+        onWordExerciseComplete(wordRecordIndex);
+      }
+    },
+    [wordRecords, wordExercisePreferences, onWordExerciseDisplay, onWordExerciseComplete, runWordExerciseScheduledAction]
+  );
+
+  const [failButtonGracePeriodActive, setFailButtonGracePeriodActive] = useState<boolean>(false);
+
+  const failButtonIcon = useMemo(() => {
+    if (!currentWordRecord) {
+      return undefined;
+    } else if (failButtonGracePeriodActive) {
+      return <ClockCircleOutlined />;
+    } else if (completeButtonGracePeriodActive || currentWordRecord.completed) {
+      return !currentWordRecord.peeked ? <CloseOutlined /> : <UndoOutlined />;
+    } else {
+      return !currentWordRecord.peeked ? <QuestionOutlined /> : <UndoOutlined />;
+    }
+  }, [currentWordRecord, completeButtonGracePeriodActive, failButtonGracePeriodActive]);
+  const failButtonContent = useMemo(() => {
+    if (!currentWordRecord) {
+      return undefined;
+    } else if (completeButtonGracePeriodActive || currentWordRecord.completed) {
+      return !currentWordRecord.peeked ? "Fail" : "Revert Fail";
+    } else {
+      return !currentWordRecord.peeked ? "Peek" : "Revert Peek";
+    }
+  }, [currentWordRecord, completeButtonGracePeriodActive]);
+
+  const onFailButtonClick = useCallback(
+    (wordRecordIndex: number, completed: boolean, status: boolean) => {
+      if (!completed && !completeButtonGracePeriodActive && status) {
+        onWordExercisePeek(wordRecordIndex);
+        onWordExerciseDisplay(wordRecordIndex);
+
+        if (wordExercisePreferences?.navigateOnFailure) {
+          setFailButtonGracePeriodActive(true);
+
+          runWordExerciseScheduledAction(() => {
+            onWordExerciseComplete(wordRecordIndex);
+            if (wordRecordIndex + 1 < wordRecords.length) {
+              moveToNextWordRecord();
+            }
+
+            setFailButtonGracePeriodActive(false);
+          }, wordExercisePreferences.navigateOnFailureDelayMilliseconds ?? wordExercisePreferencesDefaultValues.navigateOnFailureDelayMilliseconds);
+        } else {
+          onWordExerciseComplete(wordRecordIndex);
+        }
+      } else if ((completed || completeButtonGracePeriodActive) && status) {
+        onWordExercisePeek(wordRecordIndex);
+      } else {
+        onWordExercisePeekRevert(wordRecordIndex);
+      }
+    },
+    [wordRecords, wordExercisePreferences, onWordExercisePeek, onWordExercisePeekRevert, onWordExerciseDisplay, onWordExerciseComplete, runWordExerciseScheduledAction, completeButtonGracePeriodActive]
+  );
+
+  return (
+    <Space style={{ display: "flex" }} direction="vertical">
+      <Card
+        size="small"
+        title={
+          <Space wrap className={styles.cardHeader} direction="horizontal" align="baseline">
+            <Space wrap direction="horizontal" align="baseline">
+              Content
+            </Space>
+          </Space>
+        }
+      >
+        {currentWordRecord ? (
+          <Space direction="vertical">
+            <Paragraph>
+              Characters:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentWordRecord.characters}
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              Character Types:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentWordRecord.characterTypes}
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              Pronunciation:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentWordRecord.pronunciation ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              Furigana:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentWordRecord.furigana ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              Meaning:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentWordRecord.meaning ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+              </Text>
+            </Paragraph>
+          </Space>
+        ) : (
+          <Empty />
+        )}
+      </Card>
+      {currentWordRecord ? (
+        <Card size="small" title="Controls">
+          <Space wrap direction="horizontal" align="baseline">
+            <Button
+              type="default"
+              size="small"
+              icon={completeButtonIcon}
+              disabled={wordExerciseSessionCompleted || completeButtonGracePeriodActive || failButtonGracePeriodActive || currentWordRecord.completed}
+              onClick={() => onCompleteButtonClick(currentWordRecordIndex)}
+            >
+              {completeButtonContent}
+            </Button>
+            <Button
+              type={!currentWordRecord.peeked ? "default" : "dashed"}
+              size="small"
+              icon={failButtonIcon}
+              disabled={wordExerciseSessionCompleted || failButtonGracePeriodActive}
+              onClick={() => onFailButtonClick(currentWordRecordIndex, currentWordRecord.completed, !currentWordRecord.peeked)}
+              danger
+            >
+              {failButtonContent}
+            </Button>
+          </Space>
+          <Divider style={{ margin: "12px 0px" }} />
+          <Space wrap direction="horizontal" align="baseline">
+            <Button size="small" icon={<LeftOutlined />} disabled={isFirstWordRecord} onClick={moveToPreviousWordRecord} />
+            <Text style={{ fontWeight: "initial" }}>
+              {1 + currentWordRecordIndex} / {wordRecords.length}
+            </Text>
+            <Button size="small" icon={<RightOutlined />} disabled={isLastWordRecord} onClick={moveToNextWordRecord} />
+            <Button size="small" icon={<ArrowRightOutlined />} disabled={!isPendingWordRecordAvailable} onClick={moveToAvailablePendingWordRecord} />
+          </Space>
+        </Card>
+      ) : undefined}
+    </Space>
+  );
 };
 
 const WordExerciseTableView = (_props: WordExerciseViewProps) => {
