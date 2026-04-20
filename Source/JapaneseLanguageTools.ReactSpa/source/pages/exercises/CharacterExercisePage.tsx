@@ -1,7 +1,21 @@
-import { Alert, Button, Card, Form, message, Radio, Select, Space, Typography } from "antd";
+import { Alert, Button, Card, Divider, Empty, Form, message, Radio, Select, Space, Typography } from "antd";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { ArrowUpOutlined, LoadingOutlined, MobileOutlined, ProfileOutlined, TableOutlined, UndoOutlined } from "@ant-design/icons";
+import {
+  ArrowRightOutlined,
+  ArrowUpOutlined,
+  CheckOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
+  LeftOutlined,
+  LoadingOutlined,
+  MobileOutlined,
+  ProfileOutlined,
+  QuestionOutlined,
+  RightOutlined,
+  TableOutlined,
+  UndoOutlined,
+} from "@ant-design/icons";
 
 import logApiError from "@/api/helpers/logApiError.antd";
 import { displayUnsuccessfulRequestError } from "@/api/helpers/unsuccessfulRequestHelpers";
@@ -656,8 +670,245 @@ const CharacterExercisePage = () => {
 
 export default CharacterExercisePage;
 
-const CharacterExerciseCardSetView = (_props: CharacterExerciseViewProps) => {
-  return <></>;
+const CharacterExerciseCardSetView = (props: CharacterExerciseViewProps) => {
+  const {
+    characterRecords,
+    characterExerciseSession: {
+      characterProperties,
+      characterExerciseBatchModel: { id: characterExerciseBatchId },
+      completed: characterExerciseSessionCompleted,
+    },
+    characterExercisePreferences,
+  } = props;
+
+  const { onCharacterExercisePeek, onCharacterExercisePeekRevert, onCharacterExerciseDisplay, onCharacterExerciseComplete, runCharacterExerciseScheduledAction } = props;
+
+  const [currentCharacterRecordIndex, setCurrentCharacterRecordIndex] = useState<number>(0);
+
+  const availablePendingCharacterRecordIndex = useMemo(() => {
+    return characterRecords.findIndex((characterRecord) => !characterRecord.completed);
+  }, [characterRecords]);
+
+  useEffect(() => setCurrentCharacterRecordIndex(0), [characterExerciseBatchId]);
+
+  const currentCharacterRecord = useMemo(() => {
+    if (characterRecords.length > 0) {
+      return characterRecords[currentCharacterRecordIndex];
+    } else {
+      return undefined;
+    }
+  }, [characterRecords, currentCharacterRecordIndex]);
+
+  const isFirstCharacterRecord = useMemo(() => currentCharacterRecordIndex == 0, [currentCharacterRecordIndex]);
+  const isLastCharacterRecord = useMemo(() => currentCharacterRecordIndex == characterRecords.length - 1, [currentCharacterRecordIndex, characterRecords]);
+  const isPendingCharacterRecordAvailable = useMemo(() => availablePendingCharacterRecordIndex >= 0, [availablePendingCharacterRecordIndex]);
+
+  const moveToNextCharacterRecord = () => setCurrentCharacterRecordIndex((currentCharacterRecordIndex) => currentCharacterRecordIndex + 1);
+  const moveToPreviousCharacterRecord = () => setCurrentCharacterRecordIndex((currentCharacterRecordIndex) => currentCharacterRecordIndex - 1);
+  const moveToAvailablePendingCharacterRecord = useCallback(() => setCurrentCharacterRecordIndex(availablePendingCharacterRecordIndex), [availablePendingCharacterRecordIndex]);
+
+  const [completeButtonGracePeriodActive, setCompleteButtonGracePeriodActive] = useState<boolean>(false);
+
+  const completeButtonIcon = useMemo(() => {
+    if (!currentCharacterRecord) {
+      return undefined;
+    } else if (completeButtonGracePeriodActive) {
+      return <ClockCircleOutlined />;
+    } else {
+      return <CheckOutlined />;
+    }
+  }, [currentCharacterRecord, completeButtonGracePeriodActive]);
+  const completeButtonContent = useMemo(() => {
+    if (!currentCharacterRecord) {
+      return undefined;
+    } else {
+      return "Complete";
+    }
+  }, [currentCharacterRecord]);
+
+  const onCompleteButtonClick = useCallback(
+    (characterRecordIndex: number) => {
+      onCharacterExerciseDisplay(characterRecordIndex);
+
+      if (characterExercisePreferences?.navigateOnCompletion) {
+        setCompleteButtonGracePeriodActive(true);
+
+        runCharacterExerciseScheduledAction(() => {
+          onCharacterExerciseComplete(characterRecordIndex);
+          if (characterRecordIndex + 1 < characterRecords.length) {
+            moveToNextCharacterRecord();
+          }
+
+          setCompleteButtonGracePeriodActive(false);
+        }, characterExercisePreferences.navigateOnCompletionDelayMilliseconds ?? characterExercisePreferencesDefaultValues.navigateOnCompletionDelayMilliseconds);
+      } else {
+        onCharacterExerciseComplete(characterRecordIndex);
+      }
+    },
+    [characterRecords, characterExercisePreferences, onCharacterExerciseDisplay, onCharacterExerciseComplete, runCharacterExerciseScheduledAction]
+  );
+
+  const [failButtonGracePeriodActive, setFailButtonGracePeriodActive] = useState<boolean>(false);
+
+  const failButtonIcon = useMemo(() => {
+    if (!currentCharacterRecord) {
+      return undefined;
+    } else if (failButtonGracePeriodActive) {
+      return <ClockCircleOutlined />;
+    } else if (completeButtonGracePeriodActive || currentCharacterRecord.completed) {
+      return !currentCharacterRecord.peeked ? <CloseOutlined /> : <UndoOutlined />;
+    } else {
+      return !currentCharacterRecord.peeked ? <QuestionOutlined /> : <UndoOutlined />;
+    }
+  }, [currentCharacterRecord, completeButtonGracePeriodActive, failButtonGracePeriodActive]);
+  const failButtonContent = useMemo(() => {
+    if (!currentCharacterRecord) {
+      return undefined;
+    } else if (completeButtonGracePeriodActive || currentCharacterRecord.completed) {
+      return !currentCharacterRecord.peeked ? "Fail" : "Revert Fail";
+    } else {
+      return !currentCharacterRecord.peeked ? "Peek" : "Revert Peek";
+    }
+  }, [currentCharacterRecord, completeButtonGracePeriodActive]);
+
+  const onFailButtonClick = useCallback(
+    (characterRecordIndex: number, completed: boolean, status: boolean) => {
+      if (!completed && !completeButtonGracePeriodActive && status) {
+        onCharacterExercisePeek(characterRecordIndex);
+        onCharacterExerciseDisplay(characterRecordIndex);
+
+        if (characterExercisePreferences?.navigateOnFailure) {
+          setFailButtonGracePeriodActive(true);
+
+          runCharacterExerciseScheduledAction(() => {
+            onCharacterExerciseComplete(characterRecordIndex);
+            if (characterRecordIndex + 1 < characterRecords.length) {
+              moveToNextCharacterRecord();
+            }
+
+            setFailButtonGracePeriodActive(false);
+          }, characterExercisePreferences.navigateOnFailureDelayMilliseconds ?? characterExercisePreferencesDefaultValues.navigateOnFailureDelayMilliseconds);
+        } else {
+          onCharacterExerciseComplete(characterRecordIndex);
+        }
+      } else if ((completed || completeButtonGracePeriodActive) && status) {
+        onCharacterExercisePeek(characterRecordIndex);
+      } else {
+        onCharacterExercisePeekRevert(characterRecordIndex);
+      }
+    },
+    [characterRecords, characterExercisePreferences, onCharacterExercisePeek, onCharacterExercisePeekRevert, onCharacterExerciseDisplay, onCharacterExerciseComplete, runCharacterExerciseScheduledAction, completeButtonGracePeriodActive]
+  );
+
+  return (
+    <Space style={{ display: "flex" }} direction="vertical">
+      <Card
+        size="small"
+        title={
+          <Space wrap className={styles.cardHeader} direction="horizontal" align="baseline">
+            <Space wrap direction="horizontal" align="baseline">
+              Content
+            </Space>
+          </Space>
+        }
+      >
+        {currentCharacterRecord ? (
+          <Space direction="vertical">
+            <Paragraph>
+              Symbol:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentCharacterRecord.symbol}
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              Character Type:{" "}
+              <Text keyboard style={{ display: "inline-block" }}>
+                {currentCharacterRecord.type}
+              </Text>
+            </Paragraph>
+            {characterProperties & CharacterProperties.Onyomi ? (
+              <>
+                <Paragraph>
+                  Onyomi:{" "}
+                  <Text keyboard style={{ display: "inline-block" }}>
+                    {currentCharacterRecord.onyomi ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+                  </Text>
+                </Paragraph>
+              </>
+            ) : undefined}
+            {characterProperties & CharacterProperties.Kunyomi ? (
+              <Paragraph>
+                Kunyomi:{" "}
+                <Text keyboard style={{ display: "inline-block" }}>
+                  {currentCharacterRecord.kunyomi ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+                </Text>
+              </Paragraph>
+            ) : undefined}
+            {characterProperties & CharacterProperties.Pronunciation ? (
+              <Paragraph>
+                Pronunciation:{" "}
+                <Text keyboard style={{ display: "inline-block" }}>
+                  {currentCharacterRecord.pronunciation ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+                </Text>
+              </Paragraph>
+            ) : undefined}
+            {characterProperties & CharacterProperties.Syllable ? (
+              <Paragraph>
+                Syllable:{" "}
+                <Text keyboard style={{ display: "inline-block" }}>
+                  {currentCharacterRecord.syllable ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+                </Text>
+              </Paragraph>
+            ) : undefined}
+            {characterProperties & CharacterProperties.Meaning ? (
+              <Paragraph>
+                Meaning:{" "}
+                <Text keyboard style={{ display: "inline-block" }}>
+                  {currentCharacterRecord.meaning ?? <Typography.Text type="secondary">N/A</Typography.Text>}
+                </Text>
+              </Paragraph>
+            ) : undefined}
+          </Space>
+        ) : (
+          <Empty />
+        )}
+      </Card>
+      {currentCharacterRecord ? (
+        <Card size="small" title="Controls">
+          <Space wrap direction="horizontal" align="baseline">
+            <Button
+              type="default"
+              size="small"
+              icon={completeButtonIcon}
+              disabled={characterExerciseSessionCompleted || completeButtonGracePeriodActive || failButtonGracePeriodActive || currentCharacterRecord.completed}
+              onClick={() => onCompleteButtonClick(currentCharacterRecordIndex)}
+            >
+              {completeButtonContent}
+            </Button>
+            <Button
+              type={!currentCharacterRecord.peeked ? "default" : "dashed"}
+              size="small"
+              icon={failButtonIcon}
+              disabled={characterExerciseSessionCompleted || failButtonGracePeriodActive}
+              onClick={() => onFailButtonClick(currentCharacterRecordIndex, currentCharacterRecord.completed, !currentCharacterRecord.peeked)}
+              danger
+            >
+              {failButtonContent}
+            </Button>
+          </Space>
+          <Divider style={{ margin: "12px 0px" }} />
+          <Space wrap direction="horizontal" align="baseline">
+            <Button size="small" icon={<LeftOutlined />} disabled={isFirstCharacterRecord} onClick={moveToPreviousCharacterRecord} />
+            <Text style={{ fontWeight: "initial" }}>
+              {1 + currentCharacterRecordIndex} / {characterRecords.length}
+            </Text>
+            <Button size="small" icon={<RightOutlined />} disabled={isLastCharacterRecord} onClick={moveToNextCharacterRecord} />
+            <Button size="small" icon={<ArrowRightOutlined />} disabled={!isPendingCharacterRecordAvailable} onClick={moveToAvailablePendingCharacterRecord} />
+          </Space>
+        </Card>
+      ) : undefined}
+    </Space>
+  );
 };
 
 const CharacterExerciseTableView = (_props: CharacterExerciseViewProps) => {
