@@ -1,0 +1,27 @@
+.cardHeader {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.cardHeader > *:first-child {
+  margin-right: auto;
+}
+
+.cardHeader > :not(*:first-child) {
+  font-weight: normal;
+}
+
+.form {
+  width: 50%;
+  min-width: 480px;
+  max-width: 640px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+.formMobile {
+  width: 100%;
+}
