@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Divider, Empty, Form, message, Radio, Select, Space, Typography } from "antd";
+import { Alert, Button, Card, Divider, Empty, Form, message, Radio, Select, Space, Table, Typography } from "antd";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
@@ -856,6 +856,182 @@ const WordExerciseCardSetView = (props: WordExerciseViewProps) => {
   );
 };
 
-const WordExerciseTableView = (_props: WordExerciseViewProps) => {
-  return <></>;
+const WordExerciseTableView = (props: WordExerciseViewProps) => {
+  const {
+    wordRecords,
+    wordExerciseSession: {
+      wordExerciseBatchModel: { id: wordExerciseBatchId, items: wordExerciseModels },
+      completed: wordExerciseSessionCompleted,
+    },
+    wordExercisePreferences,
+  } = props;
+
+  const { onWordExercisePeek, onWordExercisePeekRevert, onWordExerciseDisplay, onWordExerciseComplete, runWordExerciseScheduledAction } = props;
+
+  const [completeButtonGracePeriodActiveFlags, setCompleteButtonGracePeriodActiveFlags] = useState<boolean[]>([]);
+
+  useEffect(() => setCompleteButtonGracePeriodActiveFlags(new Array(wordExerciseModels.length).map(() => false)), [wordExerciseModels, wordExerciseBatchId]);
+
+  const setCompleteButtonGracePeriodActive = (wordRecordIndex: number, flag: boolean) => {
+    setCompleteButtonGracePeriodActiveFlags((completeButtonGracePeriodActiveFlags) => {
+      completeButtonGracePeriodActiveFlags[wordRecordIndex] = flag;
+      return [...completeButtonGracePeriodActiveFlags];
+    });
+  };
+
+  const onCompleteButtonClick = useCallback(
+    (wordRecordIndex: number) => {
+      onWordExerciseDisplay(wordRecordIndex);
+
+      if (wordExercisePreferences?.navigateOnCompletion) {
+        setCompleteButtonGracePeriodActive(wordRecordIndex, true);
+
+        runWordExerciseScheduledAction(() => {
+          onWordExerciseComplete(wordRecordIndex);
+
+          setCompleteButtonGracePeriodActive(wordRecordIndex, false);
+        }, wordExercisePreferences.navigateOnCompletionDelayMilliseconds ?? wordExercisePreferencesDefaultValues.navigateOnCompletionDelayMilliseconds);
+      } else {
+        onWordExerciseComplete(wordRecordIndex);
+      }
+    },
+    [wordExercisePreferences, onWordExerciseDisplay, onWordExerciseComplete, runWordExerciseScheduledAction]
+  );
+
+  const [failButtonGracePeriodActiveFlags, setFailButtonGracePeriodActiveFlags] = useState<boolean[]>([]);
+
+  useEffect(() => setFailButtonGracePeriodActiveFlags(new Array(wordExerciseModels.length).map(() => false)), [wordExerciseModels, wordExerciseBatchId]);
+
+  const setFailButtonGracePeriodActive = (wordRecordIndex: number, flag: boolean) => {
+    setFailButtonGracePeriodActiveFlags((failButtonGracePeriodActiveFlags) => {
+      failButtonGracePeriodActiveFlags[wordRecordIndex] = flag;
+      return [...failButtonGracePeriodActiveFlags];
+    });
+  };
+
+  const onFailButtonClick = useCallback(
+    (wordRecordIndex: number, completed: boolean, status: boolean) => {
+      if (!completed && !completeButtonGracePeriodActiveFlags[wordRecordIndex] && status) {
+        onWordExercisePeek(wordRecordIndex);
+        onWordExerciseDisplay(wordRecordIndex);
+
+        if (wordExercisePreferences?.navigateOnFailure) {
+          setFailButtonGracePeriodActive(wordRecordIndex, true);
+
+          runWordExerciseScheduledAction(() => {
+            onWordExerciseComplete(wordRecordIndex);
+
+            setFailButtonGracePeriodActive(wordRecordIndex, false);
+          }, wordExercisePreferences.navigateOnFailureDelayMilliseconds ?? wordExercisePreferencesDefaultValues.navigateOnFailureDelayMilliseconds);
+        } else {
+          onWordExerciseComplete(wordRecordIndex);
+        }
+      } else if ((completed || completeButtonGracePeriodActiveFlags[wordRecordIndex]) && status) {
+        onWordExercisePeek(wordRecordIndex);
+      } else {
+        onWordExercisePeekRevert(wordRecordIndex);
+      }
+    },
+    [wordExercisePreferences, onWordExercisePeek, onWordExercisePeekRevert, onWordExerciseDisplay, onWordExerciseComplete, runWordExerciseScheduledAction, completeButtonGracePeriodActiveFlags]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: keyOf<WordRecord>("index"),
+        dataIndex: keyOf<WordRecord>("index"),
+        title: "#",
+        render: (index: number) => 1 + index,
+      },
+      {
+        key: keyOf<WordRecord>("characters"),
+        dataIndex: keyOf<WordRecord>("characters"),
+        title: "Characters",
+      },
+      {
+        key: keyOf<WordRecord>("characterTypes"),
+        dataIndex: keyOf<WordRecord>("characterTypes"),
+        title: "Character Types",
+      },
+      {
+        key: keyOf<WordRecord>("pronunciation"),
+        dataIndex: keyOf<WordRecord>("pronunciation"),
+        title: "Pronunciation",
+      },
+      {
+        key: keyOf<WordRecord>("furigana"),
+        dataIndex: keyOf<WordRecord>("furigana"),
+        title: "Furigana",
+        render: (furigana?: string) => furigana ?? <Typography.Text type="secondary">N/A</Typography.Text>,
+      },
+      {
+        key: keyOf<WordRecord>("meaning"),
+        dataIndex: keyOf<WordRecord>("meaning"),
+        title: "Meaning",
+      },
+      {
+        key: "action",
+        title: "Action",
+        width: "244px", // 8 + 100 + 8 + 120 + 8 px
+        render: (_: object, wordRecord: WordRecord, wordRecordIndex: number) => {
+          let completeButtonIcon;
+          if (completeButtonGracePeriodActiveFlags[wordRecordIndex]) {
+            completeButtonIcon = <ClockCircleOutlined />;
+          } else {
+            completeButtonIcon = <CheckOutlined />;
+          }
+          let completeButtonContent;
+          if (completeButtonGracePeriodActiveFlags[wordRecordIndex]) {
+            completeButtonContent = "Pending";
+          } else {
+            completeButtonContent = "Complete";
+          }
+
+          let failButtonIcon;
+          if (failButtonGracePeriodActiveFlags[wordRecordIndex]) {
+            failButtonIcon = <ClockCircleOutlined />;
+          } else if (completeButtonGracePeriodActiveFlags[wordRecordIndex] || wordRecord.completed) {
+            failButtonIcon = !wordRecord.peeked ? <CloseOutlined /> : <UndoOutlined />;
+          } else {
+            failButtonIcon = !wordRecord.peeked ? <QuestionOutlined /> : <UndoOutlined />;
+          }
+          let failButtonContent;
+          if (completeButtonGracePeriodActiveFlags[wordRecordIndex] || wordRecord.completed) {
+            failButtonContent = !wordRecord.peeked ? "Fail" : "Revert Fail";
+          } else {
+            failButtonContent = !wordRecord.peeked ? "Peek" : "Revert Peek";
+          }
+
+          return (
+            <Space wrap direction="horizontal" align="baseline">
+              <Button
+                type="default"
+                size="small"
+                style={{ maxWidth: "100px" }}
+                icon={completeButtonIcon}
+                disabled={wordExerciseSessionCompleted || completeButtonGracePeriodActiveFlags[wordRecordIndex] || failButtonGracePeriodActiveFlags[wordRecordIndex] || wordRecord.completed}
+                onClick={() => onCompleteButtonClick(wordRecordIndex)}
+              >
+                {completeButtonContent}
+              </Button>
+              <Button
+                type={!wordRecord.peeked ? "default" : "dashed"}
+                size="small"
+                icon={failButtonIcon}
+                style={{ maxWidth: "120px" }}
+                disabled={wordExerciseSessionCompleted || failButtonGracePeriodActiveFlags[wordRecordIndex]}
+                onClick={() => onFailButtonClick(wordRecordIndex, wordRecord.completed, !wordRecord.peeked)}
+                danger
+              >
+                {failButtonContent}
+              </Button>
+            </Space>
+          );
+        },
+      },
+    ],
+    [wordExerciseSessionCompleted, completeButtonGracePeriodActiveFlags, failButtonGracePeriodActiveFlags, onCompleteButtonClick, onFailButtonClick]
+  );
+
+  return <Table dataSource={wordRecords} rowKey="index" columns={columns} pagination={false} size="small" />;
 };
