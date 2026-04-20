@@ -1,4 +1,4 @@
-import { ApiOutlined, BookOutlined, ExceptionOutlined, HomeOutlined, SettingOutlined, TagOutlined, ToolOutlined } from "@ant-design/icons";
+import { ApiOutlined, BookOutlined, ExceptionOutlined, FileTextOutlined, FormOutlined, HomeOutlined, ProfileOutlined, SettingOutlined, TagOutlined, ToolOutlined } from "@ant-design/icons";
 
 import { isProductionMode } from "@/ApplicationEnvironment";
 import type ApplicationBreadcrumbItemDescriptor from "@/entities/application/ApplicationBreadcrumbItemDescriptor";
@@ -7,6 +7,9 @@ import type ApplicationPageDescriptor from "@/entities/application/ApplicationPa
 import HomePage from "@/pages/application/HomePage";
 import InvalidRoutePage from "@/pages/application/InvalidRoutePage";
 import SwaggerRedirectPage from "@/pages/application/SwaggerRedirectPage";
+import ExerciseSelectionPage from "@/pages/exercises/root/ExerciseSelectionPage";
+import CharacterExercisePage from "@/pages/exercises/CharacterExercisePage";
+import WordExercisePage from "@/pages/exercises/WordExercisePage";
 import IntegrationSelectionPage from "@/pages/integrations/root/IntegrationSelectionPage";
 import ApplicationDictionaryIntegrationPage from "./pages/integrations/ApplicationDictionaryIntegrationPage";
 import TagIntegrationPage from "@/pages/integrations/TagIntegrationPage";
@@ -25,6 +28,9 @@ const errorPageDescriptors: ApplicationPageDescriptor[] = [
 // prettier-ignore
 export const applicationPageDescriptors: ApplicationPageDescriptor[] = [
   { key: "home-page", path: "/home", name: "Home", icon: <HomeOutlined />, component: <HomePage /> },
+  { key: "exercises-page", path: "/exercises", name: "Exercises", icon: <FileTextOutlined />, component: <ExerciseSelectionPage /> },
+  { key: "character-exercise-page", path: "/exercises/characters", name: "Character Exercise", icon: <FormOutlined />, component: <CharacterExercisePage /> },
+  { key: "word-exercise-page", path: "/exercises/words", name: "Word Exercise", icon: <ProfileOutlined />, component: <WordExercisePage /> },
   { key: "integrations-page", path: "/integrations", name: "Integrations", icon: <ApiOutlined />, component: <IntegrationSelectionPage /> },
   { key: "application-dictionary-integration-page", path: "/integrations/application-dictionary", name: "Application Dictionary Integrations", icon: <BookOutlined />, component: <ApplicationDictionaryIntegrationPage /> },
   { key: "tag-integration-page", path: "/integrations/tags", name: "Tag Integrations", icon: <TagOutlined />, component: <TagIntegrationPage /> },
@@ -38,6 +44,14 @@ export const applicationPageDescriptors: ApplicationPageDescriptor[] = [
 // prettier-ignore
 export const applicationMenuItemDescriptors: ApplicationMenuItemDescriptor[] = [
   { key: "home-page", type: "item" },
+  {
+    key: "exercises-page",
+    type: "menu",
+    items: [
+      { key: "character-exercise-page", type: "item" },
+      { key: "word-exercise-page", type: "item" },
+    ],
+  },
   {
     key: "integrations-page",
     type: "menu",
@@ -53,6 +67,9 @@ export const applicationMenuItemDescriptors: ApplicationMenuItemDescriptor[] = [
 // prettier-ignore
 export const applicationBreadcrumbItemDescriptors: ApplicationBreadcrumbItemDescriptor[] = [
   { key: "home-page", useLink: true },
+  { key: "exercises-page", useLink: true },
+  { key: "character-exercise-page", useLink: true },
+  { key: "word-exercise-page", useLink: true },
   { key: "integrations-page", useLink: true },
   { key: "application-dictionary-integration-page", useLink: true },
   { key: "tag-integration-page", useLink: true },
