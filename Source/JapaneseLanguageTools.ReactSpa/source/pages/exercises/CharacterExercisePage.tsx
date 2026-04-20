@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Divider, Empty, Form, message, Radio, Select, Space, Typography } from "antd";
+import { Alert, Button, Card, Divider, Empty, Form, message, Radio, Select, Space, Table, Typography } from "antd";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
@@ -911,6 +911,217 @@ const CharacterExerciseCardSetView = (props: CharacterExerciseViewProps) => {
   );
 };
 
-const CharacterExerciseTableView = (_props: CharacterExerciseViewProps) => {
-  return <></>;
+const CharacterExerciseTableView = (props: CharacterExerciseViewProps) => {
+  const {
+    characterRecords,
+    characterExerciseSession: {
+      characterProperties,
+      characterExerciseBatchModel: { id: characterExerciseBatchId, items: characterExerciseModels },
+      completed: characterExerciseSessionCompleted,
+    },
+    characterExercisePreferences,
+  } = props;
+
+  const { onCharacterExercisePeek, onCharacterExercisePeekRevert, onCharacterExerciseDisplay, onCharacterExerciseComplete, runCharacterExerciseScheduledAction } = props;
+
+  const [completeButtonGracePeriodActiveFlags, setCompleteButtonGracePeriodActiveFlags] = useState<boolean[]>([]);
+
+  useEffect(() => setCompleteButtonGracePeriodActiveFlags(new Array(characterExerciseModels.length).map(() => false)), [characterExerciseModels, characterExerciseBatchId]);
+
+  const setCompleteButtonGracePeriodActive = (characterRecordIndex: number, flag: boolean) => {
+    setCompleteButtonGracePeriodActiveFlags((completeButtonGracePeriodActiveFlags) => {
+      completeButtonGracePeriodActiveFlags[characterRecordIndex] = flag;
+      return [...completeButtonGracePeriodActiveFlags];
+    });
+  };
+
+  const onCompleteButtonClick = useCallback(
+    (characterRecordIndex: number) => {
+      onCharacterExerciseDisplay(characterRecordIndex);
+
+      if (characterExercisePreferences?.navigateOnCompletion) {
+        setCompleteButtonGracePeriodActive(characterRecordIndex, true);
+
+        runCharacterExerciseScheduledAction(() => {
+          onCharacterExerciseComplete(characterRecordIndex);
+
+          setCompleteButtonGracePeriodActive(characterRecordIndex, false);
+        }, characterExercisePreferences.navigateOnCompletionDelayMilliseconds ?? characterExercisePreferencesDefaultValues.navigateOnCompletionDelayMilliseconds);
+      } else {
+        onCharacterExerciseComplete(characterRecordIndex);
+      }
+    },
+    [characterExercisePreferences, onCharacterExerciseDisplay, onCharacterExerciseComplete, runCharacterExerciseScheduledAction]
+  );
+
+  const [failButtonGracePeriodActiveFlags, setFailButtonGracePeriodActiveFlags] = useState<boolean[]>([]);
+
+  useEffect(() => setFailButtonGracePeriodActiveFlags(new Array(characterExerciseModels.length).map(() => false)), [characterExerciseModels, characterExerciseBatchId]);
+
+  const setFailButtonGracePeriodActive = (characterRecordIndex: number, flag: boolean) => {
+    setFailButtonGracePeriodActiveFlags((failButtonGracePeriodActiveFlags) => {
+      failButtonGracePeriodActiveFlags[characterRecordIndex] = flag;
+      return [...failButtonGracePeriodActiveFlags];
+    });
+  };
+
+  const onFailButtonClick = useCallback(
+    (characterRecordIndex: number, completed: boolean, status: boolean) => {
+      if (!completed && !completeButtonGracePeriodActiveFlags[characterRecordIndex] && status) {
+        onCharacterExercisePeek(characterRecordIndex);
+        onCharacterExerciseDisplay(characterRecordIndex);
+
+        if (characterExercisePreferences?.navigateOnFailure) {
+          setFailButtonGracePeriodActive(characterRecordIndex, true);
+
+          runCharacterExerciseScheduledAction(() => {
+            onCharacterExerciseComplete(characterRecordIndex);
+
+            setFailButtonGracePeriodActive(characterRecordIndex, false);
+          }, characterExercisePreferences.navigateOnFailureDelayMilliseconds ?? characterExercisePreferencesDefaultValues.navigateOnFailureDelayMilliseconds);
+        } else {
+          onCharacterExerciseComplete(characterRecordIndex);
+        }
+      } else if ((completed || completeButtonGracePeriodActiveFlags[characterRecordIndex]) && status) {
+        onCharacterExercisePeek(characterRecordIndex);
+      } else {
+        onCharacterExercisePeekRevert(characterRecordIndex);
+      }
+    },
+    [characterExercisePreferences, onCharacterExercisePeek, onCharacterExercisePeekRevert, onCharacterExerciseDisplay, onCharacterExerciseComplete, runCharacterExerciseScheduledAction, completeButtonGracePeriodActiveFlags]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: keyOf<CharacterRecord>("index"),
+        dataIndex: keyOf<CharacterRecord>("index"),
+        title: "#",
+        render: (index: number) => 1 + index,
+      },
+      {
+        key: keyOf<CharacterRecord>("symbol"),
+        dataIndex: keyOf<CharacterRecord>("symbol"),
+        title: "Symbol",
+      },
+      {
+        key: keyOf<CharacterRecord>("type"),
+        dataIndex: keyOf<CharacterRecord>("type"),
+        title: "Type",
+      },
+      ...(characterProperties & CharacterProperties.Onyomi
+        ? [
+            {
+              key: keyOf<CharacterRecord>("onyomi"),
+              dataIndex: keyOf<CharacterRecord>("onyomi"),
+              title: "Onyomi",
+              render: (onyomi?: string) => onyomi ?? <Typography.Text type="secondary">N/A</Typography.Text>,
+            },
+          ]
+        : []),
+      ...(characterProperties & CharacterProperties.Kunyomi
+        ? [
+            {
+              key: keyOf<CharacterRecord>("kunyomi"),
+              dataIndex: keyOf<CharacterRecord>("kunyomi"),
+              title: "Kunyomi",
+              render: (kunyomi?: string) => kunyomi ?? <Typography.Text type="secondary">N/A</Typography.Text>,
+            },
+          ]
+        : []),
+      ...(characterProperties & CharacterProperties.Pronunciation
+        ? [
+            {
+              key: keyOf<CharacterRecord>("pronunciation"),
+              dataIndex: keyOf<CharacterRecord>("pronunciation"),
+              title: "Pronunciation",
+              render: (pronunciation?: string) => pronunciation ?? <Typography.Text type="secondary">N/A</Typography.Text>,
+            },
+          ]
+        : []),
+      ...(characterProperties & CharacterProperties.Syllable
+        ? [
+            {
+              key: keyOf<CharacterRecord>("syllable"),
+              dataIndex: keyOf<CharacterRecord>("syllable"),
+              title: "Syllable (?)",
+              render: (syllable?: string) => syllable ?? <Typography.Text type="secondary">N/A</Typography.Text>,
+            },
+          ]
+        : []),
+      ...(characterProperties & CharacterProperties.Meaning
+        ? [
+            {
+              key: keyOf<CharacterRecord>("meaning"),
+              dataIndex: keyOf<CharacterRecord>("meaning"),
+              title: "Meaning (?)",
+              render: (meaning?: string) => meaning ?? <Typography.Text type="secondary">N/A</Typography.Text>,
+            },
+          ]
+        : []),
+      {
+        key: "action",
+        title: "Action",
+        width: "244px", // 8 + 100 + 8 + 120 + 8 px
+        render: (_: object, characterRecord: CharacterRecord, characterRecordIndex: number) => {
+          let completeButtonIcon;
+          if (completeButtonGracePeriodActiveFlags[characterRecordIndex]) {
+            completeButtonIcon = <ClockCircleOutlined />;
+          } else {
+            completeButtonIcon = <CheckOutlined />;
+          }
+          let completeButtonContent;
+          if (completeButtonGracePeriodActiveFlags[characterRecordIndex]) {
+            completeButtonContent = "Pending";
+          } else {
+            completeButtonContent = "Complete";
+          }
+
+          let failButtonIcon;
+          if (failButtonGracePeriodActiveFlags[characterRecordIndex]) {
+            failButtonIcon = <ClockCircleOutlined />;
+          } else if (completeButtonGracePeriodActiveFlags[characterRecordIndex] || characterRecord.completed) {
+            failButtonIcon = !characterRecord.peeked ? <CloseOutlined /> : <UndoOutlined />;
+          } else {
+            failButtonIcon = !characterRecord.peeked ? <QuestionOutlined /> : <UndoOutlined />;
+          }
+          let failButtonContent;
+          if (completeButtonGracePeriodActiveFlags[characterRecordIndex] || characterRecord.completed) {
+            failButtonContent = !characterRecord.peeked ? "Fail" : "Revert Fail";
+          } else {
+            failButtonContent = !characterRecord.peeked ? "Peek" : "Revert Peek";
+          }
+
+          return (
+            <Space wrap direction="horizontal" align="baseline">
+              <Button
+                type="default"
+                size="small"
+                style={{ maxWidth: "100px" }}
+                icon={completeButtonIcon}
+                disabled={characterExerciseSessionCompleted || completeButtonGracePeriodActiveFlags[characterRecordIndex] || failButtonGracePeriodActiveFlags[characterRecordIndex] || characterRecord.completed}
+                onClick={() => onCompleteButtonClick(characterRecordIndex)}
+              >
+                {completeButtonContent}
+              </Button>
+              <Button
+                type={!characterRecord.peeked ? "default" : "dashed"}
+                size="small"
+                icon={failButtonIcon}
+                style={{ maxWidth: "120px" }}
+                disabled={characterExerciseSessionCompleted || failButtonGracePeriodActiveFlags[characterRecordIndex]}
+                onClick={() => onFailButtonClick(characterRecordIndex, characterRecord.completed, !characterRecord.peeked)}
+                danger
+              >
+                {failButtonContent}
+              </Button>
+            </Space>
+          );
+        },
+      },
+    ],
+    [characterProperties, characterExerciseSessionCompleted, completeButtonGracePeriodActiveFlags, failButtonGracePeriodActiveFlags, onCompleteButtonClick, onFailButtonClick]
+  );
+
+  return <Table dataSource={characterRecords} rowKey="index" columns={columns} pagination={false} size="small" />;
 };
