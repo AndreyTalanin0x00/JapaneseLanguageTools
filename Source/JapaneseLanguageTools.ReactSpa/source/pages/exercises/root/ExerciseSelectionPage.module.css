@@ -1,0 +1,8 @@
+.cardHeader {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.cardHeader > *:first-child {
+  margin-right: auto;
+}
