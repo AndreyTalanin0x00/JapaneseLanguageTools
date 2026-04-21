@@ -18,10 +18,10 @@ test("Renders 'Japanese Language Tools' header title", async () => {
   expect(titleElement).toBeDefined();
 });
 
-test("Renders 'Copyright © 2024 Andrey Talanin' footer paragraph", async () => {
+test("Renders 'Copyright © 2024-2026 Andrey Talanin' footer paragraph", async () => {
   render(<Application />);
   // RegExp is required here because some of the whitespaces below get programmatically replaced with non-breaking ones.
-  const elements = await screen.findAllByText(new RegExp(/Copyright\s©\s2024\sAndrey\sTalanin.\sSee\sthe\sHome\spage\sfor\sproject\sdetails./));
+  const elements = await screen.findAllByText(new RegExp(/Copyright\s©\s2024-2026\sAndrey\sTalanin.\sSee\sthe\sHome\spage\sfor\sproject\sdetails./));
   const titleElement = elements.find((element) =>
     Array.from(element.classList.entries())
       .map(([, value]) => value)
