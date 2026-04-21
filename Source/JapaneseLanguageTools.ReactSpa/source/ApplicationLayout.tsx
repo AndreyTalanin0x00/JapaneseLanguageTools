@@ -39,7 +39,7 @@ const ApplicationLayout = ({ applicationPageDescriptors, applicationMenuItemDesc
   const footerText = useMemo(() => {
     const space = " ";
     const nonBreakingSpace = "\u00A0";
-    const lines = ["Copyright © 2024 Andrey Talanin.", "See the Home page for project details."];
+    const lines = ["Copyright © 2024-2026 Andrey Talanin.", "See the Home page for project details."];
     const joinedLines = lines.map((line) => line.replaceAll(space, nonBreakingSpace)).join(space);
     return joinedLines;
   }, []);
