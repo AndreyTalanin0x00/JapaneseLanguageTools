@@ -97,6 +97,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{C1
 		JapaneseLanguageTools.Data.SqlServer\Schema.SqlServer.dbml = JapaneseLanguageTools.Data.SqlServer\Schema.SqlServer.dbml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet Configuration Files", "NuGet Configuration Files", "{9EF24686-5B75-44F3-A12F-43056F5BDA15}"
+	ProjectSection(SolutionItems) = preProject
+		nuget.config = nuget.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -269,6 +274,7 @@ Global
 		{D4FE6961-F70F-42E3-963D-B210661B9984} = {555EA57F-5CC0-40A9-9FA6-5B327F67871A}
 		{039D8A51-F533-4D4D-A822-55FF4212B2A0} = {D4FE6961-F70F-42E3-963D-B210661B9984}
 		{C14A04EE-93B3-4E65-814C-948028F1965A} = {D81DBDD9-9146-495B-9A9A-9CDF298970BD}
+		{9EF24686-5B75-44F3-A12F-43056F5BDA15} = {D81DBDD9-9146-495B-9A9A-9CDF298970BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE956DF8-D375-4BFB-AD74-8D8DA2A15C7D}
