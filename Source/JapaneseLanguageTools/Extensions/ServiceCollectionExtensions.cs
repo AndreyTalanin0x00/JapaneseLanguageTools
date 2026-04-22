@@ -348,7 +348,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSwaggerGen(options =>
         {
-            string version = "v0.1.0-dev0";
+            string version = "v0.1.0-rc1";
             OpenApiContact contact = new()
             {
                 Name = "Andrey Talanin",
