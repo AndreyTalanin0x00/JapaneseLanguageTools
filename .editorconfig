@@ -447,7 +447,7 @@ trim_trailing_whitespace = false
 ###############################################################################
 # Watched file types - MD, HTML, JavaScript, TypeScript, CSS, LESS, SVG files
 ###############################################################################
-[*.{html,js,jsx,ts,tsx,css,less,svg}]
+[*.{md,html,js,jsx,ts,tsx,css,less,svg}]
 
 ###############################################################################
 # Core EditorConfig options - Indentation and spacing
