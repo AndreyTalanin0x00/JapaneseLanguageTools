@@ -24,5 +24,7 @@ public class CharacterGroupIntegrationModel
 
     public DateTimeOffset UpdatedOn { get; set; }
 
+    public CharacterGroupHierarchyRecordIntegrationModel[] CharacterGroupHierarchyRecords { get; set; } = [];
+
     public CharacterIntegrationModel[] Characters { get; set; } = [];
 }
