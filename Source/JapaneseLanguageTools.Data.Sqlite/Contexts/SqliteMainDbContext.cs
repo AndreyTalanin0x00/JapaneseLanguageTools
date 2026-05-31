@@ -146,6 +146,37 @@ public class SqliteMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<CharacterGroupHierarchyRecord>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => new { entity.CharacterGroupId, entity.NestedCharacterGroupId });
+
+            entityBuilder
+                .HasOne(entity => entity.CharacterGroup)
+                .WithMany(entity => entity.CharacterGroupHierarchyRecords)
+                .HasForeignKey(entity => entity.CharacterGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entityBuilder
+                .HasOne(entity => entity.NestedCharacterGroup)
+                .WithMany()
+                .HasForeignKey(entity => entity.NestedCharacterGroupId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder
+                .HasIndex(entity => entity.CharacterGroupId)
+                .HasDatabaseName("IX_CharacterGroupHierarchyRecord_CharacterGroupId");
+            entityBuilder
+                .HasIndex(entity => entity.NestedCharacterGroupId)
+                .HasDatabaseName("IX_CharacterGroupHierarchyRecord_NestedCharacterGroupId");
+
+            entityBuilder
+                .Property(entity => entity.PreventRecursiveIncludes)
+                .HasDefaultValue(false);
+
+            entityBuilder.ToTable("CharacterGroupHierarchyRecord", tableBuilder =>
+            {
+            });
+        });
+
         modelBuilder.Entity<CharacterExercise>(entityBuilder =>
         {
             entityBuilder.HasKey(entity => entity.Id);
