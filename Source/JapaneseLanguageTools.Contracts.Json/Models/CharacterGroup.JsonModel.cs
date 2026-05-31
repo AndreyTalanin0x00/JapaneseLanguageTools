@@ -34,6 +34,9 @@ public class CharacterGroupJsonModel
     [JsonPropertyName("hidden")]
     public bool Hidden { get; set; }
 
+    [JsonPropertyName("characterGroupHierarchyRecords")]
+    public CharacterGroupHierarchyRecordJsonModel[] CharacterGroupHierarchyRecords { get; set; } = [];
+
     [JsonPropertyName("characters")]
     public CharacterJsonModel[] Characters { get; set; } = [];
 
