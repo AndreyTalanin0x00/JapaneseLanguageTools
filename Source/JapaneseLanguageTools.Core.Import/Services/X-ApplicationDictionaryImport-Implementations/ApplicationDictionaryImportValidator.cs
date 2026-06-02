@@ -8,7 +8,6 @@ using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
 using FluentValidation;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
-using JapaneseLanguageTools.Core.FluentValidation;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
 
@@ -26,11 +25,16 @@ namespace JapaneseLanguageTools.Core.Import.Services;
 public class ApplicationDictionaryImportValidator :
     IImportValidator<ApplicationDictionaryImportRequest, ApplicationDictionaryImportResponse, Object, ApplicationDictionaryObjectPackageIntegrationModel>
 {
+    private readonly IValidator<ApplicationDictionaryObjectPackageIntegrationModel> m_applicationDictionaryObjectPackageIntegrationModelValidator;
+
+    public ApplicationDictionaryImportValidator(IValidator<ApplicationDictionaryObjectPackageIntegrationModel> applicationDictionaryObjectPackageIntegrationModelValidator)
+    {
+        m_applicationDictionaryObjectPackageIntegrationModelValidator = applicationDictionaryObjectPackageIntegrationModelValidator;
+    }
+
     /// <inheritdoc />
     public Task ValidateAsync(ImportObjectPackageBatch<Object, ApplicationDictionaryObjectPackageIntegrationModel>[] importObjectPackageBatches, CancellationToken cancellationToken = default)
     {
-        ApplicationDictionaryObjectPackageIntegrationModelValidator applicationDictionaryObjectPackageIntegrationModelValidator = new();
-
         foreach (ImportObjectPackageBatch<Object, ApplicationDictionaryObjectPackageIntegrationModel> importObjectPackageBatch in importObjectPackageBatches)
         {
             ImportObjectPackageWrapper<ApplicationDictionaryObjectPackageIntegrationModel>[] importObjectPackageWrappers = importObjectPackageBatch.ImportObjectPackageWrappers;
@@ -39,7 +43,7 @@ public class ApplicationDictionaryImportValidator :
             {
                 ApplicationDictionaryObjectPackageIntegrationModel applicationDictionaryObjectPackageIntegrationModel = importObjectPackageWrapper.ImportObjectPackage;
 
-                applicationDictionaryObjectPackageIntegrationModelValidator.ValidateAndThrow(applicationDictionaryObjectPackageIntegrationModel);
+                m_applicationDictionaryObjectPackageIntegrationModelValidator.ValidateAndThrow(applicationDictionaryObjectPackageIntegrationModel);
             }
         }
 
