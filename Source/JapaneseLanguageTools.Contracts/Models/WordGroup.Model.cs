@@ -29,5 +29,7 @@ public class WordGroupModel
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTimeOffset UpdatedOn { get; set; }
 
+    public IList<WordGroupHierarchyRecordModel> WordGroupHierarchyRecords { get; set; } = [];
+
     public IList<WordModel> Words { get; set; } = [];
 }
