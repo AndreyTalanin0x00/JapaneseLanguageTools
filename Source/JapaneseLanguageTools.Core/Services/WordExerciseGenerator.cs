@@ -76,6 +76,43 @@ public class WordExerciseGenerator : IWordExerciseGenerator
                 : allWordGroupModels;
         }
 
+        static WordGroupModel[] IncludeNestedWordGroups(WordGroupModel[] availableWordGroupModels, WordGroupModel[] allWordGroupModels)
+        {
+            Dictionary<int, WordGroupModel> allWordGroupModelsByIds =
+                allWordGroupModels.ToDictionary(wordGroupModel => wordGroupModel.Id);
+
+            List<WordGroupModel> availableWordGroupModelsList = [];
+            Queue<WordGroupModel> availableWordGroupModelsQueue = new(availableWordGroupModels);
+            while (availableWordGroupModelsQueue.Count > 0)
+            {
+                WordGroupModel wordGroupModel = availableWordGroupModelsQueue.Dequeue();
+
+                availableWordGroupModelsList.Add(wordGroupModel);
+
+                foreach (WordGroupHierarchyRecordModel wordGroupHierarchyRecordModel in wordGroupModel.WordGroupHierarchyRecords)
+                {
+                    if (!allWordGroupModelsByIds.TryGetValue(wordGroupHierarchyRecordModel.NestedWordGroupId, out WordGroupModel? nestedWordGroupModel))
+                    {
+                        continue;
+                    }
+
+                    if (!wordGroupHierarchyRecordModel.PreventRecursiveIncludes)
+                    {
+                        availableWordGroupModelsQueue.Enqueue(nestedWordGroupModel);
+                        continue;
+                    }
+
+                    availableWordGroupModelsList.Add(nestedWordGroupModel);
+                }
+            }
+
+            WordGroupModel[] availableWordGroupModelsNew = availableWordGroupModelsList.ToArray();
+
+            return availableWordGroupModelsNew;
+        }
+
+        availableWordGroupModels = IncludeNestedWordGroups(availableWordGroupModels, allWordGroupModels);
+
         WordModel[] standaloneWordModels = (await m_applicationDictionaryService.GetAllWordsAsync(cancellationToken))
             .Where(wordModel => wordModel.WordGroup is null)
             .ToArray();

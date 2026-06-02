@@ -75,6 +75,10 @@ public class WordGroupXmlModel
     public bool UpdatedOnStringSpecified => UpdatedOn != default(DateTimeOffset);
 
     [XmlArray(Order = 2)]
+    [XmlArrayItem(WordGroupHierarchyRecordXmlModel.WordGroupHierarchyRecordXmlElementName)]
+    public WordGroupHierarchyRecordXmlModel[] WordGroupHierarchyRecords { get; set; } = [];
+
+    [XmlArray(Order = 3)]
     [XmlArrayItem(WordXmlModel.WordXmlElementName)]
     public WordXmlModel[] Words { get; set; } = [];
 }

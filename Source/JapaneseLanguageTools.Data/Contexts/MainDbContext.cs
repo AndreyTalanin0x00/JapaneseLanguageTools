@@ -22,6 +22,8 @@ public class MainDbContext : DbContext
 
     public DbSet<WordGroup> WordGroups { get; }
 
+    public DbSet<WordGroupHierarchyRecord> WordGroupHierarchyRecords { get; }
+
     public DbSet<WordExercise> WordExercises { get; }
 
     public DbSet<WordExerciseRerun> WordExerciseReruns { get; }
@@ -41,6 +43,7 @@ public class MainDbContext : DbContext
         CharacterTags = Set<CharacterTag>();
         Words = Set<Word>();
         WordGroups = Set<WordGroup>();
+        WordGroupHierarchyRecords = Set<WordGroupHierarchyRecord>();
         WordExercises = Set<WordExercise>();
         WordExerciseReruns = Set<WordExerciseRerun>();
         WordTags = Set<WordTag>();
@@ -58,6 +61,7 @@ public class MainDbContext : DbContext
         CharacterTags = Set<CharacterTag>();
         Words = Set<Word>();
         WordGroups = Set<WordGroup>();
+        WordGroupHierarchyRecords = Set<WordGroupHierarchyRecord>();
         WordExercises = Set<WordExercise>();
         WordExerciseReruns = Set<WordExerciseRerun>();
         WordTags = Set<WordTag>();

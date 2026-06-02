@@ -24,5 +24,7 @@ public class WordGroupIntegrationModel
 
     public DateTimeOffset UpdatedOn { get; set; }
 
+    public WordGroupHierarchyRecordIntegrationModel[] WordGroupHierarchyRecords { get; set; } = [];
+
     public WordIntegrationModel[] Words { get; set; } = [];
 }

@@ -539,6 +539,30 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
                 });
             });
 
+            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordGroupHierarchyRecord", b =>
+            {
+                b.Property<int>("WordGroupId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<int>("NestedWordGroupId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<bool>("PreventRecursiveIncludes")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER")
+                    .HasDefaultValue(false);
+
+                b.HasKey("WordGroupId", "NestedWordGroupId");
+
+                b.HasIndex("NestedWordGroupId")
+                    .HasDatabaseName("IX_WordGroupHierarchyRecord_NestedWordGroupId");
+
+                b.HasIndex("WordGroupId")
+                    .HasDatabaseName("IX_WordGroupHierarchyRecord_WordGroupId");
+
+                b.ToTable("WordGroupHierarchyRecord", (string)null);
+            });
+
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordTag", b =>
             {
                 b.Property<int>("WordId")
@@ -660,6 +684,25 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
                 b.Navigation("WordExercise");
             });
 
+            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordGroupHierarchyRecord", b =>
+            {
+                b.HasOne("JapaneseLanguageTools.Data.Entities.WordGroup", "NestedWordGroup")
+                    .WithMany()
+                    .HasForeignKey("NestedWordGroupId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("JapaneseLanguageTools.Data.Entities.WordGroup", "WordGroup")
+                    .WithMany("WordGroupHierarchyRecords")
+                    .HasForeignKey("WordGroupId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("NestedWordGroup");
+
+                b.Navigation("WordGroup");
+            });
+
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordTag", b =>
             {
                 b.HasOne("JapaneseLanguageTools.Data.Entities.Tag", "Tag")
@@ -708,6 +751,8 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
 
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.WordGroup", b =>
             {
+                b.Navigation("WordGroupHierarchyRecords");
+
                 b.Navigation("Words");
             });
 #pragma warning restore 612, 618

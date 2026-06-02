@@ -112,6 +112,7 @@ public class ApplicationDictionaryXmlExportFormatter :
         xWordsElement.Add(m_xCommentFactory.CreateKanjiWordComment());
 
         xWordGroupsElement.Add(m_xCommentFactory.CreateWordGroupComment());
+        xWordGroupsElement.Add(m_xCommentFactory.CreateWordGroupComment(includeHierarchyRecordPlaceholder: true));
 
         xTagsElement.Add(m_xCommentFactory.CreateTagComment());
 

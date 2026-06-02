@@ -55,7 +55,10 @@ public class SqlServerWordGroupRepository : WordGroupRepository
 
         IQueryable<WordGroup> wordGroupsQueryable = m_context.WordGroups.FromSqlRaw(query, wordGroupIdsParameter);
 
-        wordGroupsQueryable = wordGroupsQueryable.Include(wordGroup => wordGroup.Words)
+        wordGroupsQueryable = wordGroupsQueryable
+            .Include(wordGroup => wordGroup.WordGroupHierarchyRecords)
+            .ThenInclude(wordGroupHierarchyRecord => wordGroupHierarchyRecord.NestedWordGroup)
+            .Include(wordGroup => wordGroup.Words)
             .ThenInclude(word => word.WordTags)
             .ThenInclude(wordTag => wordTag.Tag);
 
@@ -88,7 +91,10 @@ public class SqlServerWordGroupRepository : WordGroupRepository
 
         IQueryable<WordGroup> wordGroupsQueryable = m_context.WordGroups.FromSqlRaw(query, wordGroupCaptionsParameter);
 
-        wordGroupsQueryable = wordGroupsQueryable.Include(wordGroup => wordGroup.Words)
+        wordGroupsQueryable = wordGroupsQueryable
+            .Include(wordGroup => wordGroup.WordGroupHierarchyRecords)
+            .ThenInclude(wordGroupHierarchyRecord => wordGroupHierarchyRecord.NestedWordGroup)
+            .Include(wordGroup => wordGroup.Words)
             .ThenInclude(word => word.WordTags)
             .ThenInclude(wordTag => wordTag.Tag);
 
@@ -126,6 +132,9 @@ public class SqlServerWordGroupRepository : WordGroupRepository
         using DataTable wordGroupsDataTable = YieldEnumerableHelpers.Yield(wordGroup)
             .ToDataTable();
 
+        ICustomQueryParameter wordGroupHierarchyRecordCustomQueryParameter = wordGroup.WordGroupHierarchyRecords
+            .ToCustomQueryParameter();
+
         ICustomQueryParameter wordCustomQueryParameter = wordGroup.Words
             .ToCustomQueryParameter();
 
@@ -148,6 +157,7 @@ public class SqlServerWordGroupRepository : WordGroupRepository
         object dynamicParametersObject = new
         {
             WordGroups = wordGroupsDataTable,
+            WordGroupHierarchyRecords = wordGroupHierarchyRecordCustomQueryParameter,
             Words = wordCustomQueryParameter,
             WordTags = wordTagsCustomQueryParameter,
         };
@@ -193,6 +203,9 @@ public class SqlServerWordGroupRepository : WordGroupRepository
         using DataTable wordGroupsDataTable = YieldEnumerableHelpers.Yield(wordGroup)
             .ToDataTable();
 
+        ICustomQueryParameter wordGroupHierarchyRecordCustomQueryParameter = wordGroup.WordGroupHierarchyRecords
+            .ToCustomQueryParameter();
+
         ICustomQueryParameter wordCustomQueryParameter = wordGroup.Words
             .ToCustomQueryParameter();
 
@@ -213,6 +226,7 @@ public class SqlServerWordGroupRepository : WordGroupRepository
         object dynamicParametersObject = new
         {
             WordGroups = wordGroupsDataTable,
+            WordGroupHierarchyRecords = wordGroupHierarchyRecordCustomQueryParameter,
             Words = wordCustomQueryParameter,
             WordTags = wordTagsCustomQueryParameter,
         };

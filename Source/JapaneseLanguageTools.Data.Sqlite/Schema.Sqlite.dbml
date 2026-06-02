@@ -210,6 +210,7 @@ Ref "FK_CharacterTag_Tag_TagId" {
 //  Tables:
 //      Word - Entity
 //      WordGroup - Entity
+//      WordGroupHierarchyRecord - Relationship
 //      WordExercise - Entity
 //      WordExerciseRerun - Entity
 //      WordTag - Relationship
@@ -272,6 +273,31 @@ Table "WordGroup" {
     Indexes {
         "Caption" [name: "UIX_WordGroup_Caption", unique]
     }
+}
+
+Table "WordGroupHierarchyRecord" {
+    "WordGroupId" integer [primary key, not null]
+    "NestedWordGroupId" integer [primary key, not null]
+    "PreventRecursiveIncludes" integer [not null, default: 0]
+
+    //  Constraints {
+    //      "PK_WordGroupHierarchyRecord" [primary key constraint]
+    //      "FK_WordGroupHierarchyRecord_WordGroup_WordGroupId" [foreign key constraint]
+    //      "FK_WordGroupHierarchyRecord_WordGroup_NestedWordGroupId" [foreign key constraint]
+    //  }
+
+    Indexes {
+        "WordGroupId" [name: "IX_WordGroupHierarchyRecord_WordGroupId"]
+        "NestedWordGroupId" [name: "IX_WordGroupHierarchyRecord_NestedWordGroupId"]
+    }
+}
+
+Ref "FK_WordGroupHierarchyRecord_WordGroup_WordGroupId" {
+    "WordGroupHierarchyRecord"."WordGroupId" > "WordGroup"."Id"
+}
+
+Ref "FK_WordGroupHierarchyRecord_WordGroup_NestedWordGroupId" {
+    "WordGroupHierarchyRecord"."NestedWordGroupId" > "WordGroup"."Id"
 }
 
 Table "WordExercise" {
