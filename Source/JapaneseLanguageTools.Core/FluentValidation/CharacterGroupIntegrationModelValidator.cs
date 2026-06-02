@@ -29,7 +29,7 @@ public class CharacterGroupIntegrationModelValidator : AbstractValidator<Charact
     };
 
     [SuppressMessage("Style", "IDE0200:Remove unnecessary lambda expression", Justification = "Personal preference.")]
-    public CharacterGroupIntegrationModelValidator()
+    public CharacterGroupIntegrationModelValidator(IValidator<CharacterGroupHierarchyRecordIntegrationModel> characterGroupHierarchyRecordIntegrationModelValidator, IValidator<CharacterIntegrationModel> characterIntegrationModelValidator)
     {
         RuleFor(characterGroupIntegrationModel => characterGroupIntegrationModel.Action)
             .Must(action => s_snapshotObjectActionsAvailable.Contains(action))
@@ -70,10 +70,10 @@ public class CharacterGroupIntegrationModelValidator : AbstractValidator<Charact
             .WithMessage("Unable to perform an action on a child entity when there is an action selected for the container entity.");
 
         RuleForEach(characterGroupIntegrationModel => characterGroupIntegrationModel.CharacterGroupHierarchyRecords)
-            .SetValidator(new CharacterGroupHierarchyRecordIntegrationModelValidator());
+            .SetValidator(characterGroupHierarchyRecordIntegrationModelValidator);
 
         RuleForEach(characterGroupIntegrationModel => characterGroupIntegrationModel.Characters)
-            .SetValidator(new CharacterIntegrationModelValidator());
+            .SetValidator(characterIntegrationModelValidator);
 
         ;
     }
