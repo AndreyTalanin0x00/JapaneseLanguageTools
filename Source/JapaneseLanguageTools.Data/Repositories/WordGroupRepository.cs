@@ -79,7 +79,10 @@ public class WordGroupRepository : IWordGroupRepository
     {
         IQueryable<WordGroup> wordGroupsQueryable = m_context.WordGroups;
 
-        wordGroupsQueryable = wordGroupsQueryable.Include(wordGroup => wordGroup.Words)
+        wordGroupsQueryable = wordGroupsQueryable
+            .Include(wordGroup => wordGroup.WordGroupHierarchyRecords)
+            .ThenInclude(wordGroupHierarchyRecord => wordGroupHierarchyRecord.NestedWordGroup)
+            .Include(wordGroup => wordGroup.Words)
             .ThenInclude(word => word.WordTags)
             .ThenInclude(wordTag => wordTag.Tag);
 
@@ -106,6 +109,8 @@ public class WordGroupRepository : IWordGroupRepository
     public virtual async Task<WordGroup> AddWordGroupAsync(WordGroup wordGroup, CancellationToken cancellationToken = default)
     {
         wordGroup.Id = default(int);
+        foreach (WordGroupHierarchyRecord wordGroupHierarchyRecord in wordGroup.WordGroupHierarchyRecords)
+            wordGroupHierarchyRecord.WordGroupId = default(int);
         foreach (Word word in wordGroup.Words)
             word.WordGroupId = default(int);
 
@@ -118,6 +123,9 @@ public class WordGroupRepository : IWordGroupRepository
             : utcNow;
 
         m_context.WordGroups.Entry(wordGroup).State = EntityState.Added;
+
+        foreach (WordGroupHierarchyRecord wordGroupHierarchyRecord in wordGroup.WordGroupHierarchyRecords)
+            m_context.WordGroupHierarchyRecords.Entry(wordGroupHierarchyRecord).State = EntityState.Added;
 
         foreach (Word word in wordGroup.Words)
             await m_wordRepository.AddWordAsync(word, saveChangesImmediately: false, cancellationToken: cancellationToken);
@@ -147,6 +155,8 @@ public class WordGroupRepository : IWordGroupRepository
         existingWordGroup.UpdatedOn = wordGroup.UpdatedOn != default(DateTimeOffset)
             ? wordGroup.UpdatedOn
             : utcNow;
+
+        await MergeWordGroupHierarchyRecordsAsync(existingWordGroup.WordGroupHierarchyRecords, wordGroup.WordGroupHierarchyRecords, cancellationToken);
 
         await MergeWordsAsync(existingWordGroup.Words, wordGroup.Words, cancellationToken);
 
@@ -218,6 +228,36 @@ public class WordGroupRepository : IWordGroupRepository
         int rowsRemoved = await m_context.SaveChangesAsync(cancellationToken);
 
         return rowsRemoved > 0;
+    }
+
+    protected async Task MergeWordGroupHierarchyRecordsAsync(IEnumerable<WordGroupHierarchyRecord> targetWordGroupHierarchyRecords, IEnumerable<WordGroupHierarchyRecord> sourceWordGroupHierarchyRecords, CancellationToken cancellationToken = default)
+    {
+        HashSet<int> targetNestedWordGroupIds = targetWordGroupHierarchyRecords
+            .Select(word => word.NestedWordGroupId)
+            .ToHashSet();
+        HashSet<int> sourceNestedWordGroupIds = sourceWordGroupHierarchyRecords
+            .Select(word => word.NestedWordGroupId)
+            .ToHashSet();
+
+        foreach (WordGroupHierarchyRecord sourceWordGroupHierarchyRecord in sourceWordGroupHierarchyRecords)
+        {
+            // The 'when not matched by target' clause:
+            if (!targetNestedWordGroupIds.Contains(sourceWordGroupHierarchyRecord.NestedWordGroupId))
+                m_context.WordGroupHierarchyRecords.Entry(sourceWordGroupHierarchyRecord).State = EntityState.Added;
+
+            ;
+        }
+
+        foreach (WordGroupHierarchyRecord targetWordGroupHierarchyRecord in targetWordGroupHierarchyRecords)
+        {
+            // The 'when not matched by source' clause:
+            if (!sourceNestedWordGroupIds.Contains(targetWordGroupHierarchyRecord.NestedWordGroupId))
+                m_context.WordGroupHierarchyRecords.Entry(targetWordGroupHierarchyRecord).State = EntityState.Deleted;
+
+            ;
+        }
+
+        await Task.CompletedTask;
     }
 
     protected async Task MergeWordsAsync(IEnumerable<Word> targetWords, IEnumerable<Word> sourceWords, CancellationToken cancellationToken = default)
