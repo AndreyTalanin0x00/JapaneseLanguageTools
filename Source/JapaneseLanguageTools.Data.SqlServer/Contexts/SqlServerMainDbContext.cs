@@ -266,6 +266,33 @@ public class SqlServerMainDbContext : MainDbContext
             });
         });
 
+        modelBuilder.Entity<WordGroupHierarchyRecord>(entityBuilder =>
+        {
+            entityBuilder.HasKey(entity => new { entity.WordGroupId, entity.NestedWordGroupId });
+
+            entityBuilder
+                .HasOne(entity => entity.WordGroup)
+                .WithMany(entity => entity.WordGroupHierarchyRecords)
+                .HasForeignKey(entity => entity.WordGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entityBuilder
+                .HasOne(entity => entity.NestedWordGroup)
+                .WithMany()
+                .HasForeignKey(entity => entity.NestedWordGroupId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entityBuilder
+                .HasIndex(entity => entity.WordGroupId)
+                .HasDatabaseName("IX_WordGroupHierarchyRecord_WordGroupId");
+            entityBuilder
+                .HasIndex(entity => entity.NestedWordGroupId)
+                .HasDatabaseName("IX_WordGroupHierarchyRecord_NestedWordGroupId");
+
+            entityBuilder.ToTable("WordGroupHierarchyRecord", "dbo", tableBuilder =>
+            {
+            });
+        });
+
         modelBuilder.Entity<WordExercise>(entityBuilder =>
         {
             entityBuilder.HasKey(entity => entity.Id);
