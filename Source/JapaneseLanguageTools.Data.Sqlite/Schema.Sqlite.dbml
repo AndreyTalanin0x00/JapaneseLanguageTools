@@ -38,6 +38,7 @@ Table "Tag" {
 //  Tables:
 //      Character - Entity
 //      CharacterGroup - Entity
+//      CharacterGroupHierarchyRecord - Relationship
 //      CharacterExercise - Entity
 //      CharacterExerciseRerun - Entity
 //      CharacterTag - Relationship
@@ -103,6 +104,31 @@ Table "CharacterGroup" {
     Indexes {
         "Caption" [name: "UIX_CharacterGroup_Caption", unique]
     }
+}
+
+Table "CharacterGroupHierarchyRecord" {
+    "CharacterGroupId" integer [primary key, not null]
+    "NestedCharacterGroupId" integer [primary key, not null]
+    "PreventRecursiveIncludes" integer [not null, default: 0]
+
+    //  Constraints {
+    //      "PK_CharacterGroupHierarchyRecord" [primary key constraint]
+    //      "FK_CharacterGroupHierarchyRecord_CharacterGroup_CharacterGroupId" [foreign key constraint]
+    //      "FK_CharacterGroupHierarchyRecord_CharacterGroup_NestedCharacterGroupId" [foreign key constraint]
+    //  }
+
+    Indexes {
+        "CharacterGroupId" [name: "IX_CharacterGroupHierarchyRecord_CharacterGroupId"]
+        "NestedCharacterGroupId" [name: "IX_CharacterGroupHierarchyRecord_NestedCharacterGroupId"]
+    }
+}
+
+Ref "FK_CharacterGroupHierarchyRecord_CharacterGroup_CharacterGroupId" {
+    "CharacterGroupHierarchyRecord"."CharacterGroupId" > "CharacterGroup"."Id"
+}
+
+Ref "FK_CharacterGroupHierarchyRecord_CharacterGroup_NestedCharacterGroupId" {
+    "CharacterGroupHierarchyRecord"."NestedCharacterGroupId" > "CharacterGroup"."Id"
 }
 
 Table "CharacterExercise" {
