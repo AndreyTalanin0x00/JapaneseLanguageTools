@@ -69,6 +69,9 @@ public class WordGroupIntegrationModelValidator : AbstractValidator<WordGroupInt
             })
             .WithMessage("Unable to perform an action on a child entity when there is an action selected for the container entity.");
 
+        RuleForEach(wordGroupIntegrationModel => wordGroupIntegrationModel.WordGroupHierarchyRecords)
+            .SetValidator(new WordGroupHierarchyRecordIntegrationModelValidator());
+
         RuleForEach(wordGroupIntegrationModel => wordGroupIntegrationModel.Words)
             .SetValidator(new WordIntegrationModelValidator());
 
