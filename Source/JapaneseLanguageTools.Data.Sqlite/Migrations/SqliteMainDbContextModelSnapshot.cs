@@ -15,7 +15,7 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.14");
 
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.Character", b =>
             {
@@ -236,6 +236,30 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
 
                     t.HasCheckConstraint("CK_CharacterGroup_Comment_NullOrNotEmpty", "\"Comment\" IS NULL OR LENGTH(TRIM(\"Comment\")) > 0");
                 });
+            });
+
+            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.CharacterGroupHierarchyRecord", b =>
+            {
+                b.Property<int>("CharacterGroupId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<int>("NestedCharacterGroupId")
+                    .HasColumnType("INTEGER");
+
+                b.Property<bool>("PreventRecursiveIncludes")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER")
+                    .HasDefaultValue(false);
+
+                b.HasKey("CharacterGroupId", "NestedCharacterGroupId");
+
+                b.HasIndex("CharacterGroupId")
+                    .HasDatabaseName("IX_CharacterGroupHierarchyRecord_CharacterGroupId");
+
+                b.HasIndex("NestedCharacterGroupId")
+                    .HasDatabaseName("IX_CharacterGroupHierarchyRecord_NestedCharacterGroupId");
+
+                b.ToTable("CharacterGroupHierarchyRecord", (string)null);
             });
 
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.CharacterTag", b =>
@@ -566,6 +590,25 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
                 b.Navigation("CharacterExercise");
             });
 
+            modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.CharacterGroupHierarchyRecord", b =>
+            {
+                b.HasOne("JapaneseLanguageTools.Data.Entities.CharacterGroup", "CharacterGroup")
+                    .WithMany("CharacterGroupHierarchyRecords")
+                    .HasForeignKey("CharacterGroupId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("JapaneseLanguageTools.Data.Entities.CharacterGroup", "NestedCharacterGroup")
+                    .WithMany()
+                    .HasForeignKey("NestedCharacterGroupId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("CharacterGroup");
+
+                b.Navigation("NestedCharacterGroup");
+            });
+
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.CharacterTag", b =>
             {
                 b.HasOne("JapaneseLanguageTools.Data.Entities.Character", "Character")
@@ -648,6 +691,8 @@ namespace JapaneseLanguageTools.Data.Sqlite.Migrations
 
             modelBuilder.Entity("JapaneseLanguageTools.Data.Entities.CharacterGroup", b =>
             {
+                b.Navigation("CharacterGroupHierarchyRecords");
+
                 b.Navigation("Characters");
             });
 

@@ -75,6 +75,10 @@ public class CharacterGroupXmlModel
     public bool UpdatedOnStringSpecified => UpdatedOn != default(DateTimeOffset);
 
     [XmlArray(Order = 2)]
+    [XmlArrayItem(CharacterGroupHierarchyRecordXmlModel.CharacterGroupHierarchyRecordXmlElementName)]
+    public CharacterGroupHierarchyRecordXmlModel[] CharacterGroupHierarchyRecords { get; set; } = [];
+
+    [XmlArray(Order = 3)]
     [XmlArrayItem(CharacterXmlModel.CharacterXmlElementName)]
     public CharacterXmlModel[] Characters { get; set; } = [];
 }

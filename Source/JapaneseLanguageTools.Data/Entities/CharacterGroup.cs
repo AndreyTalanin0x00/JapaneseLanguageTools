@@ -29,5 +29,7 @@ public class CharacterGroup
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTimeOffset UpdatedOn { get; set; }
 
+    public IList<CharacterGroupHierarchyRecord> CharacterGroupHierarchyRecords { get; set; } = [];
+
     public IList<Character> Characters { get; set; } = [];
 }

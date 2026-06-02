@@ -55,7 +55,10 @@ public class SqlServerCharacterGroupRepository : CharacterGroupRepository
 
         IQueryable<CharacterGroup> characterGroupsQueryable = m_context.CharacterGroups.FromSqlRaw(query, characterGroupIdsParameter);
 
-        characterGroupsQueryable = characterGroupsQueryable.Include(characterGroup => characterGroup.Characters)
+        characterGroupsQueryable = characterGroupsQueryable
+            .Include(characterGroup => characterGroup.CharacterGroupHierarchyRecords)
+            .ThenInclude(characterGroupHierarchyRecord => characterGroupHierarchyRecord.NestedCharacterGroup)
+            .Include(characterGroup => characterGroup.Characters)
             .ThenInclude(character => character.CharacterTags)
             .ThenInclude(characterTag => characterTag.Tag);
 
@@ -88,7 +91,10 @@ public class SqlServerCharacterGroupRepository : CharacterGroupRepository
 
         IQueryable<CharacterGroup> characterGroupsQueryable = m_context.CharacterGroups.FromSqlRaw(query, characterGroupCaptionsParameter);
 
-        characterGroupsQueryable = characterGroupsQueryable.Include(characterGroup => characterGroup.Characters)
+        characterGroupsQueryable = characterGroupsQueryable
+            .Include(characterGroup => characterGroup.CharacterGroupHierarchyRecords)
+            .ThenInclude(characterGroupHierarchyRecord => characterGroupHierarchyRecord.NestedCharacterGroup)
+            .Include(characterGroup => characterGroup.Characters)
             .ThenInclude(character => character.CharacterTags)
             .ThenInclude(characterTag => characterTag.Tag);
 
@@ -126,6 +132,9 @@ public class SqlServerCharacterGroupRepository : CharacterGroupRepository
         using DataTable characterGroupsDataTable = YieldEnumerableHelpers.Yield(characterGroup)
             .ToDataTable();
 
+        ICustomQueryParameter characterGroupHierarchyRecordCustomQueryParameter = characterGroup.CharacterGroupHierarchyRecords
+            .ToCustomQueryParameter();
+
         ICustomQueryParameter characterCustomQueryParameter = characterGroup.Characters
             .ToCustomQueryParameter();
 
@@ -148,6 +157,7 @@ public class SqlServerCharacterGroupRepository : CharacterGroupRepository
         object dynamicParametersObject = new
         {
             CharacterGroups = characterGroupsDataTable,
+            CharacterGroupHierarchyRecords = characterGroupHierarchyRecordCustomQueryParameter,
             Characters = characterCustomQueryParameter,
             CharacterTags = characterTagsCustomQueryParameter,
         };
@@ -193,6 +203,9 @@ public class SqlServerCharacterGroupRepository : CharacterGroupRepository
         using DataTable characterGroupsDataTable = YieldEnumerableHelpers.Yield(characterGroup)
             .ToDataTable();
 
+        ICustomQueryParameter characterGroupHierarchyRecordCustomQueryParameter = characterGroup.CharacterGroupHierarchyRecords
+            .ToCustomQueryParameter();
+
         ICustomQueryParameter characterCustomQueryParameter = characterGroup.Characters
             .ToCustomQueryParameter();
 
@@ -213,6 +226,7 @@ public class SqlServerCharacterGroupRepository : CharacterGroupRepository
         object dynamicParametersObject = new
         {
             CharacterGroups = characterGroupsDataTable,
+            CharacterGroupHierarchyRecords = characterGroupHierarchyRecordCustomQueryParameter,
             Characters = characterCustomQueryParameter,
             CharacterTags = characterTagsCustomQueryParameter,
         };

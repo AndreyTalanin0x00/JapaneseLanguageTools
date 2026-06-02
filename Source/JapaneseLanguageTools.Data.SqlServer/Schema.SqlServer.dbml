@@ -39,6 +39,7 @@ Table "dbo"."Tag" {
 //  Tables:
 //      dbo.Character - Entity
 //      dbo.CharacterGroup - Entity
+//      dbo.CharacterGroupHierarchyRecord - Relationship
 //      dbo.CharacterExercise - Entity
 //      dbo.CharacterExerciseRerun - Entity
 //      dbo.CharacterTag - Relationship
@@ -101,6 +102,32 @@ Table "dbo"."CharacterGroup" {
     Indexes {
         "Caption" [name: "UIX_CharacterGroup_Caption", unique]
     }
+}
+
+Table "dbo"."CharacterGroupHierarchyRecord" {
+    "CharacterGroupId" int [primary key, not null]
+    "NestedCharacterGroupId" int [primary key, not null]
+    "PreventRecursiveIncludes" int [not null, default: 0]
+
+    //  Constraints {
+    //      "PK_CharacterGroupHierarchyRecord" [primary key constraint]
+    //      "FK_CharacterGroupHierarchyRecord_CharacterGroup_CharacterGroupId" [foreign key constraint]
+    //      "FK_CharacterGroupHierarchyRecord_CharacterGroup_NestedCharacterGroupId" [foreign key constraint]
+    //      "DF_CharacterGroupHierarchyRecord_PreventRecursiveIncludes" [default constraint, sql: "0", column: "PreventRecursiveIncludes"]
+    //  }
+
+    Indexes {
+        "CharacterGroupId" [name: "IX_CharacterGroupHierarchyRecord_CharacterGroupId"]
+        "NestedCharacterGroupId" [name: "IX_CharacterGroupHierarchyRecord_NestedCharacterGroupId"]
+    }
+}
+
+Ref "FK_CharacterGroupHierarchyRecord_CharacterGroup_CharacterGroupId" {
+    "dbo"."CharacterGroupHierarchyRecord"."CharacterGroupId" > "dbo"."CharacterGroup"."Id"
+}
+
+Ref "FK_CharacterGroupHierarchyRecord_CharacterGroup_NestedCharacterGroupId" {
+    "dbo"."CharacterGroupHierarchyRecord"."NestedCharacterGroupId" > "dbo"."CharacterGroup"."Id"
 }
 
 Table "dbo"."CharacterExercise" {

@@ -155,6 +155,11 @@ public class CharacterGroupService : ICharacterGroupService
     {
         foreach (CharacterGroupModel characterGroupModel in characterGroupModels)
         {
+            foreach (CharacterGroupHierarchyRecordModel characterGroupHierarchyRecordModel in characterGroupModel.CharacterGroupHierarchyRecords)
+            {
+                characterGroupHierarchyRecordModel.CharacterGroup = null;
+            }
+
             foreach (CharacterModel characterModel in characterGroupModel.Characters)
             {
                 characterModel.CharacterGroup = null;

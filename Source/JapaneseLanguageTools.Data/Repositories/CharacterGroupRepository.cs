@@ -79,7 +79,10 @@ public class CharacterGroupRepository : ICharacterGroupRepository
     {
         IQueryable<CharacterGroup> characterGroupsQueryable = m_context.CharacterGroups;
 
-        characterGroupsQueryable = characterGroupsQueryable.Include(characterGroup => characterGroup.Characters)
+        characterGroupsQueryable = characterGroupsQueryable
+            .Include(characterGroup => characterGroup.CharacterGroupHierarchyRecords)
+            .ThenInclude(characterGroupHierarchyRecord => characterGroupHierarchyRecord.NestedCharacterGroup)
+            .Include(characterGroup => characterGroup.Characters)
             .ThenInclude(character => character.CharacterTags)
             .ThenInclude(characterTag => characterTag.Tag);
 
@@ -106,6 +109,8 @@ public class CharacterGroupRepository : ICharacterGroupRepository
     public virtual async Task<CharacterGroup> AddCharacterGroupAsync(CharacterGroup characterGroup, CancellationToken cancellationToken = default)
     {
         characterGroup.Id = default(int);
+        foreach (CharacterGroupHierarchyRecord characterGroupHierarchyRecord in characterGroup.CharacterGroupHierarchyRecords)
+            characterGroupHierarchyRecord.CharacterGroupId = default(int);
         foreach (Character character in characterGroup.Characters)
             character.CharacterGroupId = default(int);
 
@@ -118,6 +123,9 @@ public class CharacterGroupRepository : ICharacterGroupRepository
             : utcNow;
 
         m_context.CharacterGroups.Entry(characterGroup).State = EntityState.Added;
+
+        foreach (CharacterGroupHierarchyRecord characterGroupHierarchyRecord in characterGroup.CharacterGroupHierarchyRecords)
+            m_context.CharacterGroupHierarchyRecords.Entry(characterGroupHierarchyRecord).State = EntityState.Added;
 
         foreach (Character character in characterGroup.Characters)
             await m_characterRepository.AddCharacterAsync(character, saveChangesImmediately: false, cancellationToken: cancellationToken);
@@ -147,6 +155,8 @@ public class CharacterGroupRepository : ICharacterGroupRepository
         existingCharacterGroup.UpdatedOn = characterGroup.UpdatedOn != default(DateTimeOffset)
             ? characterGroup.UpdatedOn
             : utcNow;
+
+        await MergeCharacterGroupHierarchyRecordsAsync(existingCharacterGroup.CharacterGroupHierarchyRecords, characterGroup.CharacterGroupHierarchyRecords, cancellationToken);
 
         await MergeCharactersAsync(existingCharacterGroup.Characters, characterGroup.Characters, cancellationToken);
 
@@ -218,6 +228,36 @@ public class CharacterGroupRepository : ICharacterGroupRepository
         int rowsRemoved = await m_context.SaveChangesAsync(cancellationToken);
 
         return rowsRemoved > 0;
+    }
+
+    protected async Task MergeCharacterGroupHierarchyRecordsAsync(IEnumerable<CharacterGroupHierarchyRecord> targetCharacterGroupHierarchyRecords, IEnumerable<CharacterGroupHierarchyRecord> sourceCharacterGroupHierarchyRecords, CancellationToken cancellationToken = default)
+    {
+        HashSet<int> targetNestedCharacterGroupIds = targetCharacterGroupHierarchyRecords
+            .Select(character => character.NestedCharacterGroupId)
+            .ToHashSet();
+        HashSet<int> sourceNestedCharacterGroupIds = sourceCharacterGroupHierarchyRecords
+            .Select(character => character.NestedCharacterGroupId)
+            .ToHashSet();
+
+        foreach (CharacterGroupHierarchyRecord sourceCharacterGroupHierarchyRecord in sourceCharacterGroupHierarchyRecords)
+        {
+            // The 'when not matched by target' clause:
+            if (!targetNestedCharacterGroupIds.Contains(sourceCharacterGroupHierarchyRecord.NestedCharacterGroupId))
+                m_context.CharacterGroupHierarchyRecords.Entry(sourceCharacterGroupHierarchyRecord).State = EntityState.Added;
+
+            ;
+        }
+
+        foreach (CharacterGroupHierarchyRecord targetCharacterGroupHierarchyRecord in targetCharacterGroupHierarchyRecords)
+        {
+            // The 'when not matched by source' clause:
+            if (!sourceNestedCharacterGroupIds.Contains(targetCharacterGroupHierarchyRecord.NestedCharacterGroupId))
+                m_context.CharacterGroupHierarchyRecords.Entry(targetCharacterGroupHierarchyRecord).State = EntityState.Deleted;
+
+            ;
+        }
+
+        await Task.CompletedTask;
     }
 
     protected async Task MergeCharactersAsync(IEnumerable<Character> targetCharacters, IEnumerable<Character> sourceCharacters, CancellationToken cancellationToken = default)

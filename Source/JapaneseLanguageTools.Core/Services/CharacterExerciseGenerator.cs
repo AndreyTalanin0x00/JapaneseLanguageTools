@@ -76,6 +76,43 @@ public class CharacterExerciseGenerator : ICharacterExerciseGenerator
                 : allCharacterGroupModels;
         }
 
+        static CharacterGroupModel[] IncludeNestedCharacterGroups(CharacterGroupModel[] availableCharacterGroupModels, CharacterGroupModel[] allCharacterGroupModels)
+        {
+            Dictionary<int, CharacterGroupModel> allCharacterGroupModelsByIds =
+                allCharacterGroupModels.ToDictionary(characterGroupModel => characterGroupModel.Id);
+
+            List<CharacterGroupModel> availableCharacterGroupModelsList = [];
+            Queue<CharacterGroupModel> availableCharacterGroupModelsQueue = new(availableCharacterGroupModels);
+            while (availableCharacterGroupModelsQueue.Count > 0)
+            {
+                CharacterGroupModel characterGroupModel = availableCharacterGroupModelsQueue.Dequeue();
+
+                availableCharacterGroupModelsList.Add(characterGroupModel);
+
+                foreach (CharacterGroupHierarchyRecordModel characterGroupHierarchyRecordModel in characterGroupModel.CharacterGroupHierarchyRecords)
+                {
+                    if (!allCharacterGroupModelsByIds.TryGetValue(characterGroupHierarchyRecordModel.NestedCharacterGroupId, out CharacterGroupModel? nestedCharacterGroupModel))
+                    {
+                        continue;
+                    }
+
+                    if (!characterGroupHierarchyRecordModel.PreventRecursiveIncludes)
+                    {
+                        availableCharacterGroupModelsQueue.Enqueue(nestedCharacterGroupModel);
+                        continue;
+                    }
+
+                    availableCharacterGroupModelsList.Add(nestedCharacterGroupModel);
+                }
+            }
+
+            CharacterGroupModel[] availableCharacterGroupModelsNew = availableCharacterGroupModelsList.ToArray();
+
+            return availableCharacterGroupModelsNew;
+        }
+
+        availableCharacterGroupModels = IncludeNestedCharacterGroups(availableCharacterGroupModels, allCharacterGroupModels);
+
         CharacterModel[] standaloneCharacterModels = (await m_applicationDictionaryService.GetAllCharactersAsync(cancellationToken))
             .Where(characterModel => characterModel.CharacterGroup is null)
             .ToArray();
