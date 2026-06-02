@@ -24,7 +24,7 @@ public class ApplicationDictionaryObjectPackageIntegrationModelValidator : Abstr
         SnapshotType.ChangeState,
     };
 
-    public ApplicationDictionaryObjectPackageIntegrationModelValidator()
+    public ApplicationDictionaryObjectPackageIntegrationModelValidator(IValidator<CharacterIntegrationModel> characterIntegrationModelValidator, IValidator<CharacterGroupIntegrationModel> characterGroupIntegrationModelValidator, IValidator<WordIntegrationModel> wordIntegrationModelValidator, IValidator<WordGroupIntegrationModel> wordGroupIntegrationModelValidator, IValidator<TagIntegrationModel> tagIntegrationModelValidator)
     {
         RuleFor(applicationDictionaryObjectPackageIntegrationModel => applicationDictionaryObjectPackageIntegrationModel.SnapshotType)
             .NotEqual(SnapshotType.Unknown)
@@ -165,21 +165,21 @@ public class ApplicationDictionaryObjectPackageIntegrationModelValidator : Abstr
                 {
                     applicationDictionaryIntegrationModelValidator
                         .RuleForEach(applicationDictionaryIntegrationModel => applicationDictionaryIntegrationModel.Characters)
-                        .SetValidator(new CharacterIntegrationModelValidator());
+                        .SetValidator(characterIntegrationModelValidator);
                     applicationDictionaryIntegrationModelValidator
                         .RuleForEach(applicationDictionaryIntegrationModel => applicationDictionaryIntegrationModel.CharacterGroups)
-                        .SetValidator(new CharacterGroupIntegrationModelValidator());
+                        .SetValidator(characterGroupIntegrationModelValidator);
 
                     applicationDictionaryIntegrationModelValidator
                         .RuleForEach(applicationDictionaryIntegrationModel => applicationDictionaryIntegrationModel.Words)
-                        .SetValidator(new WordIntegrationModelValidator());
+                        .SetValidator(wordIntegrationModelValidator);
                     applicationDictionaryIntegrationModelValidator
                         .RuleForEach(applicationDictionaryIntegrationModel => applicationDictionaryIntegrationModel.WordGroups)
-                        .SetValidator(new WordGroupIntegrationModelValidator());
+                        .SetValidator(wordGroupIntegrationModelValidator);
 
                     applicationDictionaryIntegrationModelValidator
                         .RuleForEach(applicationDictionaryIntegrationModel => applicationDictionaryIntegrationModel.Tags)
-                        .SetValidator(new TagIntegrationModelValidator());
+                        .SetValidator(tagIntegrationModelValidator);
 
                     ;
                 });
