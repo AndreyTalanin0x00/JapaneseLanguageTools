@@ -104,6 +104,7 @@ public class ApplicationDictionaryXmlExportFormatter :
         xCharactersElement.Add(m_xCommentFactory.CreateKanjiCharacterComment());
 
         xCharacterGroupsElement.Add(m_xCommentFactory.CreateCharacterGroupComment());
+        xCharacterGroupsElement.Add(m_xCommentFactory.CreateCharacterGroupComment(includeHierarchyRecordPlaceholder: true));
 
         xWordsElement.Add(m_xCommentFactory.CreateKanaWordComment(CharacterTypes.Katakana));
         xWordsElement.Add(m_xCommentFactory.CreateKanaWordComment(CharacterTypes.Hiragana));
