@@ -17,8 +17,22 @@ public class WordGroupAutoMapperProfile : Profile
 
         CreateMap<WordGroup, WordGroupModel>();
 
+        CreateMap<WordGroupHierarchyRecord, WordGroupHierarchyRecordModel>();
+
         CreateMap<WordGroupModel, WordGroup>()
+            .AfterMap(ModelToEntity_SetWordGroupHierarchyRecordNavigationProperties)
             .AfterMap(ModelToEntity_SetWordNavigationProperties);
+
+        CreateMap<WordGroupHierarchyRecordModel, WordGroupHierarchyRecord>();
+
+        static void ModelToEntity_SetWordGroupHierarchyRecordNavigationProperties(WordGroupModel wordGroupModel, WordGroup wordGroup)
+        {
+            foreach (WordGroupHierarchyRecord wordGroupHierarchyRecord in wordGroup.WordGroupHierarchyRecords)
+            {
+                wordGroupHierarchyRecord.WordGroupId = wordGroup.Id;
+                wordGroupHierarchyRecord.WordGroup = wordGroup;
+            }
+        }
 
         static void ModelToEntity_SetWordNavigationProperties(WordGroupModel wordGroupModel, WordGroup wordGroup)
         {
@@ -31,15 +45,26 @@ public class WordGroupAutoMapperProfile : Profile
 
         CreateMap<WordGroupModel, WordGroupIntegrationModel>().ReverseMap();
 
+        CreateMap<WordGroupHierarchyRecordModel, WordGroupHierarchyRecordIntegrationModel>()
+            .ForMember(wordGroupHierarchyRecordIntegrationModel => wordGroupHierarchyRecordIntegrationModel.NestedWordGroupCaption, options => options.MapFrom(wordGroupHierarchyRecordModel => wordGroupHierarchyRecordModel.NestedWordGroup!.Caption));
+
         CreateMap<WordGroupIntegrationModel, WordGroupJsonModel>();
+
+        CreateMap<WordGroupHierarchyRecordIntegrationModel, WordGroupHierarchyRecordJsonModel>();
+
         CreateMap<WordGroupIntegrationModel, WordGroupXmlModel>();
+
+        CreateMap<WordGroupHierarchyRecordIntegrationModel, WordGroupHierarchyRecordXmlModel>();
 
         CreateMap<WordGroupJsonModel, WordGroupIntegrationModel>()
             .AfterMap(ReplaceEmptyCommentWithNull);
+
+        CreateMap<WordGroupHierarchyRecordJsonModel, WordGroupHierarchyRecordIntegrationModel>();
+
         CreateMap<WordGroupXmlModel, WordGroupIntegrationModel>()
             .AfterMap(ReplaceEmptyCommentWithNull);
 
-        ;
+        CreateMap<WordGroupHierarchyRecordXmlModel, WordGroupHierarchyRecordIntegrationModel>();
     }
 
     private static void ReplaceEmptyCommentWithNull(object wordGroupSerializedModel, WordGroupIntegrationModel wordGroupIntegrationModel)
