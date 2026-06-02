@@ -34,6 +34,9 @@ public class WordGroupJsonModel
     [JsonPropertyName("hidden")]
     public bool Hidden { get; set; }
 
+    [JsonPropertyName("wordGroupHierarchyRecords")]
+    public WordGroupHierarchyRecordJsonModel[] WordGroupHierarchyRecords { get; set; } = [];
+
     [JsonPropertyName("words")]
     public WordJsonModel[] Words { get; set; } = [];
 
