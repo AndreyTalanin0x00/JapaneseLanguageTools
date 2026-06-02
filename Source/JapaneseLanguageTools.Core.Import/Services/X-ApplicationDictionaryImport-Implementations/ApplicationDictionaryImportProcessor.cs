@@ -387,30 +387,37 @@ public class ApplicationDictionaryImportProcessor :
             .Select(wordGroupModel => new WordGroupId(wordGroupModel.Id))
             .ToArray();
 
+        WordGroupIntegrationModel[] wordGroupIntegrationModels = applicationDictionaryIntegrationModel.WordGroups;
+
         HashSet<int> existingWordGroupIdValues = (await m_applicationDictionaryService.GetWordGroupsAsync(wordGroupIds, cancellationToken))
             .Select(existingWordGroupModel => existingWordGroupModel.Id)
             .ToHashSet();
 
-        WordGroupModel[] wordGroupModels = m_mapper.Map<WordGroupModel[]>(applicationDictionaryIntegrationModel.WordGroups);
+        // Temporarily remove all word group hierarchy records: nested groups may not have been added yet.
+        WordGroupHierarchyRecordIntegrationModel[][] wordGroupHierarchyRecordIntegrationModelsPartitioned =
+            RemoveWordGroupHierarchyRecords(wordGroupIds, wordGroupIntegrationModels);
 
-        foreach ((WordGroupModel wordGroupModel, WordGroupIntegrationModel wordGroupIntegrationModel) in wordGroupModels.Zip(applicationDictionaryIntegrationModel.WordGroups))
+        WordGroupModel[] wordGroupModels = m_mapper.Map<WordGroupModel[]>(wordGroupIntegrationModels);
+
+        foreach ((WordGroupModel wordGroupModel, WordGroupIntegrationModel wordGroupIntegrationModel) in wordGroupModels.Zip(wordGroupIntegrationModels))
         {
             WordGroupId wordGroupId = new(wordGroupModel.Id);
 
             foreach ((WordModel wordModel, WordIntegrationModel wordIntegrationModel) in wordGroupModel.Words.Zip(wordGroupIntegrationModel.Words))
                 wordModel.WordTags = MapTagString(wordIntegrationModel.Tags, updatedTagModelsByCaption).ToList();
 
+            WordGroupModel? addedWordGroupModel = null;
             switch (wordGroupIntegrationModel.Action)
             {
                 case SnapshotObjectAction.Add:
-                    await m_applicationDictionaryService.AddWordGroupAsync(wordGroupModel, cancellationToken);
+                    addedWordGroupModel = await m_applicationDictionaryService.AddWordGroupAsync(wordGroupModel, cancellationToken);
                     break;
                 case SnapshotObjectAction.Update:
                     await m_applicationDictionaryService.UpdateWordGroupAsync(wordGroupModel, cancellationToken);
                     break;
                 case SnapshotObjectAction.AddOrUpdate:
                     if (!existingWordGroupIdValues.Contains(wordGroupModel.Id))
-                        await m_applicationDictionaryService.AddWordGroupAsync(wordGroupModel, cancellationToken);
+                        addedWordGroupModel = await m_applicationDictionaryService.AddWordGroupAsync(wordGroupModel, cancellationToken);
                     else
                         await m_applicationDictionaryService.UpdateWordGroupAsync(wordGroupModel, cancellationToken);
                     break;
@@ -424,6 +431,87 @@ public class ApplicationDictionaryImportProcessor :
                     break;
                 default:
                     throw new UnreachableException($"Unknown import action: {wordGroupIntegrationModel.Action} ({(int)wordGroupIntegrationModel.Action}).");
+            }
+
+            if (addedWordGroupModel is not null)
+            {
+                wordGroupModel.Id = addedWordGroupModel.Id;
+            }
+        }
+
+        // Update just processed word groups the second time to re-add the word group hierarchy records.
+        await AddWordGroupHierarchyRecordsBackAsync(wordGroupIds, wordGroupModels, wordGroupIntegrationModels, wordGroupHierarchyRecordIntegrationModelsPartitioned, cancellationToken);
+
+        static WordGroupHierarchyRecordIntegrationModel[][] RemoveWordGroupHierarchyRecords(WordGroupId[] wordGroupIds, WordGroupIntegrationModel[] wordGroupIntegrationModels)
+        {
+            WordGroupHierarchyRecordIntegrationModel[][] wordGroupHierarchyRecordIntegrationModelsPartitioned =
+                new WordGroupHierarchyRecordIntegrationModel[wordGroupIds.Length][];
+
+            for (int index = 0; index < wordGroupIds.Length; index++)
+            {
+                WordGroupIntegrationModel wordGroupIntegrationModel = wordGroupIntegrationModels[index];
+
+                wordGroupHierarchyRecordIntegrationModelsPartitioned[index] = wordGroupIntegrationModel.WordGroupHierarchyRecords;
+
+                wordGroupIntegrationModel.WordGroupHierarchyRecords = [];
+            }
+
+            return wordGroupHierarchyRecordIntegrationModelsPartitioned;
+        }
+
+        async Task AddWordGroupHierarchyRecordsBackAsync(WordGroupId[] wordGroupIds, WordGroupModel[] wordGroupModels, WordGroupIntegrationModel[] wordGroupIntegrationModels, WordGroupHierarchyRecordIntegrationModel[][] wordGroupHierarchyRecordIntegrationModelsPartitioned, CancellationToken cancellationToken)
+        {
+            WordGroupModel[] allWordGroupModels = await m_applicationDictionaryService.GetAllWordGroupsAsync(cancellationToken);
+
+            Dictionary<int, WordGroupModel> allWordGroupModelsByIds = allWordGroupModels.ToDictionary(wordGroupModel => wordGroupModel.Id);
+            Dictionary<string, WordGroupModel> allWordGroupModelsByCaptions = allWordGroupModels.ToDictionary(wordGroupModel => wordGroupModel.Caption);
+
+            for (int index = 0; index < wordGroupIds.Length; index++)
+            {
+                WordGroupModel wordGroupModel = wordGroupModels[index];
+                WordGroupIntegrationModel wordGroupIntegrationModel = wordGroupIntegrationModels[index];
+
+                if (wordGroupIntegrationModel.Action == SnapshotObjectAction.Remove)
+                    continue;
+
+                WordGroupHierarchyRecordIntegrationModel[] wordGroupHierarchyRecordIntegrationModels =
+                    wordGroupHierarchyRecordIntegrationModelsPartitioned[index];
+
+                if (wordGroupHierarchyRecordIntegrationModels.Length == 0)
+                    continue;
+
+                List<WordGroupHierarchyRecordModel> wordGroupHierarchyRecordModels = wordGroupHierarchyRecordIntegrationModels
+                    .Select(wordGroupHierarchyRecordIntegrationModel =>
+                    {
+                        WordGroupModel? nestedWordGroupModel = null;
+                        if (wordGroupHierarchyRecordIntegrationModel.NestedWordGroupId > 0)
+                        {
+                            nestedWordGroupModel = allWordGroupModelsByIds[wordGroupHierarchyRecordIntegrationModel.NestedWordGroupId];
+                        }
+                        else // if (!string.IsNullOrEmpty(wordGroupHierarchyRecordIntegrationModel.NestedWordGroupCaption))
+                        {
+                            string nestedWordGroupCaption = wordGroupHierarchyRecordIntegrationModel.NestedWordGroupCaption
+                                ?? throw new UnreachableException($"Both the {nameof(WordGroupHierarchyRecordIntegrationModel.NestedWordGroupId)} and {nameof(WordGroupHierarchyRecordIntegrationModel.NestedWordGroupCaption)} properties are not set. This must have been caught in the import validator.");
+
+                            nestedWordGroupModel = allWordGroupModelsByCaptions[nestedWordGroupCaption];
+                        }
+
+                        WordGroupHierarchyRecordModel wordGroupHierarchyRecordModel = new()
+                        {
+                            WordGroupId = wordGroupModel.Id,
+                            NestedWordGroupId = nestedWordGroupModel.Id,
+                            PreventRecursiveIncludes = wordGroupHierarchyRecordIntegrationModel.PreventRecursiveIncludes,
+                            WordGroup = wordGroupModel,
+                            NestedWordGroup = nestedWordGroupModel,
+                        };
+
+                        return wordGroupHierarchyRecordModel;
+                    })
+                    .ToList();
+
+                wordGroupModel.WordGroupHierarchyRecords = wordGroupHierarchyRecordModels;
+
+                await m_applicationDictionaryService.UpdateWordGroupAsync(wordGroupModel, cancellationToken);
             }
         }
     }
