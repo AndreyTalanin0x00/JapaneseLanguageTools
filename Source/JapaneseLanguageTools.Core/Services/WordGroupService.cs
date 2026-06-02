@@ -155,6 +155,11 @@ public class WordGroupService : IWordGroupService
     {
         foreach (WordGroupModel wordGroupModel in wordGroupModels)
         {
+            foreach (WordGroupHierarchyRecordModel wordGroupHierarchyRecordModel in wordGroupModel.WordGroupHierarchyRecords)
+            {
+                wordGroupHierarchyRecordModel.WordGroup = null;
+            }
+
             foreach (WordModel wordModel in wordGroupModel.Words)
             {
                 wordModel.WordGroup = null;
