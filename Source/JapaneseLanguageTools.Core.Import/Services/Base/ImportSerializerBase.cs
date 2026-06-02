@@ -168,7 +168,9 @@ public abstract class XmlImportSerializerBase<TImportRequest, TImportResponse, T
     {
         XmlSerializer xmlSerializer = new(typeof(TImportIntermediateObjectPackageCurrent));
 
-        TImportIntermediateObjectPackageCurrent? importIntermediateObjectPackage = (TImportIntermediateObjectPackageCurrent?)xmlSerializer.Deserialize(stream);
+        TImportIntermediateObjectPackageCurrent? importIntermediateObjectPackage;
+        using (StreamReader streamReader = new(stream, detectEncodingFromByteOrderMarks: true, leaveOpen: true))
+            importIntermediateObjectPackage = (TImportIntermediateObjectPackageCurrent?)xmlSerializer.Deserialize(streamReader);
 
         Task<TImportIntermediateObjectPackageCurrent?> completedTask = Task.FromResult(importIntermediateObjectPackage);
 
