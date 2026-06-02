@@ -8,7 +8,6 @@ using AndreyTalanin0x00.Integrations.Import.Services.Abstractions;
 using FluentValidation;
 
 using JapaneseLanguageTools.Contracts.Models.Integrations;
-using JapaneseLanguageTools.Core.FluentValidation;
 using JapaneseLanguageTools.Core.Import.Requests;
 using JapaneseLanguageTools.Core.Import.Responses;
 
@@ -26,11 +25,16 @@ namespace JapaneseLanguageTools.Core.Import.Services;
 public class TagImportValidator :
     IImportValidator<TagImportRequest, TagImportResponse, Object, TagObjectPackageIntegrationModel>
 {
+    private readonly IValidator<TagObjectPackageIntegrationModel> m_tagObjectPackageIntegrationModelValidator;
+
+    public TagImportValidator(IValidator<TagObjectPackageIntegrationModel> tagObjectPackageIntegrationModelValidator)
+    {
+        m_tagObjectPackageIntegrationModelValidator = tagObjectPackageIntegrationModelValidator;
+    }
+
     /// <inheritdoc />
     public Task ValidateAsync(ImportObjectPackageBatch<Object, TagObjectPackageIntegrationModel>[] importObjectPackageBatches, CancellationToken cancellationToken = default)
     {
-        TagObjectPackageIntegrationModelValidator tagObjectPackageIntegrationModelValidator = new();
-
         foreach (ImportObjectPackageBatch<Object, TagObjectPackageIntegrationModel> importObjectPackageBatch in importObjectPackageBatches)
         {
             ImportObjectPackageWrapper<TagObjectPackageIntegrationModel>[] importObjectPackageWrappers = importObjectPackageBatch.ImportObjectPackageWrappers;
@@ -39,7 +43,7 @@ public class TagImportValidator :
             {
                 TagObjectPackageIntegrationModel tagObjectPackageIntegrationModel = importObjectPackageWrapper.ImportObjectPackage;
 
-                tagObjectPackageIntegrationModelValidator.ValidateAndThrow(tagObjectPackageIntegrationModel);
+                m_tagObjectPackageIntegrationModelValidator.ValidateAndThrow(tagObjectPackageIntegrationModel);
             }
         }
 
