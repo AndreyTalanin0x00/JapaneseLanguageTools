@@ -210,6 +210,7 @@ Ref "FK_CharacterTag_Tag_TagId" {
 //  Tables:
 //      dbo.Word - Entity
 //      dbo.WordGroup - Entity
+//      dbo.WordGroupHierarchyRecord - Relationship
 //      dbo.WordExercise - Entity
 //      dbo.WordExerciseRerun - Entity
 //      dbo.WordTag - Relationship
@@ -270,6 +271,32 @@ Table "dbo"."WordGroup" {
     Indexes {
         "Caption" [name: "UIX_WordGroup_Caption", unique]
     }
+}
+
+Table "dbo"."WordGroupHierarchyRecord" {
+    "WordGroupId" int [primary key, not null]
+    "NestedWordGroupId" int [primary key, not null]
+    "PreventRecursiveIncludes" int [not null, default: 0]
+
+    //  Constraints {
+    //      "PK_WordGroupHierarchyRecord" [primary key constraint]
+    //      "FK_WordGroupHierarchyRecord_WordGroup_WordGroupId" [foreign key constraint]
+    //      "FK_WordGroupHierarchyRecord_WordGroup_NestedWordGroupId" [foreign key constraint]
+    //      "DF_WordGroupHierarchyRecord_PreventRecursiveIncludes" [default constraint, sql: "0", column: "PreventRecursiveIncludes"]
+    //  }
+
+    Indexes {
+        "WordGroupId" [name: "IX_WordGroupHierarchyRecord_WordGroupId"]
+        "NestedWordGroupId" [name: "IX_WordGroupHierarchyRecord_NestedWordGroupId"]
+    }
+}
+
+Ref "FK_WordGroupHierarchyRecord_WordGroup_WordGroupId" {
+    "dbo"."WordGroupHierarchyRecord"."WordGroupId" > "dbo"."WordGroup"."Id"
+}
+
+Ref "FK_WordGroupHierarchyRecord_WordGroup_NestedWordGroupId" {
+    "dbo"."WordGroupHierarchyRecord"."NestedWordGroupId" > "dbo"."WordGroup"."Id"
 }
 
 Table "dbo"."WordExercise" {
