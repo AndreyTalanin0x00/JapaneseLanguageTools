@@ -172,7 +172,7 @@ public class XCommentFactory
         return xKanjiCharacterComment;
     }
 
-    public XComment CreateCharacterGroupComment()
+    public XComment CreateCharacterGroupComment(bool includeHierarchyRecordPlaceholder = false)
     {
         CharacterGroupXmlModel characterGroupXmlModel = new()
         {
@@ -182,6 +182,21 @@ public class XCommentFactory
             Comment = string.Empty,
             Enabled = true,
         };
+
+#pragma warning disable IDE0300 // Simplify collection initialization
+        characterGroupXmlModel.CharacterGroupHierarchyRecords = includeHierarchyRecordPlaceholder
+            ? new CharacterGroupHierarchyRecordXmlModel[]
+            {
+                new()
+                {
+                    CharacterGroupId = 0,
+                    NestedCharacterGroupId = 0,
+                    NestedCharacterGroupCaption = string.Empty,
+                    PreventRecursiveIncludes = false,
+                },
+            }
+            : [];
+#pragma warning restore IDE0300 // Simplify collection initialization
 
         XElement xCharacterGroupElement = SerializeAsElement(characterGroupXmlModel);
 
