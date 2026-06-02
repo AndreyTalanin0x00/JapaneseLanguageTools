@@ -209,30 +209,37 @@ public class ApplicationDictionaryImportProcessor :
             .Select(characterGroupModel => new CharacterGroupId(characterGroupModel.Id))
             .ToArray();
 
+        CharacterGroupIntegrationModel[] characterGroupIntegrationModels = applicationDictionaryIntegrationModel.CharacterGroups;
+
         HashSet<int> existingCharacterGroupIdValues = (await m_applicationDictionaryService.GetCharacterGroupsAsync(characterGroupIds, cancellationToken))
             .Select(existingCharacterGroupModel => existingCharacterGroupModel.Id)
             .ToHashSet();
 
-        CharacterGroupModel[] characterGroupModels = m_mapper.Map<CharacterGroupModel[]>(applicationDictionaryIntegrationModel.CharacterGroups);
+        // Temporarily remove all character group hierarchy records: nested groups may not have been added yet.
+        CharacterGroupHierarchyRecordIntegrationModel[][] characterGroupHierarchyRecordIntegrationModelsPartitioned =
+            RemoveCharacterGroupHierarchyRecords(characterGroupIds, characterGroupIntegrationModels);
 
-        foreach ((CharacterGroupModel characterGroupModel, CharacterGroupIntegrationModel characterGroupIntegrationModel) in characterGroupModels.Zip(applicationDictionaryIntegrationModel.CharacterGroups))
+        CharacterGroupModel[] characterGroupModels = m_mapper.Map<CharacterGroupModel[]>(characterGroupIntegrationModels);
+
+        foreach ((CharacterGroupModel characterGroupModel, CharacterGroupIntegrationModel characterGroupIntegrationModel) in characterGroupModels.Zip(characterGroupIntegrationModels))
         {
             CharacterGroupId characterGroupId = new(characterGroupModel.Id);
 
             foreach ((CharacterModel characterModel, CharacterIntegrationModel characterIntegrationModel) in characterGroupModel.Characters.Zip(characterGroupIntegrationModel.Characters))
                 characterModel.CharacterTags = MapTagString(characterIntegrationModel.Tags, updatedTagModelsByCaption).ToList();
 
+            CharacterGroupModel? addedCharacterGroupModel = null;
             switch (characterGroupIntegrationModel.Action)
             {
                 case SnapshotObjectAction.Add:
-                    await m_applicationDictionaryService.AddCharacterGroupAsync(characterGroupModel, cancellationToken);
+                    addedCharacterGroupModel = await m_applicationDictionaryService.AddCharacterGroupAsync(characterGroupModel, cancellationToken);
                     break;
                 case SnapshotObjectAction.Update:
                     await m_applicationDictionaryService.UpdateCharacterGroupAsync(characterGroupModel, cancellationToken);
                     break;
                 case SnapshotObjectAction.AddOrUpdate:
                     if (!existingCharacterGroupIdValues.Contains(characterGroupModel.Id))
-                        await m_applicationDictionaryService.AddCharacterGroupAsync(characterGroupModel, cancellationToken);
+                        addedCharacterGroupModel = await m_applicationDictionaryService.AddCharacterGroupAsync(characterGroupModel, cancellationToken);
                     else
                         await m_applicationDictionaryService.UpdateCharacterGroupAsync(characterGroupModel, cancellationToken);
                     break;
@@ -246,6 +253,87 @@ public class ApplicationDictionaryImportProcessor :
                     break;
                 default:
                     throw new UnreachableException($"Unknown import action: {characterGroupIntegrationModel.Action} ({(int)characterGroupIntegrationModel.Action}).");
+            }
+
+            if (addedCharacterGroupModel is not null)
+            {
+                characterGroupModel.Id = addedCharacterGroupModel.Id;
+            }
+        }
+
+        // Update just processed character groups the second time to re-add the character group hierarchy records.
+        await AddCharacterGroupHierarchyRecordsBackAsync(characterGroupIds, characterGroupModels, characterGroupIntegrationModels, characterGroupHierarchyRecordIntegrationModelsPartitioned, cancellationToken);
+
+        static CharacterGroupHierarchyRecordIntegrationModel[][] RemoveCharacterGroupHierarchyRecords(CharacterGroupId[] characterGroupIds, CharacterGroupIntegrationModel[] characterGroupIntegrationModels)
+        {
+            CharacterGroupHierarchyRecordIntegrationModel[][] characterGroupHierarchyRecordIntegrationModelsPartitioned =
+                new CharacterGroupHierarchyRecordIntegrationModel[characterGroupIds.Length][];
+
+            for (int index = 0; index < characterGroupIds.Length; index++)
+            {
+                CharacterGroupIntegrationModel characterGroupIntegrationModel = characterGroupIntegrationModels[index];
+
+                characterGroupHierarchyRecordIntegrationModelsPartitioned[index] = characterGroupIntegrationModel.CharacterGroupHierarchyRecords;
+
+                characterGroupIntegrationModel.CharacterGroupHierarchyRecords = [];
+            }
+
+            return characterGroupHierarchyRecordIntegrationModelsPartitioned;
+        }
+
+        async Task AddCharacterGroupHierarchyRecordsBackAsync(CharacterGroupId[] characterGroupIds, CharacterGroupModel[] characterGroupModels, CharacterGroupIntegrationModel[] characterGroupIntegrationModels, CharacterGroupHierarchyRecordIntegrationModel[][] characterGroupHierarchyRecordIntegrationModelsPartitioned, CancellationToken cancellationToken)
+        {
+            CharacterGroupModel[] allCharacterGroupModels = await m_applicationDictionaryService.GetAllCharacterGroupsAsync(cancellationToken);
+
+            Dictionary<int, CharacterGroupModel> allCharacterGroupModelsByIds = allCharacterGroupModels.ToDictionary(characterGroupModel => characterGroupModel.Id);
+            Dictionary<string, CharacterGroupModel> allCharacterGroupModelsByCaptions = allCharacterGroupModels.ToDictionary(characterGroupModel => characterGroupModel.Caption);
+
+            for (int index = 0; index < characterGroupIds.Length; index++)
+            {
+                CharacterGroupModel characterGroupModel = characterGroupModels[index];
+                CharacterGroupIntegrationModel characterGroupIntegrationModel = characterGroupIntegrationModels[index];
+
+                if (characterGroupIntegrationModel.Action == SnapshotObjectAction.Remove)
+                    continue;
+
+                CharacterGroupHierarchyRecordIntegrationModel[] characterGroupHierarchyRecordIntegrationModels =
+                    characterGroupHierarchyRecordIntegrationModelsPartitioned[index];
+
+                if (characterGroupHierarchyRecordIntegrationModels.Length == 0)
+                    continue;
+
+                List<CharacterGroupHierarchyRecordModel> characterGroupHierarchyRecordModels = characterGroupHierarchyRecordIntegrationModels
+                    .Select(characterGroupHierarchyRecordIntegrationModel =>
+                    {
+                        CharacterGroupModel? nestedCharacterGroupModel = null;
+                        if (characterGroupHierarchyRecordIntegrationModel.NestedCharacterGroupId > 0)
+                        {
+                            nestedCharacterGroupModel = allCharacterGroupModelsByIds[characterGroupHierarchyRecordIntegrationModel.NestedCharacterGroupId];
+                        }
+                        else // if (!string.IsNullOrEmpty(characterGroupHierarchyRecordIntegrationModel.NestedCharacterGroupCaption))
+                        {
+                            string nestedCharacterGroupCaption = characterGroupHierarchyRecordIntegrationModel.NestedCharacterGroupCaption
+                                ?? throw new UnreachableException($"Both the {nameof(CharacterGroupHierarchyRecordIntegrationModel.NestedCharacterGroupId)} and {nameof(CharacterGroupHierarchyRecordIntegrationModel.NestedCharacterGroupCaption)} properties are not set. This must have been caught in the import validator.");
+
+                            nestedCharacterGroupModel = allCharacterGroupModelsByCaptions[nestedCharacterGroupCaption];
+                        }
+
+                        CharacterGroupHierarchyRecordModel characterGroupHierarchyRecordModel = new()
+                        {
+                            CharacterGroupId = characterGroupModel.Id,
+                            NestedCharacterGroupId = nestedCharacterGroupModel.Id,
+                            PreventRecursiveIncludes = characterGroupHierarchyRecordIntegrationModel.PreventRecursiveIncludes,
+                            CharacterGroup = characterGroupModel,
+                            NestedCharacterGroup = nestedCharacterGroupModel,
+                        };
+
+                        return characterGroupHierarchyRecordModel;
+                    })
+                    .ToList();
+
+                characterGroupModel.CharacterGroupHierarchyRecords = characterGroupHierarchyRecordModels;
+
+                await m_applicationDictionaryService.UpdateCharacterGroupAsync(characterGroupModel, cancellationToken);
             }
         }
     }
