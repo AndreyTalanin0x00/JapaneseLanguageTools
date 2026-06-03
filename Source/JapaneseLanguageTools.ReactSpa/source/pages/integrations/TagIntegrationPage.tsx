@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Form, message, Select, Space, Tabs, Typography, Upload, UploadFile } from "antd";
+import { Alert, Button, Card, Checkbox, Form, message, Select, Space, Tabs, Typography, Upload, UploadFile } from "antd";
 import { saveAs } from "file-saver";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
@@ -33,6 +33,7 @@ const TagIntegrationPage = () => {
   interface TagExportConfiguration {
     snapshotType: SnapshotType;
     snapshotFileFormat: SnapshotFileFormat;
+    zeroIdProperties: boolean;
   }
 
   const [exportConfigurationForm] = Form.useForm<TagExportConfiguration>();
@@ -41,6 +42,7 @@ const TagIntegrationPage = () => {
     () => ({
       snapshotType: SnapshotType.General,
       snapshotFileFormat: SnapshotFileFormat.Json,
+      zeroIdProperties: false,
     }),
     []
   );
@@ -57,9 +59,9 @@ const TagIntegrationPage = () => {
   }, [exportConfigurationForm]);
 
   const onExportFormFinish = useCallback((tagExportConfiguration: TagExportConfiguration) => {
-    const { snapshotType, snapshotFileFormat } = tagExportConfiguration;
+    const { snapshotType, snapshotFileFormat, zeroIdProperties } = tagExportConfiguration;
 
-    const exportTagsRequestModel: ExportTagsRequestModel = { snapshotType, snapshotFileFormat };
+    const exportTagsRequestModel: ExportTagsRequestModel = { snapshotType, snapshotFileFormat, zeroIdProperties };
 
     setExportLoading(true);
     exportTags(exportTagsRequestModel)
@@ -140,6 +142,14 @@ const TagIntegrationPage = () => {
                   <Select.Option value={SnapshotFileFormat.Json}>JSON</Select.Option>
                   <Select.Option value={SnapshotFileFormat.Xml}>XML</Select.Option>
                 </Select>
+              </Form.Item>
+              <Form.Item
+                name={keyOf<TagExportConfiguration>("zeroIdProperties")}
+                label="Zero ID Properties"
+                tooltip="Use this option if the file will be imported to another database (empty or containing unrelated data)."
+                valuePropName="checked"
+              >
+                <Checkbox />
               </Form.Item>
             </Form>
             {mobileBrowserMode ? exportControlsJsx : undefined}
