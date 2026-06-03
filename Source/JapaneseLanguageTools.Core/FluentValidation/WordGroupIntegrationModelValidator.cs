@@ -29,7 +29,7 @@ public class WordGroupIntegrationModelValidator : AbstractValidator<WordGroupInt
     };
 
     [SuppressMessage("Style", "IDE0200:Remove unnecessary lambda expression", Justification = "Personal preference.")]
-    public WordGroupIntegrationModelValidator()
+    public WordGroupIntegrationModelValidator(IValidator<WordGroupHierarchyRecordIntegrationModel> wordGroupHierarchyRecordIntegrationModelValidator, IValidator<WordIntegrationModel> wordIntegrationModelValidator)
     {
         RuleFor(wordGroupIntegrationModel => wordGroupIntegrationModel.Action)
             .Must(action => s_snapshotObjectActionsAvailable.Contains(action))
@@ -70,10 +70,10 @@ public class WordGroupIntegrationModelValidator : AbstractValidator<WordGroupInt
             .WithMessage("Unable to perform an action on a child entity when there is an action selected for the container entity.");
 
         RuleForEach(wordGroupIntegrationModel => wordGroupIntegrationModel.WordGroupHierarchyRecords)
-            .SetValidator(new WordGroupHierarchyRecordIntegrationModelValidator());
+            .SetValidator(wordGroupHierarchyRecordIntegrationModelValidator);
 
         RuleForEach(wordGroupIntegrationModel => wordGroupIntegrationModel.Words)
-            .SetValidator(new WordIntegrationModelValidator());
+            .SetValidator(wordIntegrationModelValidator);
 
         ;
     }

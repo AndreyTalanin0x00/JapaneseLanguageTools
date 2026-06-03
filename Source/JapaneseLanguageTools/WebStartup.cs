@@ -42,6 +42,8 @@ public class WebStartup : WebStartupBase
 
         services.AddConfiguredAutoMapper();
 
+        services.AddConfiguredFluentValidation();
+
         services.AddBlobServices(Configuration);
 
         services.AddExportServices();

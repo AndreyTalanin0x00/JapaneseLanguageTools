@@ -24,7 +24,7 @@ public class TagObjectPackageIntegrationModelValidator : AbstractValidator<TagOb
         SnapshotType.ChangeState,
     };
 
-    public TagObjectPackageIntegrationModelValidator()
+    public TagObjectPackageIntegrationModelValidator(IValidator<TagIntegrationModel> tagIntegrationModelValidator)
     {
         RuleFor(tagObjectPackageIntegrationModel => tagObjectPackageIntegrationModel.SnapshotType)
             .NotEqual(SnapshotType.Unknown)
@@ -62,7 +62,7 @@ public class TagObjectPackageIntegrationModelValidator : AbstractValidator<TagOb
         });
 
         RuleForEach(tagObjectPackageIntegrationModel => tagObjectPackageIntegrationModel.Tags)
-            .SetValidator(new TagIntegrationModelValidator());
+            .SetValidator(tagIntegrationModelValidator);
 
         ;
     }
