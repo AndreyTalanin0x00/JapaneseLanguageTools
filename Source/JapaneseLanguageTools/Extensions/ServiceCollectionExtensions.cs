@@ -7,12 +7,16 @@ using AndreyTalanin0x00.Extensions.DependencyInjection;
 using AutoMapper;
 using AutoMapper.Internal;
 
+using FluentValidation;
+
 using JapaneseLanguageTools.Configuration;
+using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Services.Abstractions;
 using JapaneseLanguageTools.Core.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Blobs.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Configuration;
 using JapaneseLanguageTools.Core.Export.AutoMapper.Extensions;
+using JapaneseLanguageTools.Core.FluentValidation;
 using JapaneseLanguageTools.Core.Import.AutoMapper.Extensions;
 using JapaneseLanguageTools.Core.Services;
 using JapaneseLanguageTools.Core.Services.Abstractions;
@@ -340,6 +344,25 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddAutoMapper(Configure);
+
+        return services;
+    }
+
+    public static IServiceCollection AddConfiguredFluentValidation(this IServiceCollection services)
+    {
+        services.AddSingleton<IValidator<CharacterIntegrationModel>, CharacterIntegrationModelValidator>();
+        services.AddSingleton<IValidator<CharacterGroupIntegrationModel>, CharacterGroupIntegrationModelValidator>();
+        services.AddSingleton<IValidator<CharacterGroupHierarchyRecordIntegrationModel>, CharacterGroupHierarchyRecordIntegrationModelValidator>();
+
+        services.AddSingleton<IValidator<WordIntegrationModel>, WordIntegrationModelValidator>();
+        services.AddSingleton<IValidator<WordGroupIntegrationModel>, WordGroupIntegrationModelValidator>();
+        services.AddSingleton<IValidator<WordGroupHierarchyRecordIntegrationModel>, WordGroupHierarchyRecordIntegrationModelValidator>();
+
+        services.AddSingleton<IValidator<TagIntegrationModel>, TagIntegrationModelValidator>();
+
+        services.AddSingleton<IValidator<ApplicationDictionaryObjectPackageIntegrationModel>, ApplicationDictionaryObjectPackageIntegrationModelValidator>();
+
+        services.AddSingleton<IValidator<TagObjectPackageIntegrationModel>, TagObjectPackageIntegrationModelValidator>();
 
         return services;
     }
