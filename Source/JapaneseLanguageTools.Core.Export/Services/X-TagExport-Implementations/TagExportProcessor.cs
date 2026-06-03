@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,20 +27,22 @@ using JapaneseLanguageTools.Core.Services.Abstractions;
 
 namespace JapaneseLanguageTools.Core.Export.Services;
 
-public class TagExportProcessor :
+public partial class TagExportProcessor :
     IExportProcessor<TagExportRequest, TagExportResponse, Object, TagObjectPackageIntegrationModel>
 {
     private readonly TimeProvider m_timeProvider;
     private readonly ITagService m_tagService;
     private readonly ISnapshotHashCalculator m_snapshotHashCalculator;
     private readonly IMapper m_mapper;
+    private readonly IEnumerable<IExportObjectPackageBatchVisitor> m_exportObjectPackageBatchVisitors;
 
-    public TagExportProcessor(TimeProvider timeProvider, ITagService tagService, ISnapshotHashCalculator snapshotHashCalculator, IMapper mapper)
+    public TagExportProcessor(TimeProvider timeProvider, ITagService tagService, ISnapshotHashCalculator snapshotHashCalculator, IMapper mapper, IEnumerable<IExportObjectPackageBatchVisitor> exportObjectPackageBatchVisitors)
     {
         m_timeProvider = timeProvider;
         m_tagService = tagService;
         m_snapshotHashCalculator = snapshotHashCalculator;
         m_mapper = mapper;
+        m_exportObjectPackageBatchVisitors = exportObjectPackageBatchVisitors;
     }
 
     /// <inheritdoc />
@@ -97,6 +100,11 @@ public class TagExportProcessor :
             ExportObjectPackage = tagObjectPackageIntegrationModel,
         };
 
+        foreach (IExportObjectPackageBatchVisitor exportObjectPackageBatchVisitor in m_exportObjectPackageBatchVisitors)
+        {
+            await exportObjectPackageBatchVisitor.VisitAsync(exportObjectPackageBatch, tagExportRequest, cancellationToken);
+        }
+
         return exportObjectPackageBatch;
     }
 
@@ -145,5 +153,10 @@ public class TagExportProcessor :
         Task<TagIntegrationModel[]> completedTask = Task.FromResult(tagIntegrationModels);
 
         return completedTask;
+    }
+
+    public interface IExportObjectPackageBatchVisitor
+    {
+        public Task VisitAsync(ExportObjectPackageBatch<Object, TagObjectPackageIntegrationModel> exportObjectPackageBatch, TagExportRequest tagExportRequest, CancellationToken cancellationToken = default);
     }
 }

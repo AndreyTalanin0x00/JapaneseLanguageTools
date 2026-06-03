@@ -1,3 +1,4 @@
+using JapaneseLanguageTools.Contracts.Models.Blobs;
 using JapaneseLanguageTools.Contracts.Models.Requests.Base;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
@@ -10,4 +11,5 @@ namespace JapaneseLanguageTools.Contracts.Models.Requests;
 
 public class ImportApplicationDictionaryRequestModel : ImportRequestModel
 {
+    public required BlobReferenceModel[] BlobReferences { get; set; } = [];
 }

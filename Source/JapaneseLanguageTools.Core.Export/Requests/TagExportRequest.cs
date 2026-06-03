@@ -9,4 +9,6 @@ public class TagExportRequest : ExportRequest
     public SnapshotType SnapshotType { get; set; }
 
     public SnapshotFileFormat SnapshotFileFormat { get; set; }
+
+    public bool ZeroIdProperties { get; set; }
 }

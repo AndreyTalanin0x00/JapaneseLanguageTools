@@ -1,5 +1,2 @@
-import BlobReferenceModel from "@/models/blobs/BlobReference.Model";
-
-export default interface ImportRequestModel {
-  blobReferences: BlobReferenceModel[];
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export default interface ImportRequestModel {}
