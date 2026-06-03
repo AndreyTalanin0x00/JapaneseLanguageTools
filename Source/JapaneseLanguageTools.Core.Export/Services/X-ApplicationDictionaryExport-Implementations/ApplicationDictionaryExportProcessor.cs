@@ -30,7 +30,7 @@ using JapaneseLanguageTools.Core.Services.Abstractions;
 
 namespace JapaneseLanguageTools.Core.Export.Services;
 
-public class ApplicationDictionaryExportProcessor :
+public partial class ApplicationDictionaryExportProcessor :
     IExportProcessor<ApplicationDictionaryExportRequest, ApplicationDictionaryExportResponse, Object, ApplicationDictionaryObjectPackageIntegrationModel>
 {
     private readonly TimeProvider m_timeProvider;

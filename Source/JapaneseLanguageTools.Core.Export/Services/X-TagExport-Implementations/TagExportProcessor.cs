@@ -26,7 +26,7 @@ using JapaneseLanguageTools.Core.Services.Abstractions;
 
 namespace JapaneseLanguageTools.Core.Export.Services;
 
-public class TagExportProcessor :
+public partial class TagExportProcessor :
     IExportProcessor<TagExportRequest, TagExportResponse, Object, TagObjectPackageIntegrationModel>
 {
     private readonly TimeProvider m_timeProvider;
