@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,14 +39,16 @@ public partial class ApplicationDictionaryExportProcessor :
     private readonly ITagService m_tagService;
     private readonly ISnapshotHashCalculator m_snapshotHashCalculator;
     private readonly IMapper m_mapper;
+    private readonly IEnumerable<IExportObjectPackageBatchVisitor> m_exportObjectPackageBatchVisitors;
 
-    public ApplicationDictionaryExportProcessor(TimeProvider timeProvider, IApplicationDictionaryService applicationDictionaryService, ITagService tagService, ISnapshotHashCalculator snapshotHashCalculator, IMapper mapper)
+    public ApplicationDictionaryExportProcessor(TimeProvider timeProvider, IApplicationDictionaryService applicationDictionaryService, ITagService tagService, ISnapshotHashCalculator snapshotHashCalculator, IMapper mapper, IEnumerable<IExportObjectPackageBatchVisitor> exportObjectPackageBatchVisitors)
     {
         m_timeProvider = timeProvider;
         m_applicationDictionaryService = applicationDictionaryService;
         m_tagService = tagService;
         m_snapshotHashCalculator = snapshotHashCalculator;
         m_mapper = mapper;
+        m_exportObjectPackageBatchVisitors = exportObjectPackageBatchVisitors;
     }
 
     /// <inheritdoc />
@@ -100,6 +103,11 @@ public partial class ApplicationDictionaryExportProcessor :
         {
             ExportObjectPackage = applicationDictionaryObjectPackageIntegrationModel,
         };
+
+        foreach (IExportObjectPackageBatchVisitor exportObjectPackageBatchVisitor in m_exportObjectPackageBatchVisitors)
+        {
+            await exportObjectPackageBatchVisitor.VisitAsync(exportObjectPackageBatch, applicationDictionaryExportRequest, cancellationToken);
+        }
 
         return exportObjectPackageBatch;
     }
@@ -254,5 +262,10 @@ public partial class ApplicationDictionaryExportProcessor :
         public required WordGroupModel[] WordGroups { get; set; } = [];
 
         public required TagModel[] Tags { get; set; } = [];
+    }
+
+    public interface IExportObjectPackageBatchVisitor
+    {
+        public Task VisitAsync(ExportObjectPackageBatch<Object, ApplicationDictionaryObjectPackageIntegrationModel> exportObjectPackageBatch, ApplicationDictionaryExportRequest applicationDictionaryExportRequest, CancellationToken cancellationToken = default);
     }
 }
