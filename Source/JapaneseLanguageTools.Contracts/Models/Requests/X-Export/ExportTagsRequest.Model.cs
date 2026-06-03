@@ -14,4 +14,6 @@ public class ExportTagsRequestModel : ExportRequestModel
     public required SnapshotType SnapshotType { get; set; }
 
     public required SnapshotFileFormat SnapshotFileFormat { get; set; }
+
+    public bool ZeroIdProperties { get; set; }
 }
