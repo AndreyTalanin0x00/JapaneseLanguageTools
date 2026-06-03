@@ -1,3 +1,4 @@
+using JapaneseLanguageTools.Contracts.Enumerations;
 using JapaneseLanguageTools.Contracts.Models.Requests.Base;
 
 // Use the IDE0079 (Remove unnecessary suppression) suppression (a Visual Studio false positive).
@@ -10,4 +11,7 @@ namespace JapaneseLanguageTools.Contracts.Models.Requests;
 
 public class ExportTagsRequestModel : ExportRequestModel
 {
+    public required SnapshotType SnapshotType { get; set; }
+
+    public required SnapshotFileFormat SnapshotFileFormat { get; set; }
 }
