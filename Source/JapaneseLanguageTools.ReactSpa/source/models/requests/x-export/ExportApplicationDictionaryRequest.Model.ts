@@ -1,4 +1,8 @@
+import SnapshotFileFormat from "@/enumerations/SnapshotFileFormat";
+import SnapshotType from "@/enumerations/SnapshotType";
 import ExportRequestModel from "@/models/requests/base/ExportRequest.Model";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export default interface ExportApplicationDictionaryRequestModel extends ExportRequestModel {}
+export default interface ExportApplicationDictionaryRequestModel extends ExportRequestModel {
+  snapshotType: SnapshotType;
+  snapshotFileFormat: SnapshotFileFormat;
+}
