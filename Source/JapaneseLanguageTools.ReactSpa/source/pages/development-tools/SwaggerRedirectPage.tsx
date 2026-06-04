@@ -11,7 +11,9 @@ const SwaggerRedirectPage = () => {
 
   useEffect(() => {
     if (window.location.port != developmentServerPort.toString()) {
-      const swaggerLocation = `${window.location.origin}${location.pathname}`;
+      const currentLocation = `${window.location.origin}${location.pathname}`;
+      const swaggerLocation = currentLocation.replace("/dev-tools/swagger-redirect", "/swagger");
+
       window.location.replace(swaggerLocation);
     } else {
       console.error("You can only use the Swagger API Explorer from the ASP.NET Core application.");
