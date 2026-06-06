@@ -1,4 +1,4 @@
-import { ApiOutlined, BookOutlined, ExceptionOutlined, FileTextOutlined, FormOutlined, HomeOutlined, ProfileOutlined, SettingOutlined, TagOutlined, ToolOutlined } from "@ant-design/icons";
+import { ApiOutlined, BookOutlined, BugOutlined, ExceptionOutlined, FileTextOutlined, FormOutlined, HomeOutlined, PoweroffOutlined, ProfileOutlined, SettingOutlined, TagOutlined, ToolOutlined } from "@ant-design/icons";
 
 import { isProductionMode } from "@/ApplicationEnvironment";
 import type ApplicationBreadcrumbItemDescriptor from "@/entities/application/ApplicationBreadcrumbItemDescriptor";
@@ -6,6 +6,7 @@ import type ApplicationMenuItemDescriptor from "@/entities/application/Applicati
 import type ApplicationPageDescriptor from "@/entities/application/ApplicationPageDescriptor";
 import HomePage from "@/pages/application/HomePage";
 import InvalidRoutePage from "@/pages/application/InvalidRoutePage";
+import ApplicationShutdownPage from "@/pages/development-tools/ApplicationShutdownPage";
 import SwaggerRedirectPage from "@/pages/development-tools/SwaggerRedirectPage";
 import ExerciseSelectionPage from "@/pages/exercises/root/ExerciseSelectionPage";
 import CharacterExercisePage from "@/pages/exercises/CharacterExercisePage";
@@ -17,7 +18,13 @@ import PreferencesPage from "@/pages/preferences/PreferencesPage";
 
 // prettier-ignore
 const redirectPageDescriptors: ApplicationPageDescriptor[] = [
-  { key: "swagger-redirect-page", path: "/swagger", name: "Swagger API Explorer", icon: <ToolOutlined />, disabled: isProductionMode(), component: <SwaggerRedirectPage /> },
+];
+
+// prettier-ignore
+const developmentToolPageDescriptors: ApplicationPageDescriptor[] = [
+  { key: "development-tools-page", path: "/dev-tools", name: "Development Tools", icon: <BugOutlined />, disabled: isProductionMode() },
+  { key: "swagger-redirect-page", path: "/dev-tools/swagger-redirect", name: "Swagger API Explorer", icon: <ToolOutlined />, disabled: isProductionMode(), component: <SwaggerRedirectPage /> },
+  { key: "application-shutdown-page", path: "/dev-tools/application-shutdown", name: "Application Shutdown", icon: <PoweroffOutlined />, disabled: isProductionMode(), component: <ApplicationShutdownPage /> },
 ];
 
 // prettier-ignore
@@ -37,6 +44,8 @@ export const applicationPageDescriptors: ApplicationPageDescriptor[] = [
   { key: "preferences-page", path: "/preferences", name: "Preferences", icon: <SettingOutlined />, component: <PreferencesPage /> },
   // Placeholder pages not existing in the application and routed via redirects instead.
   ...redirectPageDescriptors,
+  // Development tool pages available only in the Development environment.
+  ...developmentToolPageDescriptors,
   // Error pages not displayed during normal operation.
   ...errorPageDescriptors,
 ];
@@ -61,7 +70,15 @@ export const applicationMenuItemDescriptors: ApplicationMenuItemDescriptor[] = [
     ],
   },
   { key: "preferences-page", type: "item" },
-  { key: "swagger-redirect-page", disabled: isProductionMode(), type: "item" },
+  {
+    key: "development-tools-page",
+    disabled: isProductionMode(),
+    type: "menu",
+    items: [
+      { key: "swagger-redirect-page", type: "item" },
+      { key: "application-shutdown-page", type: "item" },
+    ],
+  },
 ];
 
 // prettier-ignore
@@ -74,6 +91,8 @@ export const applicationBreadcrumbItemDescriptors: ApplicationBreadcrumbItemDesc
   { key: "application-dictionary-integration-page", useLink: true },
   { key: "tag-integration-page", useLink: true },
   { key: "preferences-page", useLink: true },
+  { key: "development-tools-page", useLink: false },
   { key: "swagger-redirect-page", useLink: true },
+  { key: "application-shutdown-page", useLink: true },
   { key: "invalid-route-page", useLink: true },
 ];
