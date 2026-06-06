@@ -6,7 +6,7 @@ import type ApplicationMenuItemDescriptor from "@/entities/application/Applicati
 import type ApplicationPageDescriptor from "@/entities/application/ApplicationPageDescriptor";
 import HomePage from "@/pages/application/HomePage";
 import InvalidRoutePage from "@/pages/application/InvalidRoutePage";
-import SwaggerRedirectPage from "@/pages/application/SwaggerRedirectPage";
+import SwaggerRedirectPage from "@/pages/development-tools/SwaggerRedirectPage";
 import ExerciseSelectionPage from "@/pages/exercises/root/ExerciseSelectionPage";
 import CharacterExercisePage from "@/pages/exercises/CharacterExercisePage";
 import WordExercisePage from "@/pages/exercises/WordExercisePage";
