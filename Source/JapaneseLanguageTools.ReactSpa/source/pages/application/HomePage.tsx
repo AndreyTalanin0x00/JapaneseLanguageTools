@@ -1,6 +1,9 @@
 import { Typography } from "antd";
+import { useContext } from "react";
 
-const { Link, Paragraph, Title } = Typography;
+import ApplicationVersionContext from "@/contexts/ApplicationVersionContext";
+
+const { Link, Paragraph, Text, Title } = Typography;
 
 const createExternalLink = (text: string, href: string) => {
   return (
@@ -11,6 +14,8 @@ const createExternalLink = (text: string, href: string) => {
 };
 
 const HomePage = () => {
+  const applicationVersion = useContext(ApplicationVersionContext);
+
   return (
     <>
       <Title level={4}>{"Andrey Talanin's Japanese Language Tools"}</Title>
@@ -31,6 +36,21 @@ const HomePage = () => {
           <li>{createExternalLink("Vite", "https://vitejs.dev/")} is a client-side build tool and development server.</li>
         </ul>
       </Paragraph>
+
+      {applicationVersion.available ? (
+        <>
+          <Title level={5}>GitVersion</Title>
+          <Paragraph>
+            Currently deployed application version (this section is not visible on <Text type="danger">Production</Text> environments):
+          </Paragraph>
+          <Paragraph>
+            <Text code copyable>
+              {`${applicationVersion.informationalVersion ?? ""} (commit date: ${applicationVersion.commitDate ?? ""})`}
+            </Text>
+          </Paragraph>
+          <Paragraph>See the {createExternalLink("GitVersion variables guide", "https://gitversion.net/5.12.0/docs/reference/variables")} for the format and parsing hints.</Paragraph>
+        </>
+      ) : undefined}
     </>
   );
 };
