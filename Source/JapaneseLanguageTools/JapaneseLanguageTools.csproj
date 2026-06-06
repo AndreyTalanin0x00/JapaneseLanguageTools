@@ -4,9 +4,18 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
+    <UpdateVersionProperties>true</UpdateVersionProperties>
+    <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -36,6 +45,10 @@
     <PackageReference Include="AndreyTalanin0x00.Extensions.DependencyInjection" Version="0.1.0-rc1" />
     <!-- Do not update AutoMapper to version 15.x, it has moved to a commercial license. -->
     <PackageReference Include="AutoMapper" Version="[14.0.0]" />
+    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.25" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.14">
