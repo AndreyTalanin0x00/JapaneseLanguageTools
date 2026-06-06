@@ -44,6 +44,7 @@ public class TagXmlExportFormatter :
         SnapshotObjectAction.None,
         SnapshotObjectAction.Add,
         SnapshotObjectAction.Update,
+        SnapshotObjectAction.AddOrUpdate,
         SnapshotObjectAction.Remove,
     };
 
