@@ -181,7 +181,9 @@ public class ApplicationDictionaryImportProcessor :
         {
             CharacterId characterId = new(characterModel.Id);
 
-            characterModel.CharacterTags = MapTagString(characterIntegrationModel.Tags, updatedTagModelsByCaption, s_characterTagSeparators).ToList();
+            characterModel.CharacterTags = characterIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                ? MapTagString(characterIntegrationModel.Tags, updatedTagModelsByCaption, s_characterTagSeparators).ToList()
+                : [];
 
             switch (characterIntegrationModel.Action)
             {
@@ -231,7 +233,13 @@ public class ApplicationDictionaryImportProcessor :
             CharacterGroupId characterGroupId = new(characterGroupModel.Id);
 
             foreach ((CharacterModel characterModel, CharacterIntegrationModel characterIntegrationModel) in characterGroupModel.Characters.Zip(characterGroupIntegrationModel.Characters))
-                characterModel.CharacterTags = MapTagString(characterIntegrationModel.Tags, updatedTagModelsByCaption, s_characterTagSeparators).ToList();
+            {
+                characterModel.CharacterTags = characterIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                    ? MapTagString(characterIntegrationModel.Tags, updatedTagModelsByCaption, s_characterTagSeparators).ToList()
+                    : [];
+
+                ;
+            }
 
             CharacterGroupModel? addedCharacterGroupModel = null;
             switch (characterGroupIntegrationModel.Action)
@@ -359,7 +367,9 @@ public class ApplicationDictionaryImportProcessor :
         {
             WordId wordId = new(wordModel.Id);
 
-            wordModel.WordTags = MapTagString(wordIntegrationModel.Tags, updatedTagModelsByCaption, s_wordTagSeparators).ToList();
+            wordModel.WordTags = wordIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                ? MapTagString(wordIntegrationModel.Tags, updatedTagModelsByCaption, s_wordTagSeparators).ToList()
+                : [];
 
             switch (wordIntegrationModel.Action)
             {
@@ -409,7 +419,13 @@ public class ApplicationDictionaryImportProcessor :
             WordGroupId wordGroupId = new(wordGroupModel.Id);
 
             foreach ((WordModel wordModel, WordIntegrationModel wordIntegrationModel) in wordGroupModel.Words.Zip(wordGroupIntegrationModel.Words))
-                wordModel.WordTags = MapTagString(wordIntegrationModel.Tags, updatedTagModelsByCaption, s_wordTagSeparators).ToList();
+            {
+                wordModel.WordTags = wordIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                    ? MapTagString(wordIntegrationModel.Tags, updatedTagModelsByCaption, s_wordTagSeparators).ToList()
+                    : [];
+
+                ;
+            }
 
             WordGroupModel? addedWordGroupModel = null;
             switch (wordGroupIntegrationModel.Action)
