@@ -104,7 +104,11 @@ public class TagImportProcessor :
 
     private async Task<TagModel[]> ProcessTagsAsync(TagObjectPackageIntegrationModel tagObjectPackageIntegrationModel, CancellationToken cancellationToken)
     {
-        TagId[] tagIds = tagObjectPackageIntegrationModel.Tags
+        TagIntegrationModel[] tagIntegrationModels = tagObjectPackageIntegrationModel.Tags
+            .Where(tagIntegrationModel => tagIntegrationModel.Action != SnapshotObjectAction.None)
+            .ToArray();
+
+        TagId[] tagIds = tagIntegrationModels
             .Select(tagIntegrationModel => new TagId(tagIntegrationModel.Id))
             .ToArray();
 
@@ -112,9 +116,9 @@ public class TagImportProcessor :
             .Select(existingTagModel => existingTagModel.Id)
             .ToHashSet();
 
-        TagModel[] tagModels = m_mapper.Map<TagModel[]>(tagObjectPackageIntegrationModel.Tags);
+        TagModel[] tagModels = m_mapper.Map<TagModel[]>(tagIntegrationModels);
 
-        foreach ((TagModel tagModel, TagIntegrationModel tagIntegrationModel) in tagModels.Zip(tagObjectPackageIntegrationModel.Tags))
+        foreach ((TagModel tagModel, TagIntegrationModel tagIntegrationModel) in tagModels.Zip(tagIntegrationModels))
         {
             TagId tagId = new(tagModel.Id);
 

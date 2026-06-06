@@ -122,7 +122,11 @@ public class ApplicationDictionaryImportProcessor :
 
     private async Task<TagModel[]> ProcessTagsAsync(ApplicationDictionaryIntegrationModel applicationDictionaryIntegrationModel, CancellationToken cancellationToken)
     {
-        TagId[] tagIds = applicationDictionaryIntegrationModel.Tags
+        TagIntegrationModel[] tagIntegrationModels = applicationDictionaryIntegrationModel.Tags
+            .Where(tagIntegrationModel => tagIntegrationModel.Action != SnapshotObjectAction.None)
+            .ToArray();
+
+        TagId[] tagIds = tagIntegrationModels
             .Select(tagIntegrationModel => new TagId(tagIntegrationModel.Id))
             .ToArray();
 
@@ -130,9 +134,9 @@ public class ApplicationDictionaryImportProcessor :
             .Select(existingTagModel => existingTagModel.Id)
             .ToHashSet();
 
-        TagModel[] tagModels = m_mapper.Map<TagModel[]>(applicationDictionaryIntegrationModel.Tags);
+        TagModel[] tagModels = m_mapper.Map<TagModel[]>(tagIntegrationModels);
 
-        foreach ((TagModel tagModel, TagIntegrationModel tagIntegrationModel) in tagModels.Zip(applicationDictionaryIntegrationModel.Tags))
+        foreach ((TagModel tagModel, TagIntegrationModel tagIntegrationModel) in tagModels.Zip(tagIntegrationModels))
         {
             TagId tagId = new(tagModel.Id);
 
@@ -167,7 +171,12 @@ public class ApplicationDictionaryImportProcessor :
 
     private async Task ProcessCharactersAsync(ApplicationDictionaryIntegrationModel applicationDictionaryIntegrationModel, Dictionary<string, TagModel> updatedTagModelsByCaption, CancellationToken cancellationToken)
     {
-        CharacterId[] characterIds = applicationDictionaryIntegrationModel.Characters
+        CharacterIntegrationModel[] characterIntegrationModels = applicationDictionaryIntegrationModel.Characters
+            .Concat(applicationDictionaryIntegrationModel.CharacterGroups.SelectMany(characterGroupIntegrationModel => characterGroupIntegrationModel.Characters))
+            .Where(characterIntegrationModel => characterIntegrationModel.Action != SnapshotObjectAction.None)
+            .ToArray();
+
+        CharacterId[] characterIds = characterIntegrationModels
             .Select(characterModel => new CharacterId(characterModel.Id))
             .ToArray();
 
@@ -175,9 +184,9 @@ public class ApplicationDictionaryImportProcessor :
             .Select(existingCharacterModel => existingCharacterModel.Id)
             .ToHashSet();
 
-        CharacterModel[] characterModels = m_mapper.Map<CharacterModel[]>(applicationDictionaryIntegrationModel.Characters);
+        CharacterModel[] characterModels = m_mapper.Map<CharacterModel[]>(characterIntegrationModels);
 
-        foreach ((CharacterModel characterModel, CharacterIntegrationModel characterIntegrationModel) in characterModels.Zip(applicationDictionaryIntegrationModel.Characters))
+        foreach ((CharacterModel characterModel, CharacterIntegrationModel characterIntegrationModel) in characterModels.Zip(characterIntegrationModels))
         {
             CharacterId characterId = new(characterModel.Id);
 
@@ -212,11 +221,13 @@ public class ApplicationDictionaryImportProcessor :
 
     private async Task ProcessCharacterGroupsAsync(ApplicationDictionaryIntegrationModel applicationDictionaryIntegrationModel, Dictionary<string, TagModel> updatedTagModelsByCaption, CancellationToken cancellationToken)
     {
-        CharacterGroupId[] characterGroupIds = applicationDictionaryIntegrationModel.CharacterGroups
-            .Select(characterGroupModel => new CharacterGroupId(characterGroupModel.Id))
+        CharacterGroupIntegrationModel[] characterGroupIntegrationModels = applicationDictionaryIntegrationModel.CharacterGroups
+            .Where(characterGroupIntegrationModel => characterGroupIntegrationModel.Action != SnapshotObjectAction.None)
             .ToArray();
 
-        CharacterGroupIntegrationModel[] characterGroupIntegrationModels = applicationDictionaryIntegrationModel.CharacterGroups;
+        CharacterGroupId[] characterGroupIds = characterGroupIntegrationModels
+            .Select(characterGroupModel => new CharacterGroupId(characterGroupModel.Id))
+            .ToArray();
 
         HashSet<int> existingCharacterGroupIdValues = (await m_applicationDictionaryService.GetCharacterGroupsAsync(characterGroupIds, cancellationToken))
             .Select(existingCharacterGroupModel => existingCharacterGroupModel.Id)
@@ -234,7 +245,11 @@ public class ApplicationDictionaryImportProcessor :
 
             foreach ((CharacterModel characterModel, CharacterIntegrationModel characterIntegrationModel) in characterGroupModel.Characters.Zip(characterGroupIntegrationModel.Characters))
             {
-                characterModel.CharacterTags = characterIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                bool mapCharacterTags = false
+                    || characterGroupIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                    || characterIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove);
+
+                characterModel.CharacterTags = mapCharacterTags
                     ? MapTagString(characterIntegrationModel.Tags, updatedTagModelsByCaption, s_characterTagSeparators).ToList()
                     : [];
 
@@ -353,7 +368,12 @@ public class ApplicationDictionaryImportProcessor :
 
     private async Task ProcessWordsAsync(ApplicationDictionaryIntegrationModel applicationDictionaryIntegrationModel, Dictionary<string, TagModel> updatedTagModelsByCaption, CancellationToken cancellationToken)
     {
-        WordId[] wordIds = applicationDictionaryIntegrationModel.Words
+        WordIntegrationModel[] wordIntegrationModels = applicationDictionaryIntegrationModel.Words
+            .Concat(applicationDictionaryIntegrationModel.WordGroups.SelectMany(wordGroupIntegrationModel => wordGroupIntegrationModel.Words))
+            .Where(wordIntegrationModel => wordIntegrationModel.Action != SnapshotObjectAction.None)
+            .ToArray();
+
+        WordId[] wordIds = wordIntegrationModels
             .Select(wordModel => new WordId(wordModel.Id))
             .ToArray();
 
@@ -361,9 +381,9 @@ public class ApplicationDictionaryImportProcessor :
             .Select(existingWordModel => existingWordModel.Id)
             .ToHashSet();
 
-        WordModel[] wordModels = m_mapper.Map<WordModel[]>(applicationDictionaryIntegrationModel.Words);
+        WordModel[] wordModels = m_mapper.Map<WordModel[]>(wordIntegrationModels);
 
-        foreach ((WordModel wordModel, WordIntegrationModel wordIntegrationModel) in wordModels.Zip(applicationDictionaryIntegrationModel.Words))
+        foreach ((WordModel wordModel, WordIntegrationModel wordIntegrationModel) in wordModels.Zip(wordIntegrationModels))
         {
             WordId wordId = new(wordModel.Id);
 
@@ -398,11 +418,13 @@ public class ApplicationDictionaryImportProcessor :
 
     private async Task ProcessWordGroupsAsync(ApplicationDictionaryIntegrationModel applicationDictionaryIntegrationModel, Dictionary<string, TagModel> updatedTagModelsByCaption, CancellationToken cancellationToken)
     {
-        WordGroupId[] wordGroupIds = applicationDictionaryIntegrationModel.WordGroups
-            .Select(wordGroupModel => new WordGroupId(wordGroupModel.Id))
+        WordGroupIntegrationModel[] wordGroupIntegrationModels = applicationDictionaryIntegrationModel.WordGroups
+            .Where(wordGroupIntegrationModel => wordGroupIntegrationModel.Action != SnapshotObjectAction.None)
             .ToArray();
 
-        WordGroupIntegrationModel[] wordGroupIntegrationModels = applicationDictionaryIntegrationModel.WordGroups;
+        WordGroupId[] wordGroupIds = wordGroupIntegrationModels
+            .Select(wordGroupModel => new WordGroupId(wordGroupModel.Id))
+            .ToArray();
 
         HashSet<int> existingWordGroupIdValues = (await m_applicationDictionaryService.GetWordGroupsAsync(wordGroupIds, cancellationToken))
             .Select(existingWordGroupModel => existingWordGroupModel.Id)
@@ -420,7 +442,11 @@ public class ApplicationDictionaryImportProcessor :
 
             foreach ((WordModel wordModel, WordIntegrationModel wordIntegrationModel) in wordGroupModel.Words.Zip(wordGroupIntegrationModel.Words))
             {
-                wordModel.WordTags = wordIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                bool mapWordTags = false
+                    || wordGroupIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove)
+                    || wordIntegrationModel.Action is not (SnapshotObjectAction.None or SnapshotObjectAction.Remove);
+
+                wordModel.WordTags = mapWordTags
                     ? MapTagString(wordIntegrationModel.Tags, updatedTagModelsByCaption, s_wordTagSeparators).ToList()
                     : [];
 
