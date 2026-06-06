@@ -7,5 +7,5 @@ export const applicationMenuItemDescriptors: ApplicationMenuItemDescriptor[] = [
   { key: "exercises-page", type: "item" },
   { key: "integrations-page", type: "item" },
   { key: "preferences-page", type: "item" },
-  { key: "swagger-redirect-page", disabled: isProductionMode(), type: "item" },
+  { key: "development-tools-page", disabled: isProductionMode(), type: "item" },
 ];

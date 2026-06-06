@@ -6,6 +6,7 @@ import type ApplicationMenuItemDescriptor from "@/entities/application/Applicati
 import type ApplicationPageDescriptor from "@/entities/application/ApplicationPageDescriptor";
 import HomePage from "@/pages/application/HomePage";
 import InvalidRoutePage from "@/pages/application/InvalidRoutePage";
+import DevelopmentToolSelectionPage from "@/pages/development-tools/root/DevelopmentToolSelectionPage";
 import ApplicationShutdownPage from "@/pages/development-tools/ApplicationShutdownPage";
 import SwaggerRedirectPage from "@/pages/development-tools/SwaggerRedirectPage";
 import ExerciseSelectionPage from "@/pages/exercises/root/ExerciseSelectionPage";
@@ -22,7 +23,7 @@ const redirectPageDescriptors: ApplicationPageDescriptor[] = [
 
 // prettier-ignore
 const developmentToolPageDescriptors: ApplicationPageDescriptor[] = [
-  { key: "development-tools-page", path: "/dev-tools", name: "Development Tools", icon: <BugOutlined />, disabled: isProductionMode() },
+  { key: "development-tools-page", path: "/dev-tools", name: "Development Tools", icon: <BugOutlined />, disabled: isProductionMode(), component: <DevelopmentToolSelectionPage /> },
   { key: "swagger-redirect-page", path: "/dev-tools/swagger-redirect", name: "Swagger API Explorer", icon: <ToolOutlined />, disabled: isProductionMode(), component: <SwaggerRedirectPage /> },
   { key: "application-shutdown-page", path: "/dev-tools/application-shutdown", name: "Application Shutdown", icon: <PoweroffOutlined />, disabled: isProductionMode(), component: <ApplicationShutdownPage /> },
 ];
@@ -91,7 +92,7 @@ export const applicationBreadcrumbItemDescriptors: ApplicationBreadcrumbItemDesc
   { key: "application-dictionary-integration-page", useLink: true },
   { key: "tag-integration-page", useLink: true },
   { key: "preferences-page", useLink: true },
-  { key: "development-tools-page", useLink: false },
+  { key: "development-tools-page", useLink: true },
   { key: "swagger-redirect-page", useLink: true },
   { key: "application-shutdown-page", useLink: true },
   { key: "invalid-route-page", useLink: true },
