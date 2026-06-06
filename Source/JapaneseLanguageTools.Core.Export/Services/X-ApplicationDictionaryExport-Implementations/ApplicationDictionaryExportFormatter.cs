@@ -44,6 +44,7 @@ public class ApplicationDictionaryXmlExportFormatter :
         SnapshotObjectAction.None,
         SnapshotObjectAction.Add,
         SnapshotObjectAction.Update,
+        SnapshotObjectAction.AddOrUpdate,
         SnapshotObjectAction.ChangeState,
         SnapshotObjectAction.Remove,
     };

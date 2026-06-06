@@ -7,6 +7,7 @@ using JapaneseLanguageTools.Contracts.Models;
 using JapaneseLanguageTools.Contracts.Models.Integrations;
 using JapaneseLanguageTools.Contracts.Models.Json;
 using JapaneseLanguageTools.Contracts.Models.Xml;
+using JapaneseLanguageTools.Core.AutoMapper.ValueResolvers;
 using JapaneseLanguageTools.Data.Entities;
 
 namespace JapaneseLanguageTools.Core.AutoMapper.Profiles;
@@ -39,7 +40,10 @@ public class WordAutoMapperProfile : Profile
                 .ToList();
         });
 
-        CreateMap<WordModel, WordIntegrationModel>().ReverseMap();
+        CreateMap<WordModel, WordIntegrationModel>()
+            .ForMember(wordIntegrationModel => wordIntegrationModel.Tags, options => options.MapFrom(WordTagCaptionStringValueResolver.Instance));
+
+        CreateMap<WordIntegrationModel, WordModel>();
 
         CreateMap<WordIntegrationModel, WordJsonModel>().ReverseMap();
         CreateMap<WordIntegrationModel, WordXmlModel>().ReverseMap();

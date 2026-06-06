@@ -6,6 +6,10 @@ namespace JapaneseLanguageTools.Contracts.Models.Integrations;
 
 public class CharacterIntegrationModel
 {
+    public const string TagSeparator = ";";
+
+    public const string AltTagSeparator = ",";
+
     public int Id { get; set; }
 
     public SnapshotObjectAction Action { get; set; }
