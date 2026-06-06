@@ -7,9 +7,11 @@ import * as ApplicationSettingsMobile from "@/ApplicationSettings.Mobile";
 import isMobileBrowser from "@/isMobileBrowser";
 import * as ApplicationPreferencesConstants from "@/constants/ApplicationPreferencesConstants";
 import * as ObjectConstants from "@/constants/ObjectConstants";
-import MobileBrowserContext from "@/contexts/MobileBrowserContext";
 import ApplicationPreferencesContext from "@/contexts/ApplicationPreferencesContext";
+import ApplicationVersionContext from "@/contexts/ApplicationVersionContext";
+import MobileBrowserContext from "@/contexts/MobileBrowserContext";
 import ApplicationPreferences from "@/entities/preferences/ApplicationPreferences";
+import useApplicationVersion from "@/hooks/useApplicationVersion";
 
 const applicationPageDescriptors = ApplicationSettings.applicationPageDescriptors.filter((descriptor) => !descriptor.disabled);
 const applicationMenuItemDescriptors = ApplicationSettings.applicationMenuItemDescriptors.filter((descriptor) => !descriptor.disabled);
@@ -24,6 +26,8 @@ const Application = () => {
   const mobileBrowserMode = useMemo(() => isMobileBrowser(), []);
 
   const [applicationPreferences, setApplicationPreferences] = useState<ApplicationPreferences>(applicationPreferencesInitialValues);
+
+  const applicationVersion = useApplicationVersion();
 
   useEffect(() => {
     localStorage.setItem(ApplicationPreferencesConstants.applicationPreferencesLocalStorageKey, JSON.stringify(applicationPreferences));
@@ -40,13 +44,15 @@ const Application = () => {
   return (
     <BrowserRouter>
       <MobileBrowserContext.Provider value={mobileBrowserMode}>
-        <ApplicationPreferencesContext.Provider value={{ applicationPreferences, setApplicationPreferences }}>
-          <ApplicationLayout
-            applicationPageDescriptors={applicationPageDescriptors}
-            applicationMenuItemDescriptors={mobileBrowserMode ? applicationMenuItemDescriptorsMobile : applicationMenuItemDescriptors}
-            applicationBreadcrumbItemDescriptors={applicationBreadcrumbItemDescriptors}
-          />
-        </ApplicationPreferencesContext.Provider>
+        <ApplicationVersionContext.Provider value={applicationVersion ? { available: true, ...applicationVersion  } : { available: false }}>
+          <ApplicationPreferencesContext.Provider value={{ applicationPreferences, setApplicationPreferences }}>
+            <ApplicationLayout
+              applicationPageDescriptors={applicationPageDescriptors}
+              applicationMenuItemDescriptors={mobileBrowserMode ? applicationMenuItemDescriptorsMobile : applicationMenuItemDescriptors}
+              applicationBreadcrumbItemDescriptors={applicationBreadcrumbItemDescriptors}
+            />
+          </ApplicationPreferencesContext.Provider>
+        </ApplicationVersionContext.Provider>
       </MobileBrowserContext.Provider>
     </BrowserRouter>
   );
