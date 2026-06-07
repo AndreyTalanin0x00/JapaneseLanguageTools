@@ -5,5 +5,6 @@ import ExportRequestModel from "@/models/requests/base/ExportRequest.Model";
 export default interface ExportApplicationDictionaryRequestModel extends ExportRequestModel {
   snapshotType: SnapshotType;
   snapshotFileFormat: SnapshotFileFormat;
+  hideAuditableProperties: boolean;
   zeroIdProperties: boolean;
 }
