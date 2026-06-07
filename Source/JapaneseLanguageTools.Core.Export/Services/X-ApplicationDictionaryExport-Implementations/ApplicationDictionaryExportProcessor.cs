@@ -244,7 +244,7 @@ public partial class ApplicationDictionaryExportProcessor :
             wordGroupIntegrationModel.Action = snapshotObjectAction;
 
         foreach (TagIntegrationModel tagIntegrationModel in applicationDictionaryIntegrationModel.Tags)
-            tagIntegrationModel.Action = SnapshotObjectAction.None;
+            tagIntegrationModel.Action = snapshotObjectAction;
 
         Task<ApplicationDictionaryIntegrationModel> completedTask = Task.FromResult(applicationDictionaryIntegrationModel);
 
