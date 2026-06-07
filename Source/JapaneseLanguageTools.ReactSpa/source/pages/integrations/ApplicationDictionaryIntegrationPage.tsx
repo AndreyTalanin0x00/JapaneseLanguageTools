@@ -33,6 +33,7 @@ const ApplicationDictionaryIntegrationPage = () => {
   interface ApplicationDictionaryExportConfiguration {
     snapshotType: SnapshotType;
     snapshotFileFormat: SnapshotFileFormat;
+    hideAuditableProperties: boolean;
     zeroIdProperties: boolean;
   }
 
@@ -42,6 +43,7 @@ const ApplicationDictionaryIntegrationPage = () => {
     () => ({
       snapshotType: SnapshotType.General,
       snapshotFileFormat: SnapshotFileFormat.Json,
+      hideAuditableProperties: false,
       zeroIdProperties: false,
     }),
     []
@@ -59,9 +61,9 @@ const ApplicationDictionaryIntegrationPage = () => {
   }, [exportConfigurationForm]);
 
   const onExportFormFinish = useCallback((applicationDictionaryExportConfiguration: ApplicationDictionaryExportConfiguration) => {
-    const { snapshotType, snapshotFileFormat, zeroIdProperties } = applicationDictionaryExportConfiguration;
+    const { snapshotType, snapshotFileFormat, hideAuditableProperties, zeroIdProperties } = applicationDictionaryExportConfiguration;
 
-    const exportApplicationDictionaryRequestModel: ExportApplicationDictionaryRequestModel = { snapshotType, snapshotFileFormat, zeroIdProperties };
+    const exportApplicationDictionaryRequestModel: ExportApplicationDictionaryRequestModel = { snapshotType, snapshotFileFormat, hideAuditableProperties, zeroIdProperties };
 
     setExportLoading(true);
     exportApplicationDictionary(exportApplicationDictionaryRequestModel)
@@ -141,6 +143,14 @@ const ApplicationDictionaryIntegrationPage = () => {
                   <Select.Option value={SnapshotFileFormat.Json}>JSON</Select.Option>
                   <Select.Option value={SnapshotFileFormat.Xml}>XML</Select.Option>
                 </Select>
+              </Form.Item>
+              <Form.Item
+                name={keyOf<ApplicationDictionaryExportConfiguration>("hideAuditableProperties")}
+                label="Hide Auditable Properties"
+                tooltip="Use this option if a cleaner file is required for manual editing or if the file will be imported to another database (empty or containing unrelated data)."
+                valuePropName="checked"
+              >
+                <Checkbox />
               </Form.Item>
               <Form.Item
                 name={keyOf<ApplicationDictionaryExportConfiguration>("zeroIdProperties")}
