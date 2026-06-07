@@ -15,5 +15,7 @@ public class ExportApplicationDictionaryRequestModel : ExportRequestModel
 
     public required SnapshotFileFormat SnapshotFileFormat { get; set; }
 
+    public bool HideAuditableProperties { get; set; }
+
     public bool ZeroIdProperties { get; set; }
 }
