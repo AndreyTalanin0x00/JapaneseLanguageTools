@@ -61,6 +61,7 @@ public static class ServiceCollectionExtensions
                 .UseExportProcessor<ApplicationDictionaryExportProcessor>();
         });
 
+        services.AddTransient<ApplicationDictionaryExportProcessor.IExportObjectPackageBatchVisitor, ApplicationDictionaryExportProcessor.HideAuditablePropertiesExportObjectPackageBatchVisitor>();
         services.AddTransient<ApplicationDictionaryExportProcessor.IExportObjectPackageBatchVisitor, ApplicationDictionaryExportProcessor.ZeroIdPropertiesExportObjectPackageBatchVisitor>();
 
         return services;
@@ -100,6 +101,7 @@ public static class ServiceCollectionExtensions
                 .UseExportProcessor<TagExportProcessor>();
         });
 
+        services.AddTransient<TagExportProcessor.IExportObjectPackageBatchVisitor, TagExportProcessor.HideAuditablePropertiesExportObjectPackageBatchVisitor>();
         services.AddTransient<TagExportProcessor.IExportObjectPackageBatchVisitor, TagExportProcessor.ZeroIdPropertiesExportObjectPackageBatchVisitor>();
 
         return services;

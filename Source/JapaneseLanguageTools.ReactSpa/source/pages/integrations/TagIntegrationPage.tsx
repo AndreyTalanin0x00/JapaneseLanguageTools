@@ -33,6 +33,7 @@ const TagIntegrationPage = () => {
   interface TagExportConfiguration {
     snapshotType: SnapshotType;
     snapshotFileFormat: SnapshotFileFormat;
+    hideAuditableProperties: boolean;
     zeroIdProperties: boolean;
   }
 
@@ -42,6 +43,7 @@ const TagIntegrationPage = () => {
     () => ({
       snapshotType: SnapshotType.General,
       snapshotFileFormat: SnapshotFileFormat.Json,
+      hideAuditableProperties: false,
       zeroIdProperties: false,
     }),
     []
@@ -59,9 +61,9 @@ const TagIntegrationPage = () => {
   }, [exportConfigurationForm]);
 
   const onExportFormFinish = useCallback((tagExportConfiguration: TagExportConfiguration) => {
-    const { snapshotType, snapshotFileFormat, zeroIdProperties } = tagExportConfiguration;
+    const { snapshotType, snapshotFileFormat, hideAuditableProperties, zeroIdProperties } = tagExportConfiguration;
 
-    const exportTagsRequestModel: ExportTagsRequestModel = { snapshotType, snapshotFileFormat, zeroIdProperties };
+    const exportTagsRequestModel: ExportTagsRequestModel = { snapshotType, snapshotFileFormat, hideAuditableProperties, zeroIdProperties };
 
     setExportLoading(true);
     exportTags(exportTagsRequestModel)
@@ -142,6 +144,14 @@ const TagIntegrationPage = () => {
                   <Select.Option value={SnapshotFileFormat.Json}>JSON</Select.Option>
                   <Select.Option value={SnapshotFileFormat.Xml}>XML</Select.Option>
                 </Select>
+              </Form.Item>
+              <Form.Item
+                name={keyOf<TagExportConfiguration>("hideAuditableProperties")}
+                label="Hide Auditable Properties"
+                tooltip="Use this option if a cleaner file is required for manual editing or if the file will be imported to another database (empty or containing unrelated data)."
+                valuePropName="checked"
+              >
+                <Checkbox />
               </Form.Item>
               <Form.Item
                 name={keyOf<TagExportConfiguration>("zeroIdProperties")}

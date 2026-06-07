@@ -10,5 +10,7 @@ public class ApplicationDictionaryExportRequest : ExportRequest
 
     public SnapshotFileFormat SnapshotFileFormat { get; set; }
 
+    public bool HideAuditableProperties { get; set; }
+
     public bool ZeroIdProperties { get; set; }
 }
